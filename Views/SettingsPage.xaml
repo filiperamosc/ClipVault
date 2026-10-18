@@ -4,160 +4,193 @@
              xmlns:vm="clr-namespace:ClipVault.ViewModels"
              x:Class="ClipVault.Views.SettingsPage"
              x:DataType="vm:SettingsViewModel"
-             Title="Configurações do ClipVault"
-             BackgroundColor="#18181B">
+             Title="Configurações"
+             BackgroundColor="#0F0F12">
 
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="20" MaximumWidthRequest="700">
+        <VerticalStackLayout Padding="24" Spacing="16" MaximumWidthRequest="680">
 
             <!-- Mensagem de Feedback / Status -->
             <Border IsVisible="{Binding IsStatusVisible}"
                     BackgroundColor="{Binding StatusBackgroundColor}"
                     StrokeShape="RoundRectangle 8"
                     Stroke="Transparent"
-                    Padding="12,8"
-                    Margin="0,0,0,10">
+                    Padding="12,8">
                 <Label Text="{Binding StatusMessage}"
                        TextColor="White"
                        FontAttributes="Bold"
-                       FontSize="13"
+                       FontSize="12.5"
                        HorizontalTextAlignment="Center" />
             </Border>
 
             <!-- Seção 1: Diretório de Armazenamento -->
-            <Border BackgroundColor="#202024"
-                    StrokeShape="RoundRectangle 12"
-                    Stroke="#2E2E33"
+            <Border BackgroundColor="#18181C"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#26262E"
                     Padding="16">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="📁 Diretório de Armazenamento"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="#F4F4F5" />
-                    <Label Text="Escolha onde as imagens capturadas, arquivos e banco de dados serão salvos."
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="&#xE8B7;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="15"
+                               TextColor="#818CF8"
+                               VerticalOptions="Center" />
+                        <Label Text="Diretório de Armazenamento"
+                               FontSize="14.5"
+                               FontAttributes="Bold"
+                               TextColor="#F4F4F6"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <Label Text="Escolha onde as imagens capturadas e os arquivos de mídia serão armazenados."
                            FontSize="12"
-                           TextColor="#A1A1AA" />
+                           TextColor="#9CA3AF" />
 
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
-                        <Border BackgroundColor="#27272A"
+                        <Border BackgroundColor="#121215"
                                 StrokeShape="RoundRectangle 8"
-                                Stroke="#3F3F46"
+                                Stroke="#27272E"
                                 Padding="10,0">
                             <Entry Text="{Binding StorageDirectory, Mode=TwoWay}"
-                                   TextColor="#FAFAFA"
+                                   TextColor="#F4F4F6"
+                                   BackgroundColor="Transparent"
                                    FontSize="12"
                                    VerticalOptions="Center" />
                         </Border>
                         <Button Grid.Column="1"
                                 Text="Alterar Pasta..."
                                 Command="{Binding PickFolderCommand}"
-                                BackgroundColor="#3F3F46"
-                                TextColor="White"
+                                BackgroundColor="#23232B"
+                                BorderColor="#32323D"
+                                BorderWidth="1"
+                                TextColor="#F4F4F6"
                                 CornerRadius="8"
+                                HeightRequest="36"
+                                MinimumHeightRequest="0"
+                                MinimumWidthRequest="0"
                                 FontSize="12"
                                 Padding="14,0" />
                     </Grid>
 
                     <Label Text="{Binding CurrentStorageSizeFormatted, StringFormat='Armazenamento total em uso: {0}'}"
-                           FontSize="12"
+                           FontSize="11.5"
                            FontAttributes="Bold"
-                           TextColor="#6366F1" />
+                           TextColor="#818CF8" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Seção 2: Política de Autocleaning (Limpeza Automática) -->
-            <Border BackgroundColor="#202024"
-                    StrokeShape="RoundRectangle 12"
-                    Stroke="#2E2E33"
+            <!-- Seção 2: Política de Limpeza Automática -->
+            <Border BackgroundColor="#18181C"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#26262E"
                     Padding="16">
                 <VerticalStackLayout Spacing="14">
-                    <Label Text="🧹 Política de Limpeza Automática (Autocleaning)"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="#F4F4F5" />
-                    <Label Text="Gerencie a retenção de dados para manter o sistema leve. Itens fixados 📌 nunca são removidos automaticamente."
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="&#xE74D;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="15"
+                               TextColor="#818CF8"
+                               VerticalOptions="Center" />
+                        <Label Text="Política de Retenção e Limpeza Automática"
+                               FontSize="14.5"
+                               FontAttributes="Bold"
+                               TextColor="#F4F4F6"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <Label Text="Gerencie a retenção de dados para manter o sistema leve. Itens fixados nunca são removidos automaticamente."
                            FontSize="12"
-                           TextColor="#A1A1AA" />
+                           TextColor="#9CA3AF" />
 
                     <!-- Regra 1: Por Idade / Dias -->
                     <Grid ColumnDefinitions="Auto,*,Auto" RowSpacing="6" VerticalOptions="Center">
                         <CheckBox IsChecked="{Binding EnableAutoCleanByDays}" Color="#6366F1" />
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="8,0">
-                            <Label Text="Limpeza por Idade / Tempo"
+                            <Label Text="Limpeza por Tempo"
                                    FontAttributes="Bold"
-                                   FontSize="13"
-                                   TextColor="#F4F4F5" />
-                            <Label Text="Excluir itens não fixados com mais de X dias"
+                                   FontSize="12.5"
+                                   TextColor="#F4F4F6" />
+                            <Label Text="Excluir itens não fixados mais antigos que o período definido"
                                    FontSize="11"
                                    TextColor="#71717A" />
                         </VerticalStackLayout>
                         <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
                             <Entry Text="{Binding AutoCleanDays, Mode=TwoWay}"
                                    Keyboard="Numeric"
-                                   WidthRequest="60"
+                                   WidthRequest="56"
                                    HorizontalTextAlignment="Center"
-                                   TextColor="White"
-                                   BackgroundColor="#27272A" />
-                            <Label Text="dias" TextColor="#A1A1AA" VerticalOptions="Center" FontSize="12" />
+                                   TextColor="#F4F4F6"
+                                   BackgroundColor="#121215" />
+                            <Label Text="dias" TextColor="#9CA3AF" VerticalOptions="Center" FontSize="12" />
                         </HorizontalStackLayout>
                     </Grid>
 
-                    <BoxView HeightRequest="1" Color="#2E2E33" />
+                    <BoxView HeightRequest="1" Color="#26262E" />
 
                     <!-- Regra 2: Por Limite de Armazenamento -->
                     <Grid ColumnDefinitions="Auto,*,Auto" RowSpacing="6" VerticalOptions="Center">
                         <CheckBox IsChecked="{Binding EnableAutoCleanBySize}" Color="#6366F1" />
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="8,0">
-                            <Label Text="Limpeza por Limite de Armazenamento"
+                            <Label Text="Limpeza por Limite de Disco"
                                    FontAttributes="Bold"
-                                   FontSize="13"
-                                   TextColor="#F4F4F5" />
-                            <Label Text="Excluir itens mais antigos se a pasta exceder o limite"
+                                   FontSize="12.5"
+                                   TextColor="#F4F4F6" />
+                            <Label Text="Excluir itens mais antigos se a pasta exceder o limite configurado"
                                    FontSize="11"
                                    TextColor="#71717A" />
                         </VerticalStackLayout>
                         <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
                             <Entry Text="{Binding MaxStorageMb, Mode=TwoWay}"
                                    Keyboard="Numeric"
-                                   WidthRequest="60"
+                                   WidthRequest="56"
                                    HorizontalTextAlignment="Center"
-                                   TextColor="White"
-                                   BackgroundColor="#27272A" />
-                            <Label Text="MB" TextColor="#A1A1AA" VerticalOptions="Center" FontSize="12" />
+                                   TextColor="#F4F4F6"
+                                   BackgroundColor="#121215" />
+                            <Label Text="MB" TextColor="#9CA3AF" VerticalOptions="Center" FontSize="12" />
                         </HorizontalStackLayout>
                     </Grid>
 
-                    <!-- Botão Executar Limpeza Agora -->
-                    <Button Text="Executar Rotina de Limpeza Agora"
+                    <Button Text="Executar Limpeza Agora"
                             Command="{Binding ExecuteCleanNowCommand}"
-                            BackgroundColor="#27272A"
+                            BackgroundColor="#23232B"
                             TextColor="#FBBF24"
                             CornerRadius="8"
+                            HeightRequest="34"
+                            MinimumHeightRequest="0"
+                            MinimumWidthRequest="0"
                             FontSize="12"
                             FontAttributes="Bold"
-                            Margin="0,8,0,0" />
+                            Margin="0,4,0,0" />
                 </VerticalStackLayout>
             </Border>
 
             <!-- Seção 3: Sistema e Inicialização -->
-            <Border BackgroundColor="#202024"
-                    StrokeShape="RoundRectangle 12"
-                    Stroke="#2E2E33"
+            <Border BackgroundColor="#18181C"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#26262E"
                     Padding="16">
                 <VerticalStackLayout Spacing="12">
-                    <Label Text="⚡ Sistema e Inicialização"
-                           FontSize="16"
-                           FontAttributes="Bold"
-                           TextColor="#F4F4F5" />
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <Label Text="&#xE713;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="15"
+                               TextColor="#818CF8"
+                               VerticalOptions="Center" />
+                        <Label Text="Sistema e Inicialização"
+                               FontSize="14.5"
+                               FontAttributes="Bold"
+                               TextColor="#F4F4F6"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
 
                     <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
                         <CheckBox IsChecked="{Binding StartWithWindows}" Color="#6366F1" />
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="8,0">
                             <Label Text="Iniciar automaticamente com o Windows"
                                    FontAttributes="Bold"
-                                   FontSize="13"
-                                   TextColor="#F4F4F5" />
-                            <Label Text="Inicia silenciosamente na bandeja do sistema ao ligar o computador"
+                                   FontSize="12.5"
+                                   TextColor="#F4F4F6" />
+                            <Label Text="Inicia silenciosamente na bandeja do sistema ao fazer login"
                                    FontSize="11"
                                    TextColor="#71717A" />
                         </VerticalStackLayout>
@@ -165,15 +198,17 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- Botão Salvar Todas as Configurações -->
-            <Button Text="💾 Salvar Alterações"
+            <!-- Botão Salvar -->
+            <Button Text="Salvar Alterações"
                     Command="{Binding SaveSettingsCommand}"
                     BackgroundColor="#6366F1"
-                    TextColor="White"
+                    TextColor="#FFFFFF"
                     FontAttributes="Bold"
-                    CornerRadius="10"
-                    HeightRequest="44"
-                    FontSize="14" />
+                    CornerRadius="8"
+                    HeightRequest="40"
+                    MinimumHeightRequest="0"
+                    MinimumWidthRequest="0"
+                    FontSize="13" />
 
         </VerticalStackLayout>
     </ScrollView>

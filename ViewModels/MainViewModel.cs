@@ -50,7 +50,21 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private int _gridSpan = 3;
 
-    public string ViewModeButtonText => IsGridView ? "📋 Modo Lista" : "🔲 Modo Grade";
+    // Segoe Fluent Icons: E8FD = BulletedList, F0E2 = GridView
+    public string ViewModeIcon => IsGridView ? "\uE8FD" : "\uF0E2";
+    public string ViewModeTooltip => IsGridView ? "Alternar para Modo Lista" : "Alternar para Modo Grade";
+
+    public string FilterTodosBg => SelectedFilter == "Todos" ? "#6366F1" : "#1C1C21";
+    public string FilterTodosFg => SelectedFilter == "Todos" ? "#FFFFFF" : "#A1A1AA";
+
+    public string FilterTextosBg => SelectedFilter == "Textos" ? "#6366F1" : "#1C1C21";
+    public string FilterTextosFg => SelectedFilter == "Textos" ? "#FFFFFF" : "#A1A1AA";
+
+    public string FilterImagensBg => SelectedFilter == "Imagens" ? "#6366F1" : "#1C1C21";
+    public string FilterImagensFg => SelectedFilter == "Imagens" ? "#FFFFFF" : "#A1A1AA";
+
+    public string FilterFixadosBg => SelectedFilter == "Fixados" ? "#6366F1" : "#1C1C21";
+    public string FilterFixadosFg => SelectedFilter == "Fixados" ? "#FFFFFF" : "#F59E0B";
 
     public ObservableCollection<ClipboardItemViewModel> Items { get; } = new();
 
@@ -78,11 +92,9 @@ public partial class MainViewModel : ObservableObject
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            // Se passar no filtro atual, insere no topo da lista
             if (MatchesFilter(item))
             {
                 var vm = new ClipboardItemViewModel(item);
-                // Inserir após os fixados, ou no índice 0 se nenhum fixado
                 int insertIndex = 0;
                 while (insertIndex < Items.Count && Items[insertIndex].IsPinned)
                 {
@@ -101,7 +113,7 @@ public partial class MainViewModel : ObservableObject
             var existing = Items.FirstOrDefault(i => i.Id == item.Id);
             if (existing != null)
             {
-                existing.UpdateAiMetadata(item.ExtractedText, item.ImageTags);
+                existing.UpdateVisionMetadata(item.ExtractedText, item.ImageTags);
             }
         });
     }
@@ -159,6 +171,14 @@ public partial class MainViewModel : ObservableObject
     {
         if (SelectedFilter == filter) return;
         SelectedFilter = filter;
+        OnPropertyChanged(nameof(FilterTodosBg));
+        OnPropertyChanged(nameof(FilterTodosFg));
+        OnPropertyChanged(nameof(FilterTextosBg));
+        OnPropertyChanged(nameof(FilterTextosFg));
+        OnPropertyChanged(nameof(FilterImagensBg));
+        OnPropertyChanged(nameof(FilterImagensFg));
+        OnPropertyChanged(nameof(FilterFixadosBg));
+        OnPropertyChanged(nameof(FilterFixadosFg));
         await LoadItemsAsync();
     }
 
@@ -174,7 +194,7 @@ public partial class MainViewModel : ObservableObject
         bool success = await _clipboardService.CopyToClipboardAsync(item.Model);
         if (success)
         {
-            await ShowToastAsync("Copiado para a área de transferência com sucesso! 📋");
+            await ShowToastAsync("Copiado para a área de transferência");
         }
     }
 
@@ -185,7 +205,7 @@ public partial class MainViewModel : ObservableObject
         await _databaseService.DeleteItemAsync(item.Model);
         Items.Remove(item);
         UpdateStatusSubtitle();
-        await ShowToastAsync("Item excluído do histórico.");
+        await ShowToastAsync("Item removido do histórico");
     }
 
     [RelayCommand]
@@ -194,8 +214,8 @@ public partial class MainViewModel : ObservableObject
         if (item == null) return;
         await _databaseService.TogglePinAsync(item.Id);
         item.UpdatePinnedState(!item.IsPinned);
-        await LoadItemsAsync(); // Recarrega para manter ordenação com fixados no topo
-        await ShowToastAsync(item.IsPinned ? "Item fixado no topo 📌" : "Item desafixado 📍");
+        await LoadItemsAsync();
+        await ShowToastAsync(item.IsPinned ? "Item fixado no topo" : "Item desafixado");
     }
 
     [RelayCommand]
@@ -203,7 +223,7 @@ public partial class MainViewModel : ObservableObject
     {
         int deleted = await _databaseService.ClearHistoryAsync(keepPinned: true);
         await LoadItemsAsync();
-        await ShowToastAsync($"Histórico limpo ({deleted} itens não fixados removidos).");
+        await ShowToastAsync($"Histórico limpo ({deleted} itens removidos)");
     }
 
     [RelayCommand]
@@ -211,7 +231,8 @@ public partial class MainViewModel : ObservableObject
     {
         IsGridView = !IsGridView;
         IsListView = !IsGridView;
-        OnPropertyChanged(nameof(ViewModeButtonText));
+        OnPropertyChanged(nameof(ViewModeIcon));
+        OnPropertyChanged(nameof(ViewModeTooltip));
     }
 
     [RelayCommand]
@@ -231,7 +252,7 @@ public partial class MainViewModel : ObservableObject
         _clipboardService.IsMonitoringPaused = IsMonitoringPaused;
         _trayService.UpdateStatus(IsMonitoringPaused);
 
-        var msg = IsMonitoringPaused ? "Monitoramento pausado ⏸️" : "Monitoramento ativo ▶️";
+        var msg = IsMonitoringPaused ? "Monitoramento pausado" : "Monitoramento ativo";
         await ShowToastAsync(msg);
         UpdateStatusSubtitle();
     }
@@ -243,14 +264,14 @@ public partial class MainViewModel : ObservableObject
             ? $"{totalBytes / 1024.0:F1} KB"
             : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
 
-        StatusSubtitle = $"{Items.Count} itens | Armazenamento: {sizeStr}";
+        StatusSubtitle = $"{Items.Count} itens • {sizeStr}";
     }
 
     private async Task ShowToastAsync(string message)
     {
         ToastMessage = message;
         IsToastVisible = true;
-        await Task.Delay(2500);
+        await Task.Delay(2200);
         IsToastVisible = false;
     }
 }

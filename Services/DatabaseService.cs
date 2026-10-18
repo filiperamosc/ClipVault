@@ -13,11 +13,14 @@ public class DatabaseService : IDatabaseService
     private SQLiteAsyncConnection? _db;
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
+    private readonly IVisionClassifierService _visionClassifierService;
+    private bool _visionMigrated;
 
-    public DatabaseService(ISettingsService settingsService, IStorageService storageService)
+    public DatabaseService(ISettingsService settingsService, IStorageService storageService, IVisionClassifierService visionClassifierService)
     {
         _settingsService = settingsService;
         _storageService = storageService;
+        _visionClassifierService = visionClassifierService;
     }
 
     public async Task InitializeAsync()
@@ -30,9 +33,37 @@ public class DatabaseService : IDatabaseService
         _db = new SQLiteAsyncConnection(dbPath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache);
         await _db.CreateTableAsync<ClipboardItem>();
 
-        // Migrar linhas legadas que ainda não tenham o vetor normalizado
         try
         {
+            if (!_visionMigrated)
+            {
+                _visionMigrated = true;
+                var imageRows = await _db.Table<ClipboardItem>()
+                                         .Where(i => i.Type == "Image")
+                                         .Take(100)
+                                         .ToListAsync();
+
+                foreach (var img in imageRows)
+                {
+                    if (!string.IsNullOrWhiteSpace(img.FilePath) && File.Exists(img.FilePath))
+                    {
+                        var freshTags = await _visionClassifierService.ClassifyImageAsync(img.FilePath);
+                        if (img.ImageTags != freshTags)
+                        {
+                            img.ImageTags = freshTags;
+                            img.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(img.Content, img.PreviewText, img.ExtractedText, img.ImageTags);
+                            await _db.UpdateAsync(img);
+                        }
+                    }
+                    else if (img.ImageTags != null)
+                    {
+                        img.ImageTags = null;
+                        img.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(img.Content, img.PreviewText, img.ExtractedText, null);
+                        await _db.UpdateAsync(img);
+                    }
+                }
+            }
+
             var unnormalized = await _db.Table<ClipboardItem>()
                                         .Where(i => i.NormalizedSearchContent == null || i.NormalizedSearchContent == "")
                                         .Take(300)

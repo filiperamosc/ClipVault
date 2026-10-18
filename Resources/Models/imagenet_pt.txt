@@ -1,1000 +1,1000 @@
-﻿tenca, peixe, animal
-peixe dourado, aquario, animal
-tubarao branco, tubarao, animal
-tubarao tigre, tubarao, animal
-tubarao martelo, tubarao, animal
-arraia eletrica, arraia, animal
-arraia, peixe marinho, animal
-galo, galinha, ave, animal
+peixe, tenca, animal marinho
+peixe dourado, peixe, aquário, animal
+tubarão branco, tubarão, oceano, animal
+tubarão tigre, tubarão, oceano, animal
+tubarão martelo, tubarão, oceano, animal
+arraia, peixe marinho, oceano, animal
+arraia, peixe marinho, oceano, animal
+galo, ave, pássaro, animal
 galinha, ave, fazenda, animal
 avestruz, ave, animal
-tentilhao, passaro, ave, animal
-pintassilgo, passaro, ave, animal
-tentilhao, passaro, ave, animal
-passaro junco, ave, animal
-bunting azul, passaro, ave, animal
-tordo, pintarroxo, passaro, ave, animal
-bulbul, passaro, ave, animal
-gaio, passaro, ave, animal
-pega, passaro, ave, animal
-chapim, passaro, ave, animal
-melro d'agua, passaro, ave, animal
-milhafre, gaviao, ave de rapina, animal
-aguia careca, aguia, ave de rapina, animal
-abutre, urubu, ave, animal
-coruja cinzenta, coruja, ave, animal
-salamandra, anfibio, animal
-tritao, anfibio, animal
-tritao juvenil, anfibio, animal
-salamandra pintada, anfibio, animal
-axolote, anfibio, animal
-ra touro, sapo, ra, anfibio, animal
-perereca, ra, sapo, anfibio, animal
-ra com cauda, anfibio, animal
-tartaruga marinha, tartaruga, reptil, animal
-tartaruga de couro, tartaruga, reptil, animal
-tartaruga da lama, tartaruga, reptil, animal
-cagado, tartaruga, reptil, animal
-tartaruga de caixa, tartaruga, reptil, animal
-lagartixa, lagarto, reptil, animal
-iguana verde, iguana, reptil, animal
-camaleao, reptil, animal
-lagarto chicote, lagarto, reptil, animal
-lagarto agama, lagarto, reptil, animal
-clamidossauro, lagarto, reptil, animal
-lagarto jacare, lagarto, reptil, animal
-monstro de gila, lagarto, reptil, animal
-lagarto verde, lagarto, reptil, animal
-camaleao africano, camaleao, reptil, animal
-dragao de komodo, reptil selvagem, animal
-crocodilo africano, crocodilo, reptil, animal
-jacare americano, jacare, reptil, animal
-triceratops, dinossauro, reptil
-cobra trovao, serpente, reptil, animal
-cobra de colar, serpente, reptil, animal
-cobra focinho de porco, serpente, reptil, animal
-cobra verde, serpente, reptil, animal
-cobra real, serpente, reptil, animal
-cobra de jardim, serpente, reptil, animal
-cobra d'agua, serpente, reptil, animal
-cobra cipo, serpente, reptil, animal
-cobra da noite, serpente, reptil, animal
-jiboia, cobra, serpente, reptil, animal
-piton das rochas, cobra, serpente, reptil, animal
-naja indiana, cobra, serpente, reptil, animal
-mamba verde, cobra, serpente venenosa, animal
-cobra marinha, serpente, reptil, animal
-vibora com chifres, cobra, serpente, animal
-cascavel diamante, cobra, serpente, animal
-cascavel de chifres, cobra, serpente, animal
-trilobita, fossil, animal antigo
-opiliao, aracnideo, animal
-escorpiao, aracnideo, animal
-aranha de jardim, aranha, aracnideo, animal
-aranha de celeiro, aranha, aracnideo, animal
-aranha de jardim, aranha, aracnideo, animal
-viuva negra, aranha venenosa, aracnideo, animal
-tarantula, aranha caranguejeira, aracnideo, animal
-aranha lobo, aranha, aracnideo, animal
-carrapato, acaro, parasita, animal
-centopeia, lacraia, artropode, animal
-galo silvestre, ave, animal
-lagopode, perdiz branca, ave, animal
-tetraz de coleira, ave, animal
-galinha das pradarias, ave, animal
-pavao, ave ornamental, animal
-codorna, ave, animal
-perdiz, ave, animal
-papagaio cinzento, papagaio, ave, animal
-arara, papagaio, ave tropical, animal
-cacatua de crista amarela, cacatua, ave, animal
-loris, periquito colorido, ave, animal
-cucal, ave, animal
-abelharuco, passaro, ave, animal
-calau, tucano da asia, ave, animal
-beija flor, colibri, passaro, ave, animal
-cuitelao, passaro tropical, ave, animal
-tucano, ave tropical, animal
-pato macho, marreco, ave aquatica, animal
-mergulhao, pato, ave aquatica, animal
-ganso, ave aquatica, fazenda, animal
-cisne negro, cisne, ave aquatica, animal
-elefante com presas, elefante, animal selvagem
-equidna, mamifero, animal
-ornitorrinco, mamifero, animal
-ualabi, canguru pequeno, marsupial, animal
-coala, marsupial, animal fofo
-vombate, marsupial, animal
-agua viva, medusa, animal marinho
-anemona do mar, coral, vida marinha
-coral cerebro, recife marinho, oceano
-planaria, verme plano, animal
-nematoide, verme, animal
-concha marinha, caracol do mar, molusco
-caracol, caramujo, molusco, animal
-lesma, molusco, jardim, animal
-lesma do mar, nudibranquio, vida marinha
-quiton, molusco marinho, animal
-nautilo, molusco espiral, marinho
-caranguejo dungeness, caranguejo, crustaceo, animal
-caranguejo das rochas, caranguejo, crustaceo, animal
-caranguejo violinista, caranguejo, crustaceo, animal
-caranguejo real, caranguejo gigante, crustaceo, animal
-lagosta americana, lagosta, crustaceo, animal
-lagosta espinhosa, lagosta, crustaceo, animal
-lagostim, crustaceo de agua doce, animal
-caranguejo eremita, paguro, crustaceo, animal
-isopode, crustaceo, animal
-cegonha branca, cegonha, ave, animal
-cegonha preta, cegonha, ave, animal
-colhereiro, ave pernalta, ave, animal
-flamingo, ave rosa, ave, animal
-garca azul pequena, garca, ave, animal
-garca branca, garca, ave, animal
-soco, garca noturna, ave, animal
-grou, ave pernalta grande, ave, animal
-carao, ave aquatica, ave, animal
-caimao comum, frango d'agua, ave, animal
-carqueja americana, galeirao, ave, animal
-abarda, ave pernalta, ave, animal
-rola pedras, macarico, ave, animal
-pilrito de peito preto, macarico, ave, animal
-pernilongo de pernas vermelhas, ave, animal
-macarico de bico longo, ave, animal
-ostreiro, ave marinha, ave, animal
-pelicano, ave marinha, ave, animal
-pinguim rei, pinguim, ave marinha, animal
-albatroz, ave oceanica, ave, animal
-baleia cinzenta, baleia, mamifero marinho, animal
-orca, baleia assassina, mamifero marinho, animal
-dugongo, peixe boi marinho, animal
-leao marinho, foca, animal marinho
-chihuahua, cachorro, cao, animal de estimacao, pet, animal
-japanese spaniel, cachorro, cao, animal de estimacao, pet, animal
-maltese dog, cachorro, cao, animal de estimacao, pet, animal
-pekinese, cachorro, cao, animal de estimacao, pet, animal
-shih-tzu, cachorro, cao, animal de estimacao, pet, animal
-blenheim spaniel, cachorro, cao, animal de estimacao, pet, animal
-papillon, cachorro, cao, animal de estimacao, pet, animal
-toy terrier, cachorro, cao, animal de estimacao, pet, animal
-rhodesian ridgeback, cachorro, cao, animal de estimacao, pet, animal
-afghan hound, cachorro, cao, animal de estimacao, pet, animal
-basset, cachorro, cao, animal de estimacao, pet, animal
-beagle, cachorro, cao, animal de estimacao, pet, animal
-bloodhound, cachorro, cao, animal de estimacao, pet, animal
-bluetick, cachorro, cao, animal de estimacao, pet, animal
-black-and-tan coonhound, cachorro, cao, animal de estimacao, pet, animal
-walker hound, cachorro, cao, animal de estimacao, pet, animal
-english foxhound, cachorro, cao, animal de estimacao, pet, animal
-redbone, cachorro, cao, animal de estimacao, pet, animal
-borzoi, cachorro, cao, animal de estimacao, pet, animal
-irish wolfhound, cachorro, cao, animal de estimacao, pet, animal
-italian greyhound, cachorro, cao, animal de estimacao, pet, animal
-whippet, cachorro, cao, animal de estimacao, pet, animal
-ibizan hound, cachorro, cao, animal de estimacao, pet, animal
-norwegian elkhound, cachorro, cao, animal de estimacao, pet, animal
-otterhound, cachorro, cao, animal de estimacao, pet, animal
-saluki, cachorro, cao, animal de estimacao, pet, animal
-scottish deerhound, cachorro, cao, animal de estimacao, pet, animal
-weimaraner, cachorro, cao, animal de estimacao, pet, animal
-staffordshire bullterrier, cachorro, cao, animal de estimacao, pet, animal
-american staffordshire terrier, cachorro, cao, animal de estimacao, pet, animal
-bedlington terrier, cachorro, cao, animal de estimacao, pet, animal
-border terrier, cachorro, cao, animal de estimacao, pet, animal
-kerry blue terrier, cachorro, cao, animal de estimacao, pet, animal
-irish terrier, cachorro, cao, animal de estimacao, pet, animal
-norfolk terrier, cachorro, cao, animal de estimacao, pet, animal
-norwich terrier, cachorro, cao, animal de estimacao, pet, animal
-yorkshire terrier, cachorro, cao, animal de estimacao, pet, animal
-wire-haired fox terrier, cachorro, cao, animal de estimacao, pet, animal
-lakeland terrier, cachorro, cao, animal de estimacao, pet, animal
-sealyham terrier, cachorro, cao, animal de estimacao, pet, animal
-airedale, cachorro, cao, animal de estimacao, pet, animal
-cairn, cachorro, cao, animal de estimacao, pet, animal
-australian terrier, cachorro, cao, animal de estimacao, pet, animal
-dandie dinmont, cachorro, cao, animal de estimacao, pet, animal
-boston bull, cachorro, cao, animal de estimacao, pet, animal
-miniature schnauzer, cachorro, cao, animal de estimacao, pet, animal
-giant schnauzer, cachorro, cao, animal de estimacao, pet, animal
-standard schnauzer, cachorro, cao, animal de estimacao, pet, animal
-scotch terrier, cachorro, cao, animal de estimacao, pet, animal
-tibetan terrier, cachorro, cao, animal de estimacao, pet, animal
-silky terrier, cachorro, cao, animal de estimacao, pet, animal
-soft-coated wheaten terrier, cachorro, cao, animal de estimacao, pet, animal
-west highland white terrier, cachorro, cao, animal de estimacao, pet, animal
-lhasa, cachorro, cao, animal de estimacao, pet, animal
-flat-coated retriever, cachorro, cao, animal de estimacao, pet, animal
-curly-coated retriever, cachorro, cao, animal de estimacao, pet, animal
-golden retriever, cachorro, cao, animal de estimacao, pet, animal
-labrador retriever, cachorro, cao, animal de estimacao, pet, animal
-chesapeake bay retriever, cachorro, cao, animal de estimacao, pet, animal
-german short-haired pointer, cachorro, cao, animal de estimacao, pet, animal
-vizsla, cachorro, cao, animal de estimacao, pet, animal
-english setter, cachorro, cao, animal de estimacao, pet, animal
-irish setter, cachorro, cao, animal de estimacao, pet, animal
-gordon setter, cachorro, cao, animal de estimacao, pet, animal
-brittany spaniel, cachorro, cao, animal de estimacao, pet, animal
-clumber, cachorro, cao, animal de estimacao, pet, animal
-english springer, cachorro, cao, animal de estimacao, pet, animal
-welsh springer spaniel, cachorro, cao, animal de estimacao, pet, animal
-cocker spaniel, cachorro, cao, animal de estimacao, pet, animal
-sussex spaniel, cachorro, cao, animal de estimacao, pet, animal
-irish water spaniel, cachorro, cao, animal de estimacao, pet, animal
-kuvasz, cachorro, cao, animal de estimacao, pet, animal
-schipperke, cachorro, cao, animal de estimacao, pet, animal
-groenendael, cachorro, cao, animal de estimacao, pet, animal
-malinois, cachorro, cao, animal de estimacao, pet, animal
-briard, cachorro, cao, animal de estimacao, pet, animal
-kelpie, cachorro, cao, animal de estimacao, pet, animal
-komondor, cachorro, cao, animal de estimacao, pet, animal
-old english sheepdog, cachorro, cao, animal de estimacao, pet, animal
-shetland sheepdog, cachorro, cao, animal de estimacao, pet, animal
-collie, cachorro, cao, animal de estimacao, pet, animal
-border collie, cachorro, cao, animal de estimacao, pet, animal
-bouvier des flandres, cachorro, cao, animal de estimacao, pet, animal
-rottweiler, cachorro, cao, animal de estimacao, pet, animal
-german shepherd, cachorro, cao, animal de estimacao, pet, animal
-doberman, cachorro, cao, animal de estimacao, pet, animal
-miniature pinscher, cachorro, cao, animal de estimacao, pet, animal
-greater swiss mountain dog, cachorro, cao, animal de estimacao, pet, animal
-bernese mountain dog, cachorro, cao, animal de estimacao, pet, animal
-appenzeller, cachorro, cao, animal de estimacao, pet, animal
-entlebucher, cachorro, cao, animal de estimacao, pet, animal
-boxer, cachorro, cao, animal de estimacao, pet, animal
-bull mastiff, cachorro, cao, animal de estimacao, pet, animal
-tibetan mastiff, cachorro, cao, animal de estimacao, pet, animal
-french bulldog, cachorro, cao, animal de estimacao, pet, animal
-great dane, cachorro, cao, animal de estimacao, pet, animal
-saint bernard, cachorro, cao, animal de estimacao, pet, animal
-eskimo dog, cachorro, cao, animal de estimacao, pet, animal
-malamute, cachorro, cao, animal de estimacao, pet, animal
-siberian husky, cachorro, cao, animal de estimacao, pet, animal
-dalmatian, cachorro, cao, animal de estimacao, pet, animal
-affenpinscher, cachorro, cao, animal de estimacao, pet, animal
-basenji, cachorro, cao, animal de estimacao, pet, animal
-pug, cachorro, cao, animal de estimacao, pet, animal
-leonberg, cachorro, cao, animal de estimacao, pet, animal
-newfoundland, cachorro, cao, animal de estimacao, pet, animal
-great pyrenees, cachorro, cao, animal de estimacao, pet, animal
-samoyed, cachorro, cao, animal de estimacao, pet, animal
-pomeranian, cachorro, cao, animal de estimacao, pet, animal
-chow, cachorro, cao, animal de estimacao, pet, animal
-keeshond, cachorro, cao, animal de estimacao, pet, animal
-brabancon griffon, cachorro, cao, animal de estimacao, pet, animal
-pembroke, cachorro, cao, animal de estimacao, pet, animal
-cardigan, cachorro, cao, animal de estimacao, pet, animal
-toy poodle, cachorro, cao, animal de estimacao, pet, animal
-miniature poodle, cachorro, cao, animal de estimacao, pet, animal
-standard poodle, cachorro, cao, animal de estimacao, pet, animal
-mexican hairless, cachorro, cao, animal de estimacao, pet, animal
-lobo cinzento, lobo da floresta, canideo selvagem, animal
-lobo branco, lobo do artico, neve, animal
-lobo vermelho, canideo selvagem raro, animal
-coiote, canideo do deserto, animal selvagem, animal
-dingo australiano, cao selvagem, animal
-dhole asiatico, cao selvagem avermelhado, animal
-cao selvagem africano, mabeco, savana, animal
-hiena malhada, carnivoro africano, savana, animal
-raposa vermelha, raposa esperta, floresta, animal
-raposa ana, raposa do deserto, animal
-raposa do artico, raposa branca, neve, animal
-raposa cinzenta, raposa trepadora, animal
-gato malhado, gato, felino, animal de estimacao, pet, animal
-gato tigre, gato listrado, felino, animal de estimacao, pet, animal
-gato persa, gato de pelos longos, felino, pet, animal
-gato siames, gato elegante, felino, pet, animal
-gato egipcio mau, gato spotted, felino, pet, animal
-onca parda, puma, felino selvagem, montanha, animal
-lince, felino com orelhas pontudas, neve, animal
-leopardo, felino manchado, savana, animal selvagem, animal
-leopardo das neves, felino da montanha, animal
-onca pintada, jaguar, felino da floresta tropical, animal
-leao, rei da selva, felino selvagem, savana, animal
-tigre, felino listrado, predador asiatico, animal
-guepardo, chita, felino mais veloz, savana, animal
-urso pardo, urso grande, floresta, animal
-urso negro americano, urso, floresta, animal
-urso polar, urso branco, gelo, artico, animal
-urso beicudo, urso comedor de formigas, animal
-mongoose, animal selvagem, animal
-meerkat, animal selvagem, animal
-tiger beetle, animal selvagem, animal
-ladybug, animal selvagem, animal
-ground beetle, animal selvagem, animal
-long-horned beetle, animal selvagem, animal
-leaf beetle, animal selvagem, animal
-dung beetle, animal selvagem, animal
-rhinoceros beetle, animal selvagem, animal
-weevil, animal selvagem, animal
-fly, animal selvagem, animal
-bee, animal selvagem, animal
-ant, animal selvagem, animal
-grasshopper, animal selvagem, animal
-cricket, animal selvagem, animal
-walking stick, animal selvagem, animal
-cockroach, animal selvagem, animal
-mantis, animal selvagem, animal
-cicada, animal selvagem, animal
-leafhopper, animal selvagem, animal
-lacewing, animal selvagem, animal
-dragonfly, animal selvagem, animal
-damselfly, animal selvagem, animal
-admiral, animal selvagem, animal
-ringlet, animal selvagem, animal
-monarch, animal selvagem, animal
-cabbage butterfly, animal selvagem, animal
-sulphur butterfly, animal selvagem, animal
-lycaenid, animal selvagem, animal
-starfish, animal selvagem, animal
-sea urchin, animal selvagem, animal
-sea cucumber, animal selvagem, animal
-wood rabbit, animal selvagem, animal
-hare, animal selvagem, animal
-angora, animal selvagem, animal
-hamster, animal selvagem, animal
-porcupine, animal selvagem, animal
-fox squirrel, animal selvagem, animal
-marmot, animal selvagem, animal
-beaver, animal selvagem, animal
-guinea pig, animal selvagem, animal
-cavalo, alazao, equino, campo, animal, grama
-zebra, equino selvagem, savana, animal
-porco domestico, suino, fazenda, animal
+pássaro, ave, natureza, animal
+pintassilgo, pássaro, ave, natureza, animal
+tentilhão, pássaro, ave, natureza, animal
+pássaro, ave, natureza, animal
+pássaro azul, ave, natureza, animal
+pássaro, tordo, ave, árvore, animal
+pássaro, ave, árvore, natureza, animal
+gaio, pássaro, ave, árvore, animal
+pega, pássaro, ave, animal
+chapim, pássaro, ave, árvore, animal
+pássaro aquático, ave, rio, animal
+gavião, ave de rapina, pássaro, céu, animal
+águia, ave de rapina, pássaro, céu, animal
+abutre, ave, pássaro, animal
+coruja, ave noturna, pássaro, árvore, animal
+salamandra, anfíbio, animal
+tritão, anfíbio, animal
+tritão, anfíbio, animal
+salamandra, anfíbio, animal
+axolote, anfíbio, animal
+sapo, rã, anfíbio, água, animal
+perereca, rã, sapo, folha, planta, animal
+rã, sapo, anfíbio, animal
+tartaruga marinha, tartaruga, mar, animal
+tartaruga marinha, tartaruga, oceano, animal
+tartaruga, cágado, réptil, animal
+cágado, tartaruga, réptil, animal
+tartaruga, jabuti, réptil, animal
+lagartixa, lagarto, réptil, animal
+iguana, lagarto, réptil, árvore, natureza, animal
+camaleão, lagarto, réptil, planta, animal
+lagarto, réptil, animal
+lagarto, réptil, animal
+lagarto, réptil, animal
+lagarto, réptil, animal
+lagarto, réptil, deserto, animal
+lagarto verde, réptil, folha, planta, animal
+camaleão, lagarto, réptil, árvore, animal
+dragão de komodo, lagarto, réptil, animal
+crocodilo, jacaré, réptil, rio, animal
+jacaré, crocodilo, réptil, água, animal
+dinossauro, tricerátops, réptil
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+cobra, serpente, réptil, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+aranha, aracnídeo, inseto, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+ave, pássaro, natureza, animal
+mamífero, marsupial, natureza, animal
+mamífero, marsupial, natureza, animal
+mamífero, marsupial, natureza, animal
+mamífero, marsupial, natureza, animal
+mamífero, marsupial, natureza, animal
+mamífero, marsupial, natureza, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+crustáceo, caranguejo, vida marinha, oceano, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+ave aquática, pássaro, água, natureza, animal
+baleia, leão marinho, oceano, vida marinha, animal
+baleia, leão marinho, oceano, vida marinha, animal
+baleia, leão marinho, oceano, vida marinha, animal
+baleia, leão marinho, oceano, vida marinha, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+cachorro, cão, animal de estimação, pet, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+lobo, raposa, canídeo, floresta, natureza, animal
+gato malhado, gato, felino, animal de estimação, animal
+gato listrado, gato, felino, animal de estimação, animal
+gato persa, gato, felino, animal de estimação, animal
+gato siamês, gato, felino, animal de estimação, animal
+gato egípcio, gato, felino, animal de estimação, animal
+onça parda, puma, felino, animal selvagem
+lince, felino, animal selvagem
+leopardo, onça, felino, animal selvagem
+leopardo das neves, felino, neve, animal
+onça pintada, jaguar, felino, floresta, animal
+leão, felino, savana, animal selvagem
+tigre, felino, floresta, animal selvagem
+guepardo, chita, felino, savana, animal
+urso pardo, urso, floresta, natureza, animal
+urso negro, urso, floresta, árvore, animal
+urso polar, urso, gelo, neve, animal
+urso, floresta, animal
+felino selvagem, urso, predador, natureza, animal
+felino selvagem, urso, predador, natureza, animal
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+inseto, borboleta, besouro, folha, planta, árvore, natureza
+estrela do mar, ouriço, oceano, vida marinha
+estrela do mar, ouriço, oceano, vida marinha
+estrela do mar, ouriço, oceano, vida marinha
+coelho, grama, jardim, natureza, animal
+lebre, coelho, campo, grama, animal
+coelho angorá, coelho, animal
+hamster, roedor, animal de estimação
+porco espinho, árvore, floresta, animal
+esquilo, árvore, tronco, parque, natureza, animal
+marmota, montanha, grama, animal
+castor, rio, madeira, árvore, animal
+porquinho da índia, animal de estimação, animal
+cavalo, equino, campo, grama, animal
+zebra, equino, savana, campo, animal
+porco, suíno, fazenda, animal
 javali, porco selvagem, floresta, animal
-javali africano, facochero, savana, animal
-hipopotamo, mamifero africano, rio, animal
-boi, touro, gado bovino, campo, fazenda, animal
-bufalo d'agua, bufalo, campo, animal
-bisao americano, bufalo, planicie, animal
-carneiro, ovelha com chifres, fazenda, animal
+javali africano, savana, animal
+hipopótamo, rio, água, animal
+boi, touro, vaca, gado, campo, fazenda, animal
+búfalo, gado, campo, animal
+bisão, búfalo, campo, planície, animal
+carneiro, ovelha, campo, fazenda, animal
 carneiro selvagem, montanha, animal
-ibis alpino, cabra montesa, montanha, animal
-antilope africano, gazela, savana, animal
-impala, gazela veloz, savana, animal
-gazela, antilope elegante, savana, animal
-camelo dromedario, deserto, animal
-lhama, alpaca, andes, animal
-doninha, pequeno carnivoro, animal
-visom, marta, animal peludo
-toirao, furao selvagem, animal
-furao de patas pretas, furao, animal
-lontra, mamifero aquatico, rio, animal
-gamba americano, mefite, animal
-texugo, animal da floresta
-tatu, carapaca, animal brasileiro
-bicho preguica, preguica, arvore, floresta, animal
-orangotango, macaco, primata, floresta, animal
-gorila, primata grande, floresta, animal
-chimpanze, macaco inteligente, primata, animal
-gibao, pequeno macaco, primata agil, animal
-siamangue, macaco preto, primata, animal
-macaco cercopiteco, primata, animal
-macaco patas, primata veloz, animal
-babuino, macaco africano, savana, animal
-macaco rhesus, macaco asiatico, primata, animal
-langur cinzento, macaco sagrado, primata, animal
-macaco colobus, primata de pelos longos, animal
-macaco narigudo, primata de borneu, animal
-sagui, mico, pequeno macaco, primata, animal
-macaco prego, capuchinho, primata, animal
-bugio, macaco uivador, floresta, animal
-macaco zogue zogue, saua, primata, animal
-macaco aranha, primata agil, arvore, animal
-macaco de cheiro, pequeno primata, animal
-lemure de cauda anelada, lemure, animal
-indri, maior lemure, madagascar, animal
-elefante asiatico, elefante, animal gigante, animal
-elefante africano, elefante, savana, animal gigante, animal
-panda vermelho, panda fofo, bambu, animal
-panda gigante, urso panda, bambu, animal fofo, animal
-barracouta, animal selvagem, animal
-eel, animal selvagem, animal
-coho, animal selvagem, animal
-rock beauty, animal selvagem, animal
-anemone fish, animal selvagem, animal
-sturgeon, animal selvagem, animal
-gar, animal selvagem, animal
-lionfish, animal selvagem, animal
-puffer, animal selvagem, animal
-abacus, objeto, elemento visual
-abaya, objeto, elemento visual
-toga academica, beca de formatura, roupa
-accordion, objeto, elemento visual
-acoustic guitar, objeto, elemento visual
-aircraft carrier, objeto, elemento visual
-airliner, objeto, elemento visual
-airship, objeto, elemento visual
-altar, objeto, elemento visual
-ambulancia, veiculo de socorro medico, emergencia, veiculo
-amphibian, objeto, elemento visual
-analog clock, objeto, elemento visual
-apiary, objeto, elemento visual
-apron, objeto, elemento visual
-ashcan, objeto, elemento visual
-assault rifle, objeto, elemento visual
-backpack, objeto, elemento visual
-bakery, objeto, elemento visual
-balance beam, objeto, elemento visual
-balloon, objeto, elemento visual
-ballpoint, objeto, elemento visual
-band aid, objeto, elemento visual
-banjo, objeto, elemento visual
-bannister, objeto, elemento visual
-barbell, objeto, elemento visual
-barber chair, objeto, elemento visual
-barbershop, objeto, elemento visual
-barn, objeto, elemento visual
-barometer, objeto, elemento visual
-barrel, objeto, elemento visual
-barrow, objeto, elemento visual
-baseball, objeto, elemento visual
-basketball, objeto, elemento visual
-bassinet, objeto, elemento visual
-bassoon, objeto, elemento visual
-bathing cap, objeto, elemento visual
-bath towel, objeto, elemento visual
-bathtub, objeto, elemento visual
-beach wagon, objeto, elemento visual
-beacon, objeto, elemento visual
-beaker, objeto, elemento visual
-bearskin, objeto, elemento visual
-beer bottle, objeto, elemento visual
-beer glass, objeto, elemento visual
-bell cote, objeto, elemento visual
-bib, objeto, elemento visual
-bicicleta dupla tandem, ciclismo, esporte
-bikini, objeto, elemento visual
-binder, objeto, elemento visual
-binoculars, objeto, elemento visual
-birdhouse, objeto, elemento visual
-boathouse, objeto, elemento visual
-bobsled, objeto, elemento visual
-bolo tie, objeto, elemento visual
-bonnet, objeto, elemento visual
-bookcase, objeto, elemento visual
-bookshop, objeto, elemento visual
-bottlecap, objeto, elemento visual
-bow, objeto, elemento visual
-bow tie, objeto, elemento visual
-brass, objeto, elemento visual
-brassiere, objeto, elemento visual
-breakwater, objeto, elemento visual
-breastplate, objeto, elemento visual
-broom, objeto, elemento visual
-bucket, objeto, elemento visual
-buckle, objeto, elemento visual
-bulletproof vest, objeto, elemento visual
-bullet train, objeto, elemento visual
-butcher shop, objeto, elemento visual
-cab, objeto, elemento visual
-caldron, objeto, elemento visual
-candle, objeto, elemento visual
-cannon, objeto, elemento visual
-canoe, objeto, elemento visual
-can opener, objeto, elemento visual
-cardigan, objeto, elemento visual
-car mirror, objeto, elemento visual
-carousel, objeto, elemento visual
-carpenter's kit, objeto, elemento visual
-caixa de papelao, embalagem de papel
-car wheel, objeto, elemento visual
-cash machine, objeto, elemento visual
-cassette, objeto, elemento visual
-cassette player, objeto, elemento visual
-castle, objeto, elemento visual
-catamaran, objeto, elemento visual
-cd player, objeto, elemento visual
-cello, objeto, elemento visual
-celular, smartphone, telefone movel, tecnologia
-chain, objeto, elemento visual
-chainlink fence, objeto, elemento visual
-chain mail, objeto, elemento visual
-chain saw, objeto, elemento visual
-chest, objeto, elemento visual
-chiffonier, objeto, elemento visual
-chime, objeto, elemento visual
-china cabinet, objeto, elemento visual
-christmas stocking, objeto, elemento visual
-church, objeto, elemento visual
-cinema, objeto, elemento visual
-cleaver, objeto, elemento visual
-cliff dwelling, objeto, elemento visual
-cloak, objeto, elemento visual
-clog, objeto, elemento visual
-cocktail shaker, objeto, elemento visual
-caneca de cafe, xicara, bebida
-coffeepot, objeto, elemento visual
-coil, objeto, elemento visual
-combination lock, objeto, elemento visual
-teclado de computador, teclado, digitacao, informatica
-confectionery, objeto, elemento visual
-container ship, objeto, elemento visual
-carro conversivel, automovel aberto, veiculo, transporte
-corkscrew, objeto, elemento visual
-cornet, objeto, elemento visual
-cowboy boot, objeto, elemento visual
-cowboy hat, objeto, elemento visual
-cradle, objeto, elemento visual
-grou, ave pernalta grande, ave, animal
-crash helmet, objeto, elemento visual
-crate, objeto, elemento visual
-crib, objeto, elemento visual
-crock pot, objeto, elemento visual
-croquet ball, objeto, elemento visual
-crutch, objeto, elemento visual
-cuirass, objeto, elemento visual
-dam, objeto, elemento visual
-desk, objeto, elemento visual
-computador de mesa, desktop, gabinete, monitor, tecnologia
-dial telephone, objeto, elemento visual
-diaper, objeto, elemento visual
-digital clock, objeto, elemento visual
-digital watch, objeto, elemento visual
-dining table, objeto, elemento visual
-dishrag, objeto, elemento visual
-dishwasher, objeto, elemento visual
-disk brake, objeto, elemento visual
-dock, objeto, elemento visual
-dogsled, objeto, elemento visual
-dome, objeto, elemento visual
-doormat, objeto, elemento visual
-drilling platform, objeto, elemento visual
-drum, objeto, elemento visual
-drumstick, objeto, elemento visual
-dumbbell, objeto, elemento visual
-dutch oven, objeto, elemento visual
-electric fan, objeto, elemento visual
-electric guitar, objeto, elemento visual
-electric locomotive, objeto, elemento visual
-entertainment center, objeto, elemento visual
-envelope, correspondencia, carta, papel
-espresso maker, objeto, elemento visual
-face powder, objeto, elemento visual
-feather boa, objeto, elemento visual
-file, objeto, elemento visual
-fireboat, objeto, elemento visual
-caminhao de bombeiros, bombeiro, veiculo de emergencia
-fire screen, objeto, elemento visual
-flagpole, objeto, elemento visual
-flute, objeto, elemento visual
-folding chair, objeto, elemento visual
-football helmet, objeto, elemento visual
-forklift, objeto, elemento visual
-fountain, objeto, elemento visual
-fountain pen, objeto, elemento visual
-four-poster, objeto, elemento visual
-freight car, objeto, elemento visual
-french horn, objeto, elemento visual
-frying pan, objeto, elemento visual
-fur coat, objeto, elemento visual
-caminhao de lixo, coleta publica, veiculo
-gasmask, objeto, elemento visual
-gas pump, objeto, elemento visual
-goblet, objeto, elemento visual
-go-kart, objeto, elemento visual
-golf ball, objeto, elemento visual
-golfcart, objeto, elemento visual
-gondola, objeto, elemento visual
-gong, objeto, elemento visual
-gown, objeto, elemento visual
-grand piano, objeto, elemento visual
-greenhouse, objeto, elemento visual
-grille, objeto, elemento visual
-grocery store, objeto, elemento visual
-guillotine, objeto, elemento visual
-hair slide, objeto, elemento visual
-hair spray, objeto, elemento visual
-half track, objeto, elemento visual
-hammer, objeto, elemento visual
-hamper, objeto, elemento visual
-hand blower, objeto, elemento visual
-hand-held computer, objeto, elemento visual
-handkerchief, objeto, elemento visual
-hard disc, objeto, elemento visual
-harmonica, objeto, elemento visual
-harp, objeto, elemento visual
-harvester, objeto, elemento visual
-hatchet, objeto, elemento visual
-holster, objeto, elemento visual
-home theater, objeto, elemento visual
-honeycomb, objeto, elemento visual
-hook, objeto, elemento visual
-hoopskirt, objeto, elemento visual
-horizontal bar, objeto, elemento visual
-horse cart, objeto, elemento visual
-hourglass, objeto, elemento visual
-ipod, objeto, elemento visual
-iron, objeto, elemento visual
-jack-o'-lantern, objeto, elemento visual
-jean, objeto, elemento visual
-jipe, carro 4x4, veiculo off-road, transporte
-jersey, objeto, elemento visual
-jigsaw puzzle, objeto, elemento visual
-jinrikisha, objeto, elemento visual
-joystick, objeto, elemento visual
-kimono, objeto, elemento visual
-knee pad, objeto, elemento visual
-knot, objeto, elemento visual
-jaleco de laboratorio, jaleco, roupa medica, ciencia
-ladle, objeto, elemento visual
-lampshade, objeto, elemento visual
-notebook, computador portatil, tela, tecnologia, teclado
-lawn mower, objeto, elemento visual
-lens cap, objeto, elemento visual
-letter opener, objeto, elemento visual
-library, objeto, elemento visual
-lifeboat, objeto, elemento visual
-lighter, objeto, elemento visual
-limusine, carro luxuoso, veiculo longo, transporte
-liner, objeto, elemento visual
-lipstick, objeto, elemento visual
-loafer, objeto, elemento visual
-lotion, objeto, elemento visual
-loudspeaker, objeto, elemento visual
-loupe, objeto, elemento visual
-lumbermill, objeto, elemento visual
-magnetic compass, objeto, elemento visual
-mailbag, objeto, elemento visual
-mailbox, objeto, elemento visual
-maillot, objeto, elemento visual
-maillot, objeto, elemento visual
-manhole cover, objeto, elemento visual
-maraca, objeto, elemento visual
-marimba, objeto, elemento visual
-mask, objeto, elemento visual
-matchstick, objeto, elemento visual
-maypole, objeto, elemento visual
-maze, objeto, elemento visual
-measuring cup, objeto, elemento visual
-medicine chest, objeto, elemento visual
-megalith, objeto, elemento visual
-microphone, objeto, elemento visual
-microwave, objeto, elemento visual
-military uniform, objeto, elemento visual
-milk can, objeto, elemento visual
-microonibus, van de passageiros, transporte, veiculo
-miniskirt, objeto, elemento visual
-minivan, carro familiar, veiculo, transporte
-missile, objeto, elemento visual
-mitten, objeto, elemento visual
-mixing bowl, objeto, elemento visual
-mobile home, objeto, elemento visual
-model t, objeto, elemento visual
-modem, objeto, elemento visual
-monastery, objeto, elemento visual
-monitor, tela de computador, display, tela, tecnologia
-ciclomotor, mobilete, motoneta, transporte
-mortar, objeto, elemento visual
-mortarboard, objeto, elemento visual
-mosque, objeto, elemento visual
-mosquito net, objeto, elemento visual
-scooter motoneta, moto urbana, transporte
-bicicleta mountain bike, ciclismo, trilha, esporte
-mountain tent, objeto, elemento visual
-mouse de computador, periferico, informatica, tecnologia
-mousetrap, objeto, elemento visual
-furgao de mudanca, caminhao bau, transporte
-muzzle, objeto, elemento visual
-nail, objeto, elemento visual
-neck brace, objeto, elemento visual
-necklace, objeto, elemento visual
-nipple, objeto, elemento visual
-notebook, laptop, computador, tecnologia, tela
-obelisk, objeto, elemento visual
-oboe, objeto, elemento visual
-ocarina, objeto, elemento visual
-odometer, objeto, elemento visual
-oil filter, objeto, elemento visual
-organ, objeto, elemento visual
-oscilloscope, objeto, elemento visual
-overskirt, objeto, elemento visual
-oxcart, objeto, elemento visual
-oxygen mask, objeto, elemento visual
-pacote, embalagem, caixa
-paddle, objeto, elemento visual
-paddlewheel, objeto, elemento visual
-padlock, objeto, elemento visual
-paintbrush, objeto, elemento visual
-pajama, objeto, elemento visual
-palace, objeto, elemento visual
-panpipe, objeto, elemento visual
-paper towel, objeto, elemento visual
-parachute, objeto, elemento visual
-parallel bars, objeto, elemento visual
-park bench, objeto, elemento visual
-parking meter, objeto, elemento visual
-passenger car, objeto, elemento visual
-patio, objeto, elemento visual
-pay-phone, objeto, elemento visual
-pedestal, objeto, elemento visual
-pencil box, objeto, elemento visual
-pencil sharpener, objeto, elemento visual
-perfume, objeto, elemento visual
-petri dish, objeto, elemento visual
-photocopier, objeto, elemento visual
-pick, objeto, elemento visual
-pickelhaube, objeto, elemento visual
-picket fence, objeto, elemento visual
-caminhonete, picape, veiculo com cacamba, transporte
-pier, objeto, elemento visual
-piggy bank, objeto, elemento visual
-pill bottle, objeto, elemento visual
-pillow, objeto, elemento visual
-ping-pong ball, objeto, elemento visual
-pinwheel, objeto, elemento visual
-pirate, objeto, elemento visual
-pitcher, objeto, elemento visual
-plane, objeto, elemento visual
-planetarium, objeto, elemento visual
-plastic bag, objeto, elemento visual
-plate rack, objeto, elemento visual
-plow, objeto, elemento visual
-plunger, objeto, elemento visual
-polaroid camera, objeto, elemento visual
-pole, objeto, elemento visual
-viatura de policia, camburao, carro policial, veiculo
-poncho, objeto, elemento visual
-pool table, objeto, elemento visual
-pop bottle, objeto, elemento visual
-pot, objeto, elemento visual
-potter's wheel, objeto, elemento visual
-power drill, objeto, elemento visual
-prayer rug, objeto, elemento visual
-printer, objeto, elemento visual
-prison, objeto, elemento visual
-projectile, objeto, elemento visual
-projector, objeto, elemento visual
-puck, objeto, elemento visual
-punching bag, objeto, elemento visual
-purse, objeto, elemento visual
-quill, objeto, elemento visual
-quilt, objeto, elemento visual
-racer, objeto, elemento visual
-racket, objeto, elemento visual
-radiator, objeto, elemento visual
-radio, objeto, elemento visual
-radio telescope, objeto, elemento visual
-rain barrel, objeto, elemento visual
-recreational vehicle, objeto, elemento visual
-reel, objeto, elemento visual
-reflex camera, objeto, elemento visual
-refrigerator, objeto, elemento visual
-remote control, objeto, elemento visual
-restaurant, objeto, elemento visual
-revolver, objeto, elemento visual
-rifle, objeto, elemento visual
-rocking chair, objeto, elemento visual
-rotisserie, objeto, elemento visual
-rubber eraser, objeto, elemento visual
-rugby ball, objeto, elemento visual
-rule, objeto, elemento visual
-running shoe, objeto, elemento visual
-safe, objeto, elemento visual
-safety pin, objeto, elemento visual
-saltshaker, objeto, elemento visual
-sandal, objeto, elemento visual
-sarong, objeto, elemento visual
-sax, objeto, elemento visual
-scabbard, objeto, elemento visual
-scale, objeto, elemento visual
-onibus escolar, transporte escolar, onibus amarelo, veiculo
-schooner, objeto, elemento visual
-scoreboard, objeto, elemento visual
-tela, monitor, visor digital, interface
-screw, objeto, elemento visual
-screwdriver, objeto, elemento visual
-seat belt, objeto, elemento visual
-sewing machine, objeto, elemento visual
-shield, objeto, elemento visual
-shoe shop, objeto, elemento visual
-shoji, objeto, elemento visual
-shopping basket, objeto, elemento visual
-shopping cart, objeto, elemento visual
-shovel, objeto, elemento visual
-shower cap, objeto, elemento visual
-shower curtain, objeto, elemento visual
-ski, objeto, elemento visual
-ski mask, objeto, elemento visual
-sleeping bag, objeto, elemento visual
-slide rule, objeto, elemento visual
-sliding door, objeto, elemento visual
-slot, objeto, elemento visual
-snorkel, objeto, elemento visual
-snowmobile, objeto, elemento visual
-snowplow, objeto, elemento visual
-soap dispenser, objeto, elemento visual
-soccer ball, objeto, elemento visual
-sock, objeto, elemento visual
-solar dish, objeto, elemento visual
-sombrero, objeto, elemento visual
-soup bowl, objeto, elemento visual
-space bar, objeto, elemento visual
-space heater, objeto, elemento visual
-space shuttle, objeto, elemento visual
-spatula, objeto, elemento visual
-speedboat, objeto, elemento visual
-spider web, objeto, elemento visual
-spindle, objeto, elemento visual
-carro esportivo, automovel veloz, veiculo motorizado, transporte
-spotlight, objeto, elemento visual
-stage, objeto, elemento visual
-steam locomotive, objeto, elemento visual
-steel arch bridge, objeto, elemento visual
-steel drum, objeto, elemento visual
-stethoscope, objeto, elemento visual
-stole, objeto, elemento visual
-stone wall, objeto, elemento visual
-stopwatch, objeto, elemento visual
-stove, objeto, elemento visual
-strainer, objeto, elemento visual
-streetcar, objeto, elemento visual
-stretcher, objeto, elemento visual
-studio couch, objeto, elemento visual
-stupa, objeto, elemento visual
-submarine, objeto, elemento visual
-terno elegante, terno, roupa formal, vestimenta, pessoa
-sundial, objeto, elemento visual
-oculos de sol, oculos escuros, acessorio, moda
-oculos de sol, oculos escuros, acessorio, moda
-sunscreen, objeto, elemento visual
-suspension bridge, objeto, elemento visual
-swab, objeto, elemento visual
-sweatshirt, objeto, elemento visual
-swimming trunks, objeto, elemento visual
-swing, objeto, elemento visual
-switch, objeto, elemento visual
-syringe, objeto, elemento visual
-table lamp, objeto, elemento visual
-tank, objeto, elemento visual
-tape player, objeto, elemento visual
-teapot, objeto, elemento visual
-teddy, objeto, elemento visual
-televisao, tv, tela grande, monitor, sala
-tennis ball, objeto, elemento visual
-thatch, objeto, elemento visual
-theater curtain, objeto, elemento visual
-thimble, objeto, elemento visual
-thresher, objeto, elemento visual
-throne, objeto, elemento visual
-tile roof, objeto, elemento visual
-toaster, objeto, elemento visual
-tobacco shop, objeto, elemento visual
-toilet seat, objeto, elemento visual
-torch, objeto, elemento visual
-totem pole, objeto, elemento visual
-caminhao guincho, reboque de veiculos, transporte
-toyshop, objeto, elemento visual
-tractor, objeto, elemento visual
-carreta, caminhao pesado, transporte de carga, veiculo
-tray, objeto, elemento visual
-sobretudo trench coat, casaco, roupa, vestimenta
-tricycle, objeto, elemento visual
-trimaran, objeto, elemento visual
-tripod, objeto, elemento visual
-triumphal arch, objeto, elemento visual
-trolebus, onibus eletrico com cabos, veiculo
-trombone, objeto, elemento visual
-tub, objeto, elemento visual
-turnstile, objeto, elemento visual
-typewriter keyboard, objeto, elemento visual
-umbrella, objeto, elemento visual
-unicycle, objeto, elemento visual
-upright, objeto, elemento visual
-vacuum, objeto, elemento visual
-vase, objeto, elemento visual
-vault, objeto, elemento visual
-velvet, objeto, elemento visual
-vending machine, objeto, elemento visual
-vestment, objeto, elemento visual
-viaduct, objeto, elemento visual
-violin, objeto, elemento visual
-volleyball, objeto, elemento visual
-waffle iron, objeto, elemento visual
-wall clock, objeto, elemento visual
-wallet, objeto, elemento visual
-wardrobe, objeto, elemento visual
-warplane, objeto, elemento visual
-washbasin, objeto, elemento visual
-washer, objeto, elemento visual
-water bottle, objeto, elemento visual
-water jug, objeto, elemento visual
-water tower, objeto, elemento visual
-whiskey jug, objeto, elemento visual
-whistle, objeto, elemento visual
-wig, objeto, elemento visual
-window screen, objeto, elemento visual
-window shade, objeto, elemento visual
-windsor tie, objeto, elemento visual
-wine bottle, objeto, elemento visual
-wing, objeto, elemento visual
-wok, objeto, elemento visual
-wooden spoon, objeto, elemento visual
-wool, objeto, elemento visual
-worm fence, objeto, elemento visual
-wreck, objeto, elemento visual
-yawl, objeto, elemento visual
-yurt, objeto, elemento visual
-pagina web, site de internet, interface, documento digital, tela
-revista em quadrinhos, gibi, gibi ilustrado, desenho
-crossword puzzle, objeto, elemento visual
-street sign, objeto, elemento visual
-traffic light, objeto, elemento visual
-capa de livro, livro, leitura, literatura
-menu, cardapio, lista, documento
-plate, objeto, elemento visual
-guacamole, comida, prato, alimento
-consomme, comida, prato, alimento
-hot pot, comida, prato, alimento
-trifle, comida, prato, alimento
-sorvete, sobremesa gelada, doce, sobremesa
-ice lolly, comida, prato, alimento
-french loaf, comida, prato, alimento
-bagel, comida, prato, alimento
-pretzel, comida, prato, alimento
-hamburguer, cheeseburger, comida, lanche, sanduiche
-cachorro quente, hot dog, lanche, comida
-mashed potato, comida, prato, alimento
-head cabbage, comida, prato, alimento
-brocolis, vegetal, legume, comida saudavel
-cauliflower, comida, prato, alimento
-zucchini, comida, prato, alimento
-spaghetti squash, comida, prato, alimento
-acorn squash, comida, prato, alimento
-butternut squash, comida, prato, alimento
-cucumber, comida, prato, alimento
-artichoke, comida, prato, alimento
-bell pepper, comida, prato, alimento
-cardoon, comida, prato, alimento
-mushroom, comida, prato, alimento
-granny smith, comida, prato, alimento
-morango, fruta vermelha, fruta, alimento
-laranja, fruta citrica, fruta, alimento
-limao, fruta citrica, fruta, alimento
-fig, comida, prato, alimento
-pineapple, comida, prato, alimento
-banana, fruta tropical, fruta, alimento
-jackfruit, comida, prato, alimento
-custard apple, comida, prato, alimento
-pomegranate, comida, prato, alimento
-hay, comida, prato, alimento
-carbonara, comida, prato, alimento
-chocolate sauce, comida, prato, alimento
-dough, comida, prato, alimento
-meat loaf, comida, prato, alimento
-pizza, comida, alimento, massa, queijo
-potpie, comida, prato, alimento
-burrito, comida, prato, alimento
-red wine, paisagem, natureza, ar livre, ceu
-cafe expresso, xicara de cafe, bebida, cafe
-xicara, caneca, bebida, cafe, cha
-eggnog, paisagem, natureza, ar livre, ceu
-montanhas alpes, pico nevado, paisagem montanhosa, natureza, ceu
-bubble, paisagem, natureza, ar livre, ceu
-penhasco rochoso, escarpa, abismo, paisagem, natureza
-recife de corais, fundo do mar, vida marinha, oceano, natureza
-geiser, fonte de agua termal, vapor, vapor quente, natureza
-margem do lago, lago calmo, agua, paisagem, natureza, arvore
-promontorio, cabo costeiro, mar, rochas, natureza
-banco de areia, restinga, praia, agua rasa, natureza
-praia, costa maritima, areia, mar, oceano, natureza, ceu
-vale verdejante, colinas, planicie, paisagem, natureza, campo
-vulcao ativo, montanha com cratera, lava, geologia, natureza
-ballplayer, paisagem, natureza, ar livre, ceu
-groom, paisagem, natureza, ar livre, ceu
-scuba diver, paisagem, natureza, ar livre, ceu
-rapeseed, paisagem, natureza, ar livre, ceu
-daisy, paisagem, natureza, ar livre, ceu
-yellow lady's slipper, paisagem, natureza, ar livre, ceu
-corn, paisagem, natureza, ar livre, ceu
-acorn, paisagem, natureza, ar livre, ceu
-hip, paisagem, natureza, ar livre, ceu
-buckeye, paisagem, natureza, ar livre, ceu
-coral fungus, planta, flor, natureza
-agaric, planta, flor, natureza
-gyromitra, planta, flor, natureza
-stinkhorn, planta, flor, natureza
-earthstar, planta, flor, natureza
-hen-of-the-woods, planta, flor, natureza
-bolete, planta, flor, natureza
-ear, planta, flor, natureza
-toilet tissue, planta, flor, natureza
+cabra da montanha, montanha, animal
+antílope, savana, campo, animal
+impala, antílope, gazela, savana, animal
+gazela, antílope, savana, campo, animal
+camelo, dromedário, deserto, animal
+lhama, alpaca, montanha, campo, animal
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+bicho preguiça, árvore, galho, floresta, animal
+orangotango, macaco, primata, árvore, floresta, animal
+gorila, primata, floresta, animal
+chimpanzé, macaco, primata, árvore, floresta, animal
+gibão, macaco, primata, árvore, floresta, animal
+macaco, primata, árvore, floresta, animal
+macaco, primata, árvore, animal
+macaco, primata, savana, animal
+babuíno, macaco, primata, animal
+macaco, primata, animal
+macaco, primata, árvore, animal
+macaco, primata, árvore, floresta, animal
+macaco, primata, árvore, animal
+sagui, mico, macaco, árvore, floresta, animal
+macaco prego, macaco, árvore, floresta, animal
+bugio, macaco, árvore, floresta, animal
+macaco, primata, árvore, floresta, animal
+macaco aranha, macaco, árvore, floresta, animal
+macaco de cheiro, macaco, árvore, floresta, animal
+lêmure, árvore, floresta, animal
+lêmure, árvore, floresta, animal
+elefante, floresta, natureza, animal
+elefante africano, elefante, savana, árvore, animal
+panda vermelho, árvore, bambu, animal
+urso panda, panda, bambu, planta, animal
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+mamífero, animal, natureza
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+instrumento musical, música, áudio, arte
+instrumento musical, música, áudio, arte
+porta aviões, navio militar, mar
+avião comercial, avião, aeronave, céu, viagem
+dirigível, aeronave, céu
+utensílio, equipamento, cotidiano
+ambulância, emergência, veículo
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+esporte, equipamento esportivo, lazer
+balão de ar quente, balão, céu
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+móvel, mobília, cadeira, mesa, decoração, interior
+arquitetura, prédio, construção, edifício, lugar
+arquitetura, prédio, construção, edifício, lugar
+equipamento, lente, câmera, relógio, instrumento
+esporte, equipamento esportivo, lazer
+esporte, equipamento esportivo, lazer
+esporte, equipamento esportivo, lazer
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+carro perua, automóvel, veículo
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+garrafa de cerveja, cerveja, bebida
+copo de cerveja, chope, bebida
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+bicicleta dupla, bicicleta, ciclismo
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+arquitetura, prédio, construção, edifício, lugar
+arquitetura, prédio, construção, edifício, lugar
+esporte, equipamento esportivo, lazer
+roupa, vestuário, moda, acessório, pessoa
+roupa, vestuário, moda, acessório, pessoa
+móvel, mobília, cadeira, mesa, decoração, interior
+arquitetura, prédio, construção, edifício, lugar
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+ponte, estrutura, arquitetura, paisagem, externo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+táxi, carro, automóvel, cidade, veículo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+canoa, caiaque, barco, rio, árvore, natureza
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+catamarã, veleiro, barco, mar
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+celular, smartphone, telefone, tela, tecnologia
+utensílio, equipamento, cotidiano
+cerca metálica, grade, externo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+móvel, mobília, cadeira, mesa, decoração, interior
+instrumento musical, música, áudio, arte
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+caneca, café, bebida
+bule de café, cafeteira, café
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+teclado, computador, digitação, informática
+utensílio, equipamento, cotidiano
+navio cargueiro, navio, porto, mar
+carro conversível, carro, automóvel, veículo
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+roupa, vestuário, moda, acessório, pessoa
+roupa, vestuário, moda, acessório, pessoa
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio doméstico, eletrodoméstico, casa, cozinha
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+ponte, estrutura, arquitetura, paisagem, externo
+móvel, mobília, cadeira, mesa, decoração, interior
+computador de mesa, desktop, monitor, tela, teclado, tecnologia
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+equipamento, lente, câmera, relógio, instrumento
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+ponte, estrutura, arquitetura, paisagem, externo
+esporte, equipamento esportivo, lazer
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+instrumento musical, música, áudio, arte
+esporte, equipamento esportivo, lazer
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio doméstico, eletrodoméstico, casa, cozinha
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+envelope, carta, documento, papel
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+caminhão de bombeiros, emergência, veículo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+móvel, mobília, cadeira, mesa, decoração, interior
+roupa, vestuário, moda, acessório, pessoa
+empilhadeira, carga, indústria, veículo
+ponte, estrutura, arquitetura, paisagem, externo
+ponte, estrutura, arquitetura, paisagem, externo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+utensílio doméstico, eletrodoméstico, casa, cozinha
+roupa, vestuário, moda, acessório, pessoa
+caminhão de lixo, caminhão, veículo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+gôndola, barco, canal, água
+instrumento musical, música, áudio, arte
+roupa, vestuário, moda, acessório, pessoa
+instrumento musical, música, áudio, arte
+estufa, plantas, árvores, flores, jardim, natureza
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+tablet, dispositivo móvel, celular, tela, tecnologia
+utensílio, equipamento, cotidiano
+disco rígido, hardware, computador, tecnologia
+instrumento musical, música, áudio, arte
+instrumento musical, música, áudio, arte
+colheitadeira, máquina agrícola, plantação, campo
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+reprodutor de música, dispositivo móvel, eletrônico
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+jipe, utilitário, carro 4x4, veículo
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+controle de videogame, joystick, jogos, tecnologia
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+notebook, laptop, computador, tela, tecnologia
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+limusine, carro, automóvel, veículo
+navio transatlântico, cruzeiro, navio, mar
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+serraria, madeira, tronco, árvores, floresta
+equipamento, lente, câmera, relógio, instrumento
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+microônibus, van, transporte, veículo
+roupa, vestuário, moda, acessório, pessoa
+minivan, carro, automóvel, veículo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+carro antigo, automóvel clássico, veículo
+modem, roteador, rede, tecnologia
+arquitetura, prédio, construção, edifício, lugar
+monitor, tela, computador, display, tecnologia
+motoneta, moto, motocicleta, veículo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+scooter, moto, motocicleta, veículo
+bicicleta, ciclismo, trilha, árvore, natureza, esporte
+utensílio, equipamento, cotidiano
+mouse, computador, periférico, informática
+utensílio, equipamento, cotidiano
+furgão, caminhão de mudança, veículo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+notebook, laptop, computador, tela, tecnologia
+arquitetura, prédio, construção, edifício, lugar
+instrumento musical, música, áudio, arte
+instrumento musical, música, áudio, arte
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+equipamento, lente, câmera, relógio, instrumento
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+arquitetura, prédio, construção, edifício, lugar
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+banco de parque, parque, árvore, jardim, natureza
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+pátio, varanda, jardim, planta, externo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+ponte, estrutura, arquitetura, paisagem, externo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+cerca, jardim, árvore, grama, planta, natureza
+caminhonete, picape, utilitário, veículo
+ponte, estrutura, arquitetura, paisagem, externo
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arado, agricultura, campo, terra
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+utensílio, equipamento, cotidiano
+viatura policial, polícia, veículo
+roupa, vestuário, moda, acessório, pessoa
+móvel, mobília, cadeira, mesa, decoração, interior
+garrafa de refrigerante, bebida
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+impressora, escritório, tecnologia
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+projetor, vídeo, apresentação, tecnologia
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+carro de corrida, fórmula, automóvel, veículo
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+esporte, equipamento esportivo, lazer
+motorhome, trailer, viagem, veículo
+utensílio, equipamento, cotidiano
+equipamento, lente, câmera, relógio, instrumento
+utensílio doméstico, eletrodoméstico, casa, cozinha
+controle remoto, eletrônico
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+instrumento musical, música, áudio, arte
+esporte, equipamento esportivo, lazer
+equipamento, lente, câmera, relógio, instrumento
+ônibus escolar, ônibus, transporte, veículo
+escuna, veleiro, navio, mar
+utensílio, equipamento, cotidiano
+tela, monitor, display, interface, tecnologia
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+esporte, equipamento esportivo, lazer
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+esporte, equipamento esportivo, lazer
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+teclado, barra de espaço, computador, informática
+utensílio doméstico, eletrodoméstico, casa, cozinha
+ônibus espacial, foguete, espaço
+utensílio, equipamento, cotidiano
+lancha, barco, água, mar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+carro esportivo, carro, automóvel, veículo
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+muro de pedra, rocha, árvore, campo, natureza
+equipamento, lente, câmera, relógio, instrumento
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+móvel, mobília, cadeira, mesa, decoração, interior
+arquitetura, prédio, construção, edifício, lugar
+submarino, mar, oceano
+roupa, vestuário, moda, acessório, pessoa
+equipamento, lente, câmera, relógio, instrumento
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+ponte, estrutura, arquitetura, paisagem, externo
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+bule de chá, chá, bebida
+utensílio, equipamento, cotidiano
+televisão, tv, tela, monitor, eletrônico
+esporte, equipamento esportivo, lazer
+roupa, vestuário, moda, acessório, pessoa
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+máquina agrícola, colheita, campo, fazenda
+móvel, mobília, cadeira, mesa, decoração, interior
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+arquitetura, prédio, construção, edifício, lugar
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+caminhão guincho, reboque, veículo
+arquitetura, prédio, construção, edifício, lugar
+trator, máquina agrícola, fazenda, campo
+caminhão, carreta, transporte, veículo
+utensílio doméstico, eletrodoméstico, casa, cozinha
+roupa, vestuário, moda, acessório, pessoa
+triciclo, bicicleta
+trimarã, veleiro, barco, mar
+utensílio, equipamento, cotidiano
+arquitetura, prédio, construção, edifício, lugar
+ônibus elétrico, transporte público, veículo
+instrumento musical, música, áudio, arte
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+teclado, máquina de escrever, escrita
+utensílio, equipamento, cotidiano
+monociclo, roda
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio doméstico, eletrodoméstico, casa, cozinha
+arquitetura, prédio, construção, edifício, lugar
+roupa, vestuário, moda, acessório, pessoa
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+ponte, estrutura, arquitetura, paisagem, externo
+instrumento musical, música, áudio, arte
+esporte, equipamento esportivo, lazer
+utensílio doméstico, eletrodoméstico, casa, cozinha
+equipamento, lente, câmera, relógio, instrumento
+utensílio, equipamento, cotidiano
+móvel, mobília, cadeira, mesa, decoração, interior
+avião militar, caça, aeronave, céu
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+garrafa de água, água, bebida
+jarra de água, recipiente
+arquitetura, prédio, construção, edifício, lugar
+garrafa, jarro, bebida
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+garrafa de vinho, vinho, bebida
+utensílio, equipamento, cotidiano
+utensílio doméstico, eletrodoméstico, casa, cozinha
+utensílio, equipamento, cotidiano
+roupa, vestuário, moda, acessório, pessoa
+cerca de madeira, árvore, floresta, campo, natureza
+naufrágio, navio, mar
+veleiro, barco a vela, mar, água
+utensílio, equipamento, cotidiano
+página web, site, interface, software, tela, documento
+revista em quadrinhos, história em quadrinhos, ilustração
+palavras cruzadas, jogo, papel, texto
+placa de rua, sinalização, rua, cidade, árvore
+semáforo, sinal de trânsito, rua, cidade
+livro, capa de livro, leitura, publicação
+menu, cardápio, interface, texto
+prato de comida, refeição, restaurante, alimento
+guacamole, abacate, comida, alimento
+sopa, caldo, prato, comida, alimento
+cozido, sopa, panela, comida, alimento
+sobremesa, doce, bolo, alimento
+sorvete, sobremesa, doce, alimento
+picolé, sorvete, doce, alimento
+pão francês, baguete, pão, alimento
+pão, rosca, padaria, alimento
+pretzel, pão, padaria, alimento
+hambúrguer, lanche, comida, alimento
+cachorro quente, lanche, comida, alimento
+purê de batata, comida, prato, alimento
+repolho, verdura, vegetal, planta, alimento
+brócolis, verdura, vegetal, alimento
+couve flor, vegetal, verdura, alimento
+abobrinha, legume, vegetal, alimento
+abóbora, legume, vegetal, alimento
+abóbora, legume, vegetal, alimento
+abóbora, legume, vegetal, alimento
+pepino, legume, vegetal, salada, alimento
+alcachofra, vegetal, planta, alimento
+pimentão, vegetal, legume, alimento
+cardo, planta, vegetal, natureza
+cogumelo, fungo, alimento, natureza
+maçã verde, maçã, fruta, alimento
+morango, fruta, doce, alimento
+laranja, fruta cítrica, fruta, alimento
+limão, fruta cítrica, planta, fruta, alimento
+figo, fruta, árvore, planta, alimento
+abacaxi, fruta tropical, planta, fruta, alimento
+banana, fruta, planta, alimento
+jaca, fruta tropical, árvore, fruta, alimento
+fruta do conde, pinha, fruta, árvore, alimento
+romã, fruta, árvore, planta, alimento
+feno, palha, campo, fazenda, grama, natureza
+macarrão, massa, espaguete, comida, alimento
+calda de chocolate, doce, sobremesa, alimento
+massa de pão, culinária, alimento
+bolo de carne, comida, prato, alimento
+pizza, comida, alimento, refeição
+torta salgada, torta, comida, alimento
+burrito, comida, alimento
+vinho tinto, taça de vinho, bebida
+café expresso, xícara de café, café, bebida
+xícara, café, chá, bebida
+gemada, bebida, copo
+montanha, alpes, árvore, neve, céu, paisagem, natureza
+paisagem, natureza, árvore, planta, vegetação, ar livre
+penhasco, rocha, montanha, árvore, paisagem, natureza
+recife de corais, oceano, mar, água, natureza
+gêiser, água termal, vapor, paisagem, natureza
+lago, margem, árvores, floresta, água, céu, paisagem, natureza
+promontório, costa, mar, rocha, paisagem, natureza
+banco de areia, praia, mar, água, natureza
+praia, litoral, mar, areia, céu, paisagem, natureza
+vale, árvores, floresta, montanha, grama, céu, paisagem, natureza
+vulcão, montanha, paisagem, natureza
+paisagem, natureza, árvore, planta, vegetação, ar livre
+paisagem, natureza, árvore, planta, vegetação, ar livre
+paisagem, natureza, árvore, planta, vegetação, ar livre
+plantação, campo florido, flores, árvore, natureza
+margarida, flor, planta, jardim, grama, natureza
+orquídea, flor, planta, floresta, natureza
+milho, plantação, planta, agricultura, campo
+carvalho, bolota, árvore, folha, floresta, natureza
+rosa mosqueta, fruto, planta, árvore, galho, natureza
+castanheira, árvore, folha, semente, floresta, natureza
+cogumelo, fungo, floresta, natureza
+cogumelo, fungo, floresta, grama, natureza
+cogumelo, fungo, floresta, natureza
+cogumelo, fungo, floresta, natureza
+cogumelo, fungo, floresta, natureza
+cogumelo, fungo, tronco, árvore, floresta
+cogumelo, fungo, floresta, natureza
+espiga, planta, trigo, agricultura, campo
+utensílio, equipamento, cotidiano

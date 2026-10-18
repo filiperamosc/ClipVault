@@ -6,185 +6,227 @@
              x:DataType="vm:MainViewModel"
              Shell.NavBarIsVisible="False"
              SizeChanged="OnPageSizeChanged"
-             BackgroundColor="#18181B">
+             BackgroundColor="#0F0F12">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
 
-        <!-- Notificação Toast / Feedback Visual -->
+        <!-- Toast / Feedback Visual Minimalista -->
         <Border Grid.Row="0"
                 IsVisible="{Binding IsToastVisible}"
-                BackgroundColor="#22C55E"
-                StrokeShape="RoundRectangle 6"
-                Stroke="Transparent"
-                Margin="16,6,16,0"
-                Padding="12,6"
+                BackgroundColor="#1E293B"
+                StrokeShape="RoundRectangle 8"
+                Stroke="#334155"
+                Margin="16,8,16,0"
+                Padding="14,6"
                 HorizontalOptions="Center"
                 ZIndex="100">
-            <Label Text="{Binding ToastMessage}"
-                   TextColor="White"
-                   FontAttributes="Bold"
-                   FontSize="12"
-                   HorizontalTextAlignment="Center" />
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <Label Text="&#xE73E;"
+                       FontFamily="Segoe Fluent Icons"
+                       FontSize="12"
+                       TextColor="#38BDF8"
+                       VerticalOptions="Center" />
+                <Label Text="{Binding ToastMessage}"
+                       TextColor="#F8FAFC"
+                       FontSize="12"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
         </Border>
 
-        <!-- Barra Superior Compacta (Status e Ações) -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="16,10,16,6">
-            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                <Border BackgroundColor="#222226"
-                        StrokeShape="RoundRectangle 6"
-                        Stroke="#333338"
-                        Padding="8,4">
-                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                        <Label Text="🟢" FontSize="9" VerticalOptions="Center" />
-                        <Label Text="{Binding StatusSubtitle}"
-                               FontSize="11"
-                               TextColor="#A1A1AA"
+        <!-- Cabeçalho Unificado Fluent Design (Busca + Filtros + Ações Rápidas) -->
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto" Padding="16,12,16,8" RowSpacing="10">
+
+            <!-- Linha 1: Barra de Pesquisa + Botões de Ferramentas Discretos -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+
+                <!-- Campo de Busca Fluent -->
+                <Border Grid.Column="0"
+                        BackgroundColor="#18181C"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="#27272E"
+                        HeightRequest="36"
+                        Padding="12,0">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="&#xE721;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="13"
+                               TextColor="#71717A"
                                VerticalOptions="Center" />
-                    </HorizontalStackLayout>
+                        <Entry Grid.Column="1"
+                               Text="{Binding SearchText, Mode=TwoWay}"
+                               Placeholder="Pesquisar textos, reconhecimento óptico (OCR), categorias ou datas..."
+                               PlaceholderColor="#71717A"
+                               TextColor="#F4F4F6"
+                               BackgroundColor="Transparent"
+                               FontSize="12.5"
+                               VerticalOptions="Center" />
+                    </Grid>
                 </Border>
-            </HorizontalStackLayout>
 
-            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
-                <!-- Botão Alternar Modo Grade / Modo Lista -->
-                <Button Text="{Binding ViewModeButtonText}"
-                        ToolTipProperties.Text="Alternar entre Modo Lista e Modo Grade"
-                        Command="{Binding ToggleViewModeCommand}"
-                        BackgroundColor="#27272A"
-                        TextColor="#E4E4E7"
-                        CornerRadius="6"
-                        HeightRequest="30"
-                        FontSize="11"
-                        FontAttributes="Bold"
-                        Padding="10,0" />
+                <!-- Ações da Barra Superior (Ícones Fluent Minimalistas) -->
+                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
 
-                <!-- Botão Limpar Histórico -->
-                <Button Text="🗑️ Limpar"
-                        ToolTipProperties.Text="Limpar itens não fixados"
-                        Command="{Binding ClearHistoryCommand}"
-                        BackgroundColor="#27272A"
-                        TextColor="#EF4444"
-                        CornerRadius="6"
-                        HeightRequest="30"
-                        FontSize="11"
-                        Padding="10,0" />
+                    <!-- Alternar Modo Lista / Grade -->
+                    <Button Text="{Binding ViewModeIcon}"
+                            FontFamily="Segoe Fluent Icons"
+                            ToolTipProperties.Text="{Binding ViewModeTooltip}"
+                            Command="{Binding ToggleViewModeCommand}"
+                            BackgroundColor="#18181C"
+                            BorderColor="#27272E"
+                            BorderWidth="1"
+                            TextColor="#E4E4E7"
+                            CornerRadius="8"
+                            WidthRequest="36"
+                            HeightRequest="36"
+                            MinimumWidthRequest="0"
+                            MinimumHeightRequest="0"
+                            FontSize="14"
+                            Padding="0" />
 
-                <!-- Botão Sobre -->
-                <Button Text="ℹ️ Sobre"
-                        ToolTipProperties.Text="Sobre o ClipVault"
-                        Clicked="OnAboutClicked"
-                        BackgroundColor="#27272A"
-                        TextColor="#38BDF8"
-                        CornerRadius="6"
-                        HeightRequest="30"
-                        FontSize="11"
-                        FontAttributes="Bold"
-                        Padding="10,0" />
+                    <!-- Limpar Histórico -->
+                    <Button Text="&#xE74D;"
+                            FontFamily="Segoe Fluent Icons"
+                            ToolTipProperties.Text="Limpar histórico (mantém fixados)"
+                            Command="{Binding ClearHistoryCommand}"
+                            BackgroundColor="#18181C"
+                            BorderColor="#27272E"
+                            BorderWidth="1"
+                            TextColor="#F87171"
+                            CornerRadius="8"
+                            WidthRequest="36"
+                            HeightRequest="36"
+                            MinimumWidthRequest="0"
+                            MinimumHeightRequest="0"
+                            FontSize="14"
+                            Padding="0" />
 
-                <!-- Botão Configurações -->
-                <Button Text="⚙️ Configurações"
-                        Clicked="OnSettingsClicked"
-                        BackgroundColor="#6366F1"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        CornerRadius="6"
-                        HeightRequest="30"
-                        FontSize="11"
-                        Padding="12,0" />
-            </HorizontalStackLayout>
-        </Grid>
+                    <!-- Sobre -->
+                    <Button Text="&#xE946;"
+                            FontFamily="Segoe Fluent Icons"
+                            ToolTipProperties.Text="Sobre o ClipVault"
+                            Clicked="OnAboutClicked"
+                            BackgroundColor="#18181C"
+                            BorderColor="#27272E"
+                            BorderWidth="1"
+                            TextColor="#9CA3AF"
+                            CornerRadius="8"
+                            WidthRequest="36"
+                            HeightRequest="36"
+                            MinimumWidthRequest="0"
+                            MinimumHeightRequest="0"
+                            FontSize="14"
+                            Padding="0" />
 
-        <!-- Barra de Pesquisa e Filtros Rápidos -->
-        <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="16,2,16,8" RowSpacing="6">
-            <!-- Campo de Busca Compacto -->
-            <Border BackgroundColor="#242428"
-                    StrokeShape="RoundRectangle 8"
-                    Stroke="#333338"
-                    Padding="10,0">
-                <Grid ColumnDefinitions="Auto,*">
-                    <Label Text="🔍"
-                           FontSize="12"
+                    <!-- Configurações -->
+                    <Button Text="&#xE713;"
+                            FontFamily="Segoe Fluent Icons"
+                            ToolTipProperties.Text="Configurações"
+                            Clicked="OnSettingsClicked"
+                            BackgroundColor="#6366F1"
+                            TextColor="#FFFFFF"
+                            CornerRadius="8"
+                            WidthRequest="36"
+                            HeightRequest="36"
+                            MinimumWidthRequest="0"
+                            MinimumHeightRequest="0"
+                            FontSize="14"
+                            Padding="0" />
+                </HorizontalStackLayout>
+            </Grid>
+
+            <!-- Linha 2: Pílulas de Filtro + Indicador de Status -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                    <Button Text="Todos"
+                            Command="{Binding SetFilterCommand}"
+                            CommandParameter="Todos"
+                            BackgroundColor="{Binding FilterTodosBg}"
+                            TextColor="{Binding FilterTodosFg}"
+                            CornerRadius="8"
+                            HeightRequest="28"
+                            MinimumHeightRequest="0"
+                            MinimumWidthRequest="0"
+                            Padding="12,0"
+                            FontSize="11.5" />
+
+                    <Button Text="Textos"
+                            Command="{Binding SetFilterCommand}"
+                            CommandParameter="Textos"
+                            BackgroundColor="{Binding FilterTextosBg}"
+                            TextColor="{Binding FilterTextosFg}"
+                            CornerRadius="8"
+                            HeightRequest="28"
+                            MinimumHeightRequest="0"
+                            MinimumWidthRequest="0"
+                            Padding="12,0"
+                            FontSize="11.5" />
+
+                    <Button Text="Imagens"
+                            Command="{Binding SetFilterCommand}"
+                            CommandParameter="Imagens"
+                            BackgroundColor="{Binding FilterImagensBg}"
+                            TextColor="{Binding FilterImagensFg}"
+                            CornerRadius="8"
+                            HeightRequest="28"
+                            MinimumHeightRequest="0"
+                            MinimumWidthRequest="0"
+                            Padding="12,0"
+                            FontSize="11.5" />
+
+                    <Button Text="Fixados"
+                            Command="{Binding SetFilterCommand}"
+                            CommandParameter="Fixados"
+                            BackgroundColor="{Binding FilterFixadosBg}"
+                            TextColor="{Binding FilterFixadosFg}"
+                            CornerRadius="8"
+                            HeightRequest="28"
+                            MinimumHeightRequest="0"
+                            MinimumWidthRequest="0"
+                            Padding="12,0"
+                            FontSize="11.5" />
+                </HorizontalStackLayout>
+
+                <!-- Indicador Discreto de Status -->
+                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                    <BoxView WidthRequest="6"
+                             HeightRequest="6"
+                             CornerRadius="3"
+                             Color="#10B981"
+                             VerticalOptions="Center" />
+                    <Label Text="{Binding StatusSubtitle}"
+                           FontSize="11"
                            TextColor="#71717A"
-                           VerticalOptions="Center"
-                           Margin="0,0,6,0" />
-                    <Entry Grid.Column="1"
-                           Text="{Binding SearchText, Mode=TwoWay}"
-                           Placeholder="Pesquisar por texto, OCR, tags de IA ou data..."
-                           PlaceholderColor="#71717A"
-                           TextColor="#FAFAFA"
-                           BackgroundColor="Transparent"
-                           FontSize="12"
-                           HeightRequest="32" />
-                </Grid>
-            </Border>
-
-            <!-- Abas / Filtros Rápidos -->
-            <HorizontalStackLayout Grid.Row="1" Spacing="6">
-                <Button Text="Todos"
-                        Command="{Binding SetFilterCommand}"
-                        CommandParameter="Todos"
-                        BackgroundColor="#3F3F46"
-                        TextColor="White"
-                        CornerRadius="6"
-                        HeightRequest="26"
-                        Padding="12,0"
-                        FontSize="11" />
-
-                <Button Text="📝 Textos"
-                        Command="{Binding SetFilterCommand}"
-                        CommandParameter="Textos"
-                        BackgroundColor="#222226"
-                        TextColor="#D4D4D8"
-                        CornerRadius="6"
-                        HeightRequest="26"
-                        Padding="10,0"
-                        FontSize="11" />
-
-                <Button Text="🖼️ Imagens"
-                        Command="{Binding SetFilterCommand}"
-                        CommandParameter="Imagens"
-                        BackgroundColor="#222226"
-                        TextColor="#D4D4D8"
-                        CornerRadius="6"
-                        HeightRequest="26"
-                        Padding="10,0"
-                        FontSize="11" />
-
-                <Button Text="📌 Fixados"
-                        Command="{Binding SetFilterCommand}"
-                        CommandParameter="Fixados"
-                        BackgroundColor="#222226"
-                        TextColor="#FBBF24"
-                        CornerRadius="6"
-                        HeightRequest="26"
-                        Padding="10,0"
-                        FontSize="11" />
-            </HorizontalStackLayout>
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Grid>
         </Grid>
 
-        <!-- Área de Conteúdo: Suporte a Modo Lista e Modo Grade -->
-        <Grid Grid.Row="3" Margin="16,0,16,6">
+        <!-- Área Principal de Conteúdo -->
+        <Grid Grid.Row="2" Margin="16,2,16,8">
 
-            <!-- 1. MODO LISTA COMPACTA -->
+            <!-- 1. MODO LISTA (CLEAN FLUENT LIST) -->
             <CollectionView ItemsSource="{Binding Items}"
                             IsVisible="{Binding IsListView}">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
                 </CollectionView.ItemsLayout>
 
                 <CollectionView.EmptyView>
                     <VerticalStackLayout HorizontalOptions="Center"
                                          VerticalOptions="Center"
-                                         Spacing="8"
-                                         Margin="0,40,0,0">
-                        <Label Text="📋"
-                               FontSize="36"
+                                         Spacing="10"
+                                         Margin="0,60,0,0">
+                        <Label Text="&#xE8C8;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="32"
+                               TextColor="#3F3F46"
                                HorizontalOptions="Center" />
-                        <Label Text="Nenhum item encontrado no histórico"
+                        <Label Text="Nenhum item encontrado"
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="#A1A1AA"
                                HorizontalOptions="Center" />
-                        <Label Text="Copie textos ou capture telas (Print Screen) para salvar automaticamente."
+                        <Label Text="Copie textos ou capture imagens para registrá-los automaticamente."
                                FontSize="12"
                                TextColor="#71717A"
                                HorizontalOptions="Center" />
@@ -193,259 +235,349 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ClipboardItemViewModel">
-                        <Border BackgroundColor="#202024"
+                        <Border BackgroundColor="#18181C"
                                 StrokeShape="RoundRectangle 8"
-                                Stroke="#2B2B30"
-                                Padding="10,6"
+                                Stroke="#26262E"
+                                Padding="12,8"
                                 Margin="0,0,0,2">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=OpenItemViewerCommand}"
                                                       CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
 
-                                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6" VerticalOptions="Center">
-                                    <Label Text="{Binding TypeIcon}" FontSize="12" VerticalOptions="Center" />
-                                    <Label Text="{Binding Type}"
-                                           FontSize="11"
-                                           FontAttributes="Bold"
+                            <Grid RowDefinitions="24,Auto" ColumnDefinitions="*,Auto" RowSpacing="6">
+
+                                <!-- Cabeçalho do Item -->
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="7" VerticalOptions="Center">
+                                    <Label Text="{Binding TypeIcon}"
+                                           FontFamily="Segoe Fluent Icons"
+                                           FontSize="12"
                                            TextColor="#818CF8"
                                            VerticalOptions="Center" />
-                                    <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
+                                    <Label Text="{Binding TypeDisplayName}"
+                                           FontSize="11.5"
+                                           FontAttributes="Bold"
+                                           TextColor="#E4E4E7"
+                                           VerticalOptions="Center" />
+                                    <Label Text="•" TextColor="#3F3F46" VerticalOptions="Center" />
                                     <Label Text="{Binding FormattedDate}"
-                                           FontSize="10"
+                                           FontSize="11"
                                            TextColor="#71717A"
                                            VerticalOptions="Center" />
-                                    <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
+                                    <Label Text="•" TextColor="#3F3F46" VerticalOptions="Center" />
                                     <Label Text="{Binding FormattedSize}"
-                                           FontSize="10"
+                                           FontSize="11"
                                            TextColor="#71717A"
                                            VerticalOptions="Center" />
-
-                                    <Label Text="📌"
-                                           IsVisible="{Binding IsPinned}"
-                                           FontSize="10"
-                                           TextColor="#F59E0B"
-                                           VerticalOptions="Center"
-                                           Margin="2,0,0,0" />
                                 </HorizontalStackLayout>
 
+                                <!-- Botões de Ação Compactos (Somente Ícones) -->
                                 <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                    <Button Text="📋"
-                                            ToolTipProperties.Text="Copiar item"
+                                    <Button Text="&#xE8C8;"
+                                            FontFamily="Segoe Fluent Icons"
+                                            ToolTipProperties.Text="Copiar"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
                                             CommandParameter="{Binding .}"
-                                            BackgroundColor="#4F46E5"
-                                            TextColor="White"
-                                            FontSize="11"
-                                            CornerRadius="4"
-                                            HeightRequest="24"
+                                            BackgroundColor="#23232B"
+                                            TextColor="#E4E4E7"
+                                            FontSize="12"
+                                            CornerRadius="6"
                                             WidthRequest="28"
+                                            HeightRequest="28"
+                                            MinimumWidthRequest="0"
+                                            MinimumHeightRequest="0"
                                             Padding="0" />
 
                                     <Button Text="{Binding PinIcon}"
+                                            FontFamily="Segoe Fluent Icons"
                                             ToolTipProperties.Text="{Binding PinText}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
                                             CommandParameter="{Binding .}"
-                                            BackgroundColor="#27272A"
-                                            TextColor="#F4F4F5"
-                                            FontSize="11"
-                                            CornerRadius="4"
-                                            HeightRequest="24"
+                                            BackgroundColor="#23232B"
+                                            TextColor="{Binding PinIconColor}"
+                                            FontSize="12"
+                                            CornerRadius="6"
                                             WidthRequest="28"
+                                            HeightRequest="28"
+                                            MinimumWidthRequest="0"
+                                            MinimumHeightRequest="0"
                                             Padding="0" />
 
-                                    <Button Text="🗑️"
-                                            ToolTipProperties.Text="Excluir item"
+                                    <Button Text="&#xE74D;"
+                                            FontFamily="Segoe Fluent Icons"
+                                            ToolTipProperties.Text="Excluir"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
                                             CommandParameter="{Binding .}"
-                                            BackgroundColor="#27272A"
-                                            TextColor="#EF4444"
-                                            FontSize="11"
-                                            CornerRadius="4"
-                                            HeightRequest="24"
+                                            BackgroundColor="#23232B"
+                                            TextColor="#F87171"
+                                            FontSize="12"
+                                            CornerRadius="6"
                                             WidthRequest="28"
+                                            HeightRequest="28"
+                                            MinimumWidthRequest="0"
+                                            MinimumHeightRequest="0"
                                             Padding="0" />
                                 </HorizontalStackLayout>
 
-                                <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
+                                <!-- Corpo do Item -->
+                                <Grid Grid.Row="1" Grid.ColumnSpan="2">
                                     <Label Text="{Binding PreviewText}"
                                            IsVisible="{Binding IsText}"
-                                           TextColor="#E4E4E7"
+                                           TextColor="#D4D4D8"
                                            FontSize="12"
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2" />
 
-                                    <Grid IsVisible="{Binding IsImage}" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Grid IsVisible="{Binding IsImage}" ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                         <Border StrokeShape="RoundRectangle 6"
-                                                Stroke="#2E2E33"
-                                                BackgroundColor="#141416"
+                                                Stroke="#27272E"
+                                                BackgroundColor="#121215"
                                                 Padding="2"
                                                 VerticalOptions="Start">
                                             <Image Source="{Binding FilePath}"
-                                                   MaximumHeightRequest="95"
+                                                   HeightRequest="84"
+                                                   WidthRequest="130"
                                                    Aspect="AspectFit" />
                                         </Border>
 
-                                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                            <!-- Tags de Visão Computacional -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
                                             <Border IsVisible="{Binding HasImageTags}"
-                                                    BackgroundColor="#1E1E28"
-                                                    StrokeShape="RoundRectangle 4"
-                                                    Stroke="#4338CA"
-                                                    Padding="6,2"
+                                                    BackgroundColor="#1E1E2A"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    Stroke="#312E81"
+                                                    Padding="8,3"
                                                     HorizontalOptions="Start">
-                                                <HorizontalStackLayout Spacing="4">
-                                                    <Label Text="🏷️" FontSize="10" VerticalOptions="Center" />
-                                                    <Label Text="{Binding ImageTags}"
+                                                <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                                    <Label Text="&#xE8EC;"
+                                                           FontFamily="Segoe Fluent Icons"
                                                            FontSize="10"
-                                                           FontAttributes="Bold"
-                                                           TextColor="#A5B4FC"
+                                                           TextColor="#818CF8"
+                                                           VerticalOptions="Center" />
+                                                    <Label Text="{Binding ImageTags}"
+                                                           FontSize="11"
+                                                           TextColor="#C7D2FE"
                                                            VerticalOptions="Center" />
                                                 </HorizontalStackLayout>
                                             </Border>
 
-                                            <!-- Texto Extraído via OCR -->
                                             <Border IsVisible="{Binding HasExtractedText}"
-                                                    BackgroundColor="#18222D"
-                                                    StrokeShape="RoundRectangle 4"
+                                                    BackgroundColor="#142029"
+                                                    StrokeShape="RoundRectangle 6"
                                                     Stroke="#1E3A5F"
-                                                    Padding="6,3"
+                                                    Padding="8,3"
                                                     HorizontalOptions="Start">
-                                                <HorizontalStackLayout Spacing="6">
-                                                    <Label Text="🔍 OCR" FontSize="9" FontAttributes="Bold" TextColor="#38BDF8" VerticalOptions="Center" />
-                                                    <Label Text="{Binding OcrPreview}"
+                                                <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                                    <Label Text="&#xE890;"
+                                                           FontFamily="Segoe Fluent Icons"
                                                            FontSize="10"
-                                                           TextColor="#E0F2FE"
+                                                           TextColor="#38BDF8"
+                                                           VerticalOptions="Center" />
+                                                    <Label Text="{Binding OcrPreview}"
+                                                           FontSize="11"
+                                                           TextColor="#BAE6FD"
                                                            LineBreakMode="TailTruncation"
-                                                           MaxLines="2"
+                                                           MaxLines="1"
                                                            VerticalOptions="Center" />
                                                 </HorizontalStackLayout>
                                             </Border>
                                         </VerticalStackLayout>
                                     </Grid>
-                                </VerticalStackLayout>
+                                </Grid>
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- 2. MODO GRADE (GRID VIEW EM 3 COLUNAS) -->
+            <!-- 2. MODO GRADE (PROPORÇÃO PERFEITA: RowDefinitions="22,*,36") -->
             <CollectionView ItemsSource="{Binding Items}"
                             IsVisible="{Binding IsGridView}">
                 <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="{Binding GridSpan}" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="{Binding GridSpan}"
+                                     HorizontalItemSpacing="10"
+                                     VerticalItemSpacing="10" />
                 </CollectionView.ItemsLayout>
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Spacing="10"
+                                         Margin="0,60,0,0">
+                        <Label Text="&#xF0E2;"
+                               FontFamily="Segoe Fluent Icons"
+                               FontSize="32"
+                               TextColor="#3F3F46"
+                               HorizontalOptions="Center" />
+                        <Label Text="Nenhum item para exibir na grade"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#A1A1AA"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="vm:ClipboardItemViewModel">
-                        <Border BackgroundColor="#202024"
+                        <Border BackgroundColor="#18181C"
                                 StrokeShape="RoundRectangle 8"
-                                Stroke="#2B2B30"
-                                Padding="8"
-                                HeightRequest="185">
+                                Stroke="#26262E"
+                                Padding="10"
+                                HeightRequest="220">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=OpenItemViewerCommand}"
                                                       CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="6">
 
-                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-                                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
-                                        <Label Text="{Binding TypeIcon}" FontSize="11" />
-                                        <Label Text="{Binding Type}" FontSize="10" FontAttributes="Bold" TextColor="#818CF8" />
+                            <!-- Linha 0: 22px (Cabeçalho) | Linha 1: * (Conteúdo Principal) | Linha 2: 36px (Barra de Ações Compacta) -->
+                            <Grid RowDefinitions="22,*,36" RowSpacing="6">
+
+                                <!-- Linha 0: Metadados Superiores -->
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                    <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
+                                        <Label Text="{Binding TypeIcon}"
+                                               FontFamily="Segoe Fluent Icons"
+                                               FontSize="11"
+                                               TextColor="#818CF8"
+                                               VerticalOptions="Center" />
+                                        <Label Text="{Binding TypeDisplayName}"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="#E4E4E7"
+                                               VerticalOptions="Center" />
                                     </HorizontalStackLayout>
-                                    <Label Grid.Column="1" Text="📌" IsVisible="{Binding IsPinned}" FontSize="10" TextColor="#F59E0B" />
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding FormattedDate}"
+                                           FontSize="10"
+                                           TextColor="#71717A"
+                                           VerticalOptions="Center" />
                                 </Grid>
 
+                                <!-- Linha 1 (*): Conteúdo Principal Absorvendo o Espaço Máximo -->
                                 <Grid Grid.Row="1">
-                                    <Label Text="{Binding PreviewText}"
-                                           IsVisible="{Binding IsText}"
-                                           TextColor="#E4E4E7"
-                                           FontSize="11"
-                                           LineBreakMode="TailTruncation"
-                                           MaxLines="4" />
+                                    <!-- Preview de Texto -->
+                                    <Border IsVisible="{Binding IsText}"
+                                            BackgroundColor="#121215"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="#222228"
+                                            Padding="8">
+                                        <Label Text="{Binding PreviewText}"
+                                               TextColor="#D4D4D8"
+                                               FontSize="11.5"
+                                               LineBreakMode="TailTruncation"
+                                               MaxLines="6" />
+                                    </Border>
 
-                                    <Grid IsVisible="{Binding IsImage}">
-                                        <Border StrokeShape="RoundRectangle 6"
-                                                Stroke="#2E2E33"
-                                                BackgroundColor="#141416"
-                                                Padding="2">
+                                    <!-- Preview de Imagem -->
+                                    <Border IsVisible="{Binding IsImage}"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="#222228"
+                                            BackgroundColor="#121215"
+                                            Padding="2">
+                                        <Grid>
                                             <Image Source="{Binding FilePath}"
                                                    Aspect="AspectFit"
                                                    HorizontalOptions="Center"
                                                    VerticalOptions="Center" />
-                                        </Border>
 
-                                        <!-- Badges de Tags e OCR sobrepostas -->
-                                        <VerticalStackLayout VerticalOptions="End" HorizontalOptions="Fill" Spacing="2" Margin="3">
+                                            <!-- Pílula discreta de Tags sobreposta no canto inferior esquerdo da imagem -->
                                             <Border IsVisible="{Binding HasImageTags}"
-                                                    BackgroundColor="#E61E1E28"
+                                                    BackgroundColor="#D918181C"
                                                     StrokeShape="RoundRectangle 4"
-                                                    Stroke="#4338CA"
-                                                    Padding="4,1"
+                                                    Stroke="#312E81"
+                                                    Padding="6,2"
+                                                    Margin="4"
+                                                    VerticalOptions="End"
                                                     HorizontalOptions="Start">
-                                                <Label Text="{Binding ImageTags}"
-                                                       FontSize="9"
-                                                       TextColor="#A5B4FC"
-                                                       FontAttributes="Bold"
-                                                       LineBreakMode="TailTruncation"
-                                                       MaxLines="1" />
+                                                <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                                    <Label Text="&#xE8EC;"
+                                                           FontFamily="Segoe Fluent Icons"
+                                                           FontSize="9"
+                                                           TextColor="#818CF8"
+                                                           VerticalOptions="Center" />
+                                                    <Label Text="{Binding ImageTags}"
+                                                           FontSize="9.5"
+                                                           TextColor="#C7D2FE"
+                                                           LineBreakMode="TailTruncation"
+                                                           MaxLines="1"
+                                                           VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
                                             </Border>
-
-                                            <Border IsVisible="{Binding HasExtractedText}"
-                                                    BackgroundColor="#E618222D"
-                                                    StrokeShape="RoundRectangle 4"
-                                                    Stroke="#1E3A5F"
-                                                    Padding="4,1"
-                                                    HorizontalOptions="Start">
-                                                <Label Text="{Binding OcrPreview}"
-                                                       FontSize="8"
-                                                       TextColor="#E0F2FE"
-                                                       LineBreakMode="TailTruncation"
-                                                       MaxLines="1" />
-                                            </Border>
-                                        </VerticalStackLayout>
-                                    </Grid>
+                                        </Grid>
+                                    </Border>
                                 </Grid>
 
-                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4">
-                                    <Button Text="📋"
-                                            ToolTipProperties.Text="Copiar item"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
-                                            CommandParameter="{Binding .}"
-                                            BackgroundColor="#4F46E5"
-                                            TextColor="White"
-                                            FontSize="10"
-                                            CornerRadius="4"
-                                            HeightRequest="22"
-                                            Padding="0" />
-                                    <Button Grid.Column="1"
-                                            Text="{Binding PinIcon}"
-                                            ToolTipProperties.Text="{Binding PinText}"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
-                                            CommandParameter="{Binding .}"
-                                            BackgroundColor="#27272A"
-                                            TextColor="#F4F4F5"
-                                            FontSize="10"
-                                            CornerRadius="4"
-                                            HeightRequest="22"
-                                            WidthRequest="24"
-                                            Padding="0" />
-                                    <Button Grid.Column="2"
-                                            Text="🗑️"
-                                            ToolTipProperties.Text="Excluir item"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
-                                            CommandParameter="{Binding .}"
-                                            BackgroundColor="#27272A"
-                                            TextColor="#EF4444"
-                                            FontSize="10"
-                                            CornerRadius="4"
-                                            HeightRequest="22"
-                                            WidthRequest="24"
-                                            Padding="0" />
+                                <!-- Linha 2 (Height="36"): Rodapé Compacto com Botões Exclusivamente de Ícone -->
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto" VerticalOptions="Center">
+
+                                    <HorizontalStackLayout Grid.Column="0" Spacing="5" VerticalOptions="Center">
+                                        <Label Text="{Binding FormattedSize}"
+                                               FontSize="10"
+                                               TextColor="#71717A"
+                                               VerticalOptions="Center" />
+                                        <Border IsVisible="{Binding HasExtractedText}"
+                                                BackgroundColor="#142029"
+                                                StrokeShape="RoundRectangle 4"
+                                                Stroke="#1E3A5F"
+                                                Padding="5,1"
+                                                VerticalOptions="Center">
+                                            <Label Text="OCR"
+                                                   FontSize="9"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#38BDF8"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+
+                                    <HorizontalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                        <Button Text="&#xE8C8;"
+                                                FontFamily="Segoe Fluent Icons"
+                                                ToolTipProperties.Text="Copiar"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#6366F1"
+                                                TextColor="#FFFFFF"
+                                                FontSize="12"
+                                                CornerRadius="6"
+                                                WidthRequest="28"
+                                                HeightRequest="28"
+                                                MinimumWidthRequest="0"
+                                                MinimumHeightRequest="0"
+                                                Padding="0" />
+
+                                        <Button Text="{Binding PinIcon}"
+                                                FontFamily="Segoe Fluent Icons"
+                                                ToolTipProperties.Text="{Binding PinText}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#23232B"
+                                                TextColor="{Binding PinIconColor}"
+                                                FontSize="12"
+                                                CornerRadius="6"
+                                                WidthRequest="28"
+                                                HeightRequest="28"
+                                                MinimumWidthRequest="0"
+                                                MinimumHeightRequest="0"
+                                                Padding="0" />
+
+                                        <Button Text="&#xE74D;"
+                                                FontFamily="Segoe Fluent Icons"
+                                                ToolTipProperties.Text="Excluir"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
+                                                CommandParameter="{Binding .}"
+                                                BackgroundColor="#23232B"
+                                                TextColor="#F87171"
+                                                FontSize="12"
+                                                CornerRadius="6"
+                                                WidthRequest="28"
+                                                HeightRequest="28"
+                                                MinimumWidthRequest="0"
+                                                MinimumHeightRequest="0"
+                                                Padding="0" />
+                                    </HorizontalStackLayout>
                                 </Grid>
+
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -454,19 +586,19 @@
 
         </Grid>
 
-        <!-- Barra Inferior / Rodapé Compacto -->
-        <Border Grid.Row="4"
-                BackgroundColor="#121214"
-                Stroke="#242428"
-                Padding="16,4">
+        <!-- Rodapé Discreto -->
+        <Border Grid.Row="3"
+                BackgroundColor="#121216"
+                Stroke="#1F1F26"
+                Padding="16,5">
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="ClipVault v1.1.1 • Monitoramento Inteligente (OCR &amp; Visão Multi-Label)"
-                       FontSize="10"
+                <Label Text="ClipVault v1.1.2 • Monitoramento de Área de Transferência"
+                       FontSize="10.5"
                        TextColor="#71717A"
                        VerticalOptions="Center" />
                 <Label Grid.Column="1"
-                       Text="Fechar minimiza para a bandeja do sistema"
-                       FontSize="10"
+                       Text="Execução em segundo plano na bandeja do sistema"
+                       FontSize="10.5"
                        TextColor="#71717A"
                        VerticalOptions="Center" />
             </Grid>

@@ -270,7 +270,7 @@ public class ClipboardService : IClipboardService
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Erro no enriquecimento IA da imagem: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Erro no processamento visual da imagem: {ex.Message}");
                 }
             }, _cts.Token);
         }

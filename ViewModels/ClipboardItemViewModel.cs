@@ -29,18 +29,28 @@ public partial class ClipboardItemViewModel : ObservableObject
 
     public bool HasExtractedText => !string.IsNullOrWhiteSpace(ExtractedText);
     public bool HasImageTags => !string.IsNullOrWhiteSpace(ImageTags);
-    public string OcrPreview => HasExtractedText ? (ExtractedText!.Length > 60 ? ExtractedText.Substring(0, 60) + "..." : ExtractedText) : string.Empty;
+    public string OcrPreview => HasExtractedText ? (ExtractedText!.Length > 55 ? ExtractedText.Substring(0, 55) + "..." : ExtractedText) : string.Empty;
 
+    // Segoe Fluent Icons Glyphs
     public string TypeIcon => Type switch
     {
-        "Image" => "🖼️",
-        "Url" => "🔗",
-        "Code" => "💻",
-        _ => "📝"
+        "Image" => "\uEB9F", // Photo2
+        "Url" => "\uE71B",   // Link
+        "Code" => "\uE943",  // Code
+        _ => "\uE8A5"        // Document / Text
     };
 
-    public string PinIcon => IsPinned ? "📌" : "📍";
+    public string TypeDisplayName => Type switch
+    {
+        "Image" => "Imagem",
+        "Url" => "Link",
+        "Code" => "Código",
+        _ => "Texto"
+    };
+
+    public string PinIcon => IsPinned ? "\uE840" : "\uE718";
     public string PinText => IsPinned ? "Desafixar" : "Fixar";
+    public string PinIconColor => IsPinned ? "#F59E0B" : "#A1A1AA";
 
     public ClipboardItemViewModel(ClipboardItem model)
     {
@@ -56,9 +66,10 @@ public partial class ClipboardItemViewModel : ObservableObject
         Model.IsPinned = pinned;
         OnPropertyChanged(nameof(PinIcon));
         OnPropertyChanged(nameof(PinText));
+        OnPropertyChanged(nameof(PinIconColor));
     }
 
-    public void UpdateAiMetadata(string? ocr, string? tags)
+    public void UpdateVisionMetadata(string? ocr, string? tags)
     {
         ExtractedText = ocr;
         ImageTags = tags;

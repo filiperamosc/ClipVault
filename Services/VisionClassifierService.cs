@@ -106,6 +106,8 @@ public class VisionClassifierService : IVisionClassifierService
         }
     }
 
+    private const float MinConfidenceThreshold = 0.60f;
+
     public async Task<string?> ClassifyImageAsync(string imagePath, CancellationToken cancellationToken = default)
     {
         if (_isDisposed || string.IsNullOrWhiteSpace(imagePath) || !File.Exists(imagePath)) return null;
@@ -115,17 +117,38 @@ public class VisionClassifierService : IVisionClassifierService
         {
             EnsureSession();
             EnsureLabels();
-            if (_session == null || cancellationToken.IsCancellationRequested) return null;
+            if (_session == null || _labels == null || cancellationToken.IsCancellationRequested) return null;
 
-            // 1. Decodificar e redimensionar nativamente no Windows para 224x224
+            // 1. Decodificar e redimensionar preservando proporção (Center Crop 224x224)
             var file = await StorageFile.GetFileFromPathAsync(imagePath);
             using var stream = await file.OpenAsync(FileAccessMode.Read);
             var decoder = await BitmapDecoder.CreateAsync(stream);
 
+            uint origW = decoder.OrientedPixelWidth;
+            uint origH = decoder.OrientedPixelHeight;
+            uint scaledW = 224;
+            uint scaledH = 224;
+            var bounds = new BitmapBounds { X = 0, Y = 0, Width = 224, Height = 224 };
+
+            if (origW > 0 && origH > 0)
+            {
+                double scale = 256.0 / Math.Min(origW, origH);
+                scaledW = Math.Max(224u, (uint)Math.Round(origW * scale));
+                scaledH = Math.Max(224u, (uint)Math.Round(origH * scale));
+                bounds = new BitmapBounds
+                {
+                    X = (scaledW - 224) / 2,
+                    Y = (scaledH - 224) / 2,
+                    Width = 224,
+                    Height = 224
+                };
+            }
+
             var transform = new BitmapTransform
             {
-                ScaledWidth = 224,
-                ScaledHeight = 224,
+                ScaledWidth = scaledW,
+                ScaledHeight = scaledH,
+                Bounds = bounds,
                 InterpolationMode = BitmapInterpolationMode.Linear
             };
 
@@ -139,24 +162,22 @@ public class VisionClassifierService : IVisionClassifierService
             byte[] pixels = pixelData.DetachPixelData();
             if (pixels == null || pixels.Length < 224 * 224 * 4) return null;
 
-            // 2. Montar Tensor Normalizado [1, 3, 224, 224] segundo padrão ImageNet
+            // 2. Montar Tensor Normalizado [1, 3, 224, 224] (mean = 0.5, std = 0.5 -> [-1, 1])
             int channelStride = 224 * 224;
             float[] tensorData = new float[3 * channelStride];
-            float[] mean = { 0.485f, 0.456f, 0.406f };
-            float[] std = { 0.229f, 0.224f, 0.225f };
 
             for (int y = 0; y < 224; y++)
             {
                 for (int x = 0; x < 224; x++)
                 {
                     int pixelIndex = (y * 224 + x) * 4;
-                    float r = pixels[pixelIndex] / 255.0f;
-                    float g = pixels[pixelIndex + 1] / 255.0f;
-                    float b = pixels[pixelIndex + 2] / 255.0f;
+                    float r = (pixels[pixelIndex] / 255.0f - 0.5f) / 0.5f;
+                    float g = (pixels[pixelIndex + 1] / 255.0f - 0.5f) / 0.5f;
+                    float b = (pixels[pixelIndex + 2] / 255.0f - 0.5f) / 0.5f;
 
-                    tensorData[0 * channelStride + y * 224 + x] = (r - mean[0]) / std[0];
-                    tensorData[1 * channelStride + y * 224 + x] = (g - mean[1]) / std[1];
-                    tensorData[2 * channelStride + y * 224 + x] = (b - mean[2]) / std[2];
+                    tensorData[0 * channelStride + y * 224 + x] = r;
+                    tensorData[1 * channelStride + y * 224 + x] = g;
+                    tensorData[2 * channelStride + y * 224 + x] = b;
                 }
             }
 
@@ -194,26 +215,30 @@ public class VisionClassifierService : IVisionClassifierService
                 }
             }
 
-            // 5. Extrair Top-5 classes e filtrar multi-labels por significância
-            var ranked = probs.Select((prob, index) => (Index: index, Probability: prob))
-                              .OrderByDescending(p => p.Probability)
-                              .Take(5)
-                              .ToList();
+            // 5. Alinhar índice (1001 classes possui classe 0 = background; 1..1000 = ImageNet 0..999)
+            //    e aplicar limiar estrito de confiança mínima de 60% (0.60)
+            bool hasBackgroundOffset = logits.Length == 1001;
+
+            var validPredictions = probs
+                .Select((prob, index) => (ModelIndex: index, Probability: prob))
+                .Where(p => (!hasBackgroundOffset || p.ModelIndex > 0) && p.Probability >= MinConfidenceThreshold)
+                .OrderByDescending(p => p.Probability)
+                .Take(3)
+                .ToList();
+
+            if (validPredictions.Count == 0)
+            {
+                return null;
+            }
 
             var resultTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            for (int i = 0; i < ranked.Count; i++)
+            foreach (var (modelIndex, _) in validPredictions)
             {
-                var (classIndex, probability) = ranked[i];
-
-                // Critério multi-label:
-                // - A predição Top 1 é sempre incluída
-                // - Predições subsequentes (2 a 5) são incluídas se probabilidade >= 15% (ou >= 8% para top 3)
-                bool isSignificant = (i == 0) || (probability >= 0.15f) || (i < 3 && probability >= 0.08f);
-
-                if (isSignificant && _labels != null && classIndex >= 0 && classIndex < _labels.Length)
+                int labelIndex = hasBackgroundOffset ? modelIndex - 1 : modelIndex;
+                if (labelIndex >= 0 && labelIndex < _labels.Length)
                 {
-                    var labelTokens = _labels[classIndex].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    var labelTokens = _labels[labelIndex].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                     foreach (var token in labelTokens)
                     {
                         if (!string.IsNullOrWhiteSpace(token))
@@ -221,15 +246,6 @@ public class VisionClassifierService : IVisionClassifierService
                             resultTags.Add(token);
                         }
                     }
-                }
-            }
-
-            if (resultTags.Count == 0 && ranked.Count > 0 && _labels != null)
-            {
-                var topTokens = _labels[ranked[0].Index].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-                foreach (var token in topTokens)
-                {
-                    resultTags.Add(token);
                 }
             }
 
