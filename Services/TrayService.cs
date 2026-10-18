@@ -16,6 +16,7 @@ public class TrayService : ITrayService
     public event Action? RequestSettingsWindow;
     public event Action? RequestClearHistory;
     public event Action? RequestToggleMonitoring;
+    public event Action? RequestAboutWindow;
     public event Action? RequestExit;
 
     private bool _isPaused;
@@ -49,6 +50,7 @@ public class TrayService : ITrayService
     private const int CMD_PAUSE = 1002;
     private const int CMD_CLEAR = 1003;
     private const int CMD_SETTINGS = 1004;
+    private const int CMD_ABOUT = 1006;
     private const int CMD_EXIT = 1005;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -193,6 +195,7 @@ public class TrayService : ITrayService
             AppendMenuW(hMenu, MF_STRING, CMD_PAUSE, _isPaused ? "Retomar Monitoramento" : "Pausar Monitoramento");
             AppendMenuW(hMenu, MF_STRING, CMD_CLEAR, "Limpar Histórico");
             AppendMenuW(hMenu, MF_STRING, CMD_SETTINGS, "Configurações");
+            AppendMenuW(hMenu, MF_STRING, CMD_ABOUT, "Sobre o ClipVault");
             AppendMenuW(hMenu, MF_SEPARATOR, 0, string.Empty);
             AppendMenuW(hMenu, MF_STRING, CMD_EXIT, "Sair");
 
@@ -219,9 +222,12 @@ public class TrayService : ITrayService
                     ShowWindow();
                     RequestSettingsWindow?.Invoke();
                     break;
+                case CMD_ABOUT:
+                    ShowWindow();
+                    RequestAboutWindow?.Invoke();
+                    break;
                 case CMD_EXIT:
                     Shutdown();
-                    RequestExit?.Invoke();
                     break;
             }
         }
@@ -262,16 +268,27 @@ public class TrayService : ITrayService
     public void Shutdown()
     {
 #if WINDOWS
-        if (_nid.hWnd != IntPtr.Zero)
+        try
         {
-            Shell_NotifyIconW(NIM_DELETE, ref _nid);
+            RequestExit?.Invoke();
         }
+        catch { }
 
-        if (_isSubclassed && _subclassProcDelegate != null)
+        try
         {
-            RemoveWindowSubclass(_hwnd, _subclassProcDelegate, (UIntPtr)1);
-            _isSubclassed = false;
+            if (_nid.hWnd != IntPtr.Zero)
+            {
+                Shell_NotifyIconW(NIM_DELETE, ref _nid);
+                _nid.hWnd = IntPtr.Zero;
+            }
+
+            if (_isSubclassed && _subclassProcDelegate != null)
+            {
+                RemoveWindowSubclass(_hwnd, _subclassProcDelegate, (UIntPtr)1);
+                _isSubclassed = false;
+            }
         }
+        catch { }
 
         Environment.Exit(0);
 #endif

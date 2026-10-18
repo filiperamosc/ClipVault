@@ -42,6 +42,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isGridView;
 
+    [ObservableProperty]
+    private bool _isListView = true;
+
     public string ViewModeButtonText => IsGridView ? "📋 Modo Lista" : "🔲 Modo Grade";
 
     public ObservableCollection<ClipboardItemViewModel> Items { get; } = new();
@@ -190,6 +193,7 @@ public partial class MainViewModel : ObservableObject
     public void ToggleViewMode()
     {
         IsGridView = !IsGridView;
+        IsListView = !IsGridView;
         OnPropertyChanged(nameof(ViewModeButtonText));
     }
 

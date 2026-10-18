@@ -26,7 +26,7 @@
                    HorizontalTextAlignment="Center" />
         </Border>
 
-        <!-- Barra Superior Compacta (Sem título repetido, com status e ações) -->
+        <!-- Barra Superior Compacta (Status e Ações) -->
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="16,10,16,6">
             <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
                 <Border BackgroundColor="#222226"
@@ -46,7 +46,7 @@
             <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
                 <!-- Botão Alternar Modo Grade / Modo Lista -->
                 <Button Text="{Binding ViewModeButtonText}"
-                        ToolTipProperties.Text="Alternar entre visualização em Grade e Lista"
+                        ToolTipProperties.Text="Alternar entre Modo Lista e Modo Grade"
                         Command="{Binding ToggleViewModeCommand}"
                         BackgroundColor="#27272A"
                         TextColor="#E4E4E7"
@@ -65,6 +65,18 @@
                         CornerRadius="6"
                         HeightRequest="30"
                         FontSize="11"
+                        Padding="10,0" />
+
+                <!-- Botão Sobre -->
+                <Button Text="ℹ️ Sobre"
+                        ToolTipProperties.Text="Sobre o ClipVault"
+                        Clicked="OnAboutClicked"
+                        BackgroundColor="#27272A"
+                        TextColor="#38BDF8"
+                        CornerRadius="6"
+                        HeightRequest="30"
+                        FontSize="11"
+                        FontAttributes="Bold"
                         Padding="10,0" />
 
                 <!-- Botão Configurações -->
@@ -148,132 +160,214 @@
             </HorizontalStackLayout>
         </Grid>
 
-        <!-- Lista de Itens Capturados (Virtualizada, Suporta Lista e Grade) -->
-        <CollectionView x:Name="ItemsCollectionView"
-                        Grid.Row="3"
-                        ItemsSource="{Binding Items}"
-                        Margin="16,0,16,6">
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
-            </CollectionView.ItemsLayout>
+        <!-- Área de Conteúdo: Suporte a Modo Lista e Modo Grade -->
+        <Grid Grid.Row="3" Margin="16,0,16,6">
 
-            <CollectionView.EmptyView>
-                <VerticalStackLayout HorizontalOptions="Center"
-                                     VerticalOptions="Center"
-                                     Spacing="8"
-                                     Margin="0,40,0,0">
-                    <Label Text="📋"
-                           FontSize="36"
-                           HorizontalOptions="Center" />
-                    <Label Text="Nenhum item encontrado no histórico"
-                           FontSize="14"
-                           FontAttributes="Bold"
-                           TextColor="#A1A1AA"
-                           HorizontalOptions="Center" />
-                    <Label Text="Copie textos ou capture telas (Print Screen) para salvar automaticamente."
-                           FontSize="12"
-                           TextColor="#71717A"
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
+            <!-- 1. MODO LISTA COMPACTA -->
+            <CollectionView ItemsSource="{Binding Items}"
+                            IsVisible="{Binding IsListView}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+                </CollectionView.ItemsLayout>
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="vm:ClipboardItemViewModel">
-                    <Border BackgroundColor="#202024"
-                            StrokeShape="RoundRectangle 8"
-                            Stroke="#2B2B30"
-                            Padding="10,6"
-                            Margin="0,0,0,2">
-                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Spacing="8"
+                                         Margin="0,40,0,0">
+                        <Label Text="📋"
+                               FontSize="36"
+                               HorizontalOptions="Center" />
+                        <Label Text="Nenhum item encontrado no histórico"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#A1A1AA"
+                               HorizontalOptions="Center" />
+                        <Label Text="Copie textos ou capture telas (Print Screen) para salvar automaticamente."
+                               FontSize="12"
+                               TextColor="#71717A"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
 
-                            <!-- Cabeçalho Compacto do Card: Tipo, Data, Tamanho e Fixado -->
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6" VerticalOptions="Center">
-                                <Label Text="{Binding TypeIcon}" FontSize="12" VerticalOptions="Center" />
-                                <Label Text="{Binding Type}"
-                                       FontSize="11"
-                                       FontAttributes="Bold"
-                                       TextColor="#818CF8"
-                                       VerticalOptions="Center" />
-                                <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
-                                <Label Text="{Binding FormattedDate}"
-                                       FontSize="10"
-                                       TextColor="#71717A"
-                                       VerticalOptions="Center" />
-                                <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
-                                <Label Text="{Binding FormattedSize}"
-                                       FontSize="10"
-                                       TextColor="#71717A"
-                                       VerticalOptions="Center" />
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ClipboardItemViewModel">
+                        <Border BackgroundColor="#202024"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="#2B2B30"
+                                Padding="10,6"
+                                Margin="0,0,0,2">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
 
-                                <Label Text="📌"
-                                       IsVisible="{Binding IsPinned}"
-                                       FontSize="10"
-                                       TextColor="#F59E0B"
-                                       VerticalOptions="Center"
-                                       Margin="2,0,0,0" />
-                            </HorizontalStackLayout>
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                                    <Label Text="{Binding TypeIcon}" FontSize="12" VerticalOptions="Center" />
+                                    <Label Text="{Binding Type}"
+                                           FontSize="11"
+                                           FontAttributes="Bold"
+                                           TextColor="#818CF8"
+                                           VerticalOptions="Center" />
+                                    <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
+                                    <Label Text="{Binding FormattedDate}"
+                                           FontSize="10"
+                                           TextColor="#71717A"
+                                           VerticalOptions="Center" />
+                                    <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
+                                    <Label Text="{Binding FormattedSize}"
+                                           FontSize="10"
+                                           TextColor="#71717A"
+                                           VerticalOptions="Center" />
 
-                            <!-- Ações Rápidas Compactas (Copiar, Fixar, Excluir) -->
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                <Button Text="📋 Copiar"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="#4F46E5"
-                                        TextColor="White"
-                                        FontSize="10"
-                                        FontAttributes="Bold"
-                                        CornerRadius="4"
-                                        HeightRequest="24"
-                                        Padding="8,0" />
+                                    <Label Text="📌"
+                                           IsVisible="{Binding IsPinned}"
+                                           FontSize="10"
+                                           TextColor="#F59E0B"
+                                           VerticalOptions="Center"
+                                           Margin="2,0,0,0" />
+                                </HorizontalStackLayout>
 
-                                <Button Text="{Binding PinIcon}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="#27272A"
-                                        TextColor="#F4F4F5"
-                                        FontSize="10"
-                                        CornerRadius="4"
-                                        HeightRequest="24"
-                                        Padding="6,0" />
+                                <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Button Text="📋 Copiar"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#4F46E5"
+                                            TextColor="White"
+                                            FontSize="10"
+                                            FontAttributes="Bold"
+                                            CornerRadius="4"
+                                            HeightRequest="24"
+                                            Padding="8,0" />
 
-                                <Button Text="🗑️"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
-                                        CommandParameter="{Binding .}"
-                                        BackgroundColor="#27272A"
-                                        TextColor="#EF4444"
-                                        FontSize="10"
-                                        CornerRadius="4"
-                                        HeightRequest="24"
-                                        Padding="6,0" />
-                            </HorizontalStackLayout>
+                                    <Button Text="{Binding PinIcon}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#27272A"
+                                            TextColor="#F4F4F5"
+                                            FontSize="10"
+                                            CornerRadius="4"
+                                            HeightRequest="24"
+                                            Padding="6,0" />
 
-                            <!-- Visualização Compacta de Conteúdo (Texto ou Imagem) -->
-                            <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
-                                <!-- Texto / Código / URL (Máximo 2 linhas para densidade de informação) -->
-                                <Label Text="{Binding PreviewText}"
-                                       IsVisible="{Binding IsText}"
-                                       TextColor="#E4E4E7"
-                                       FontSize="12"
-                                       LineBreakMode="TailTruncation"
-                                       MaxLines="2" />
+                                    <Button Text="🗑️"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#27272A"
+                                            TextColor="#EF4444"
+                                            FontSize="10"
+                                            CornerRadius="4"
+                                            HeightRequest="24"
+                                            Padding="6,0" />
+                                </HorizontalStackLayout>
 
-                                <!-- Imagem / Print Screen (Compacto com borda e preview) -->
-                                <Border IsVisible="{Binding IsImage}"
-                                        StrokeShape="RoundRectangle 6"
-                                        Stroke="#2E2E33"
-                                        BackgroundColor="#141416"
-                                        Padding="2"
-                                        HorizontalOptions="Start">
-                                    <Image Source="{Binding FilePath}"
-                                           MaximumHeightRequest="95"
-                                           Aspect="AspectFit" />
-                                </Border>
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
+                                    <Label Text="{Binding PreviewText}"
+                                           IsVisible="{Binding IsText}"
+                                           TextColor="#E4E4E7"
+                                           FontSize="12"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2" />
+
+                                    <Border IsVisible="{Binding IsImage}"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="#2E2E33"
+                                            BackgroundColor="#141416"
+                                            Padding="2"
+                                            HorizontalOptions="Start">
+                                        <Image Source="{Binding FilePath}"
+                                               MaximumHeightRequest="95"
+                                               Aspect="AspectFit" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- 2. MODO GRADE (GRID VIEW EM 3 COLUNAS) -->
+            <CollectionView ItemsSource="{Binding Items}"
+                            IsVisible="{Binding IsGridView}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ClipboardItemViewModel">
+                        <Border BackgroundColor="#202024"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="#2B2B30"
+                                Padding="8"
+                                HeightRequest="170">
+                            <Grid RowDefinitions="Auto,*,Auto" RowSpacing="6">
+
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                                        <Label Text="{Binding TypeIcon}" FontSize="11" />
+                                        <Label Text="{Binding Type}" FontSize="10" FontAttributes="Bold" TextColor="#818CF8" />
+                                    </HorizontalStackLayout>
+                                    <Label Grid.Column="1" Text="📌" IsVisible="{Binding IsPinned}" FontSize="10" TextColor="#F59E0B" />
+                                </Grid>
+
+                                <Grid Grid.Row="1">
+                                    <Label Text="{Binding PreviewText}"
+                                           IsVisible="{Binding IsText}"
+                                           TextColor="#E4E4E7"
+                                           FontSize="11"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="4" />
+
+                                    <Border IsVisible="{Binding IsImage}"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="#2E2E33"
+                                            BackgroundColor="#141416"
+                                            Padding="2">
+                                        <Image Source="{Binding FilePath}"
+                                               Aspect="AspectFit"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+                                </Grid>
+
+                                <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4">
+                                    <Button Text="📋 Copiar"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#4F46E5"
+                                            TextColor="White"
+                                            FontSize="9"
+                                            FontAttributes="Bold"
+                                            CornerRadius="4"
+                                            HeightRequest="22"
+                                            Padding="4,0" />
+                                    <Button Grid.Column="1"
+                                            Text="{Binding PinIcon}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#27272A"
+                                            TextColor="#F4F4F5"
+                                            FontSize="10"
+                                            CornerRadius="4"
+                                            HeightRequest="22"
+                                            WidthRequest="24"
+                                            Padding="0" />
+                                    <Button Grid.Column="2"
+                                            Text="🗑️"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
+                                            CommandParameter="{Binding .}"
+                                            BackgroundColor="#27272A"
+                                            TextColor="#EF4444"
+                                            FontSize="10"
+                                            CornerRadius="4"
+                                            HeightRequest="22"
+                                            WidthRequest="24"
+                                            Padding="0" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
 
         <!-- Barra Inferior / Rodapé Compacto -->
         <Border Grid.Row="4"
@@ -281,12 +375,12 @@
                 Stroke="#242428"
                 Padding="16,4">
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="ClipVault • Monitoramento Contínuo em Segundo Plano"
+                <Label Text="ClipVault v1.0.3 • Monitoramento Contínuo em Segundo Plano"
                        FontSize="10"
                        TextColor="#71717A"
                        VerticalOptions="Center" />
                 <Label Grid.Column="1"
-                       Text="Fechar a janela minimiza para a bandeja do sistema"
+                       Text="Fechar minimiza para a bandeja do sistema"
                        FontSize="10"
                        TextColor="#71717A"
                        VerticalOptions="Center" />

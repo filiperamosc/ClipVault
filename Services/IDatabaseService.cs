@@ -5,7 +5,7 @@ using ClipVault.Models;
 
 namespace ClipVault.Services;
 
-public interface IDatabaseService
+public interface IDatabaseService : IDisposable
 {
     Task InitializeAsync();
     Task<List<ClipboardItem>> GetItemsAsync(string? filterCategory = "Todos", string? searchText = null);

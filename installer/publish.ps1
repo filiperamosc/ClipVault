@@ -1,6 +1,7 @@
 # Script de automação para compilar e gerar o executável portátil (Self-Contained Single-File)
+$version = "1.0.3"
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "    ClipVault - Publicação Portátil .EXE  " -ForegroundColor Cyan
+Write-Host "    ClipVault v$version - Publicação Portátil " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 $projectPath = Join-Path $PSScriptRoot "..\ClipVault.csproj"
@@ -10,7 +11,7 @@ if (-not (Test-Path $portableDir)) {
     New-Item -ItemType Directory -Path $portableDir | Out-Null
 }
 
-Write-Host "`n[1/2] Publicando executável portátil (Single-File / Self-Contained)..." -ForegroundColor Yellow
+Write-Host "`n[1/3] Publicando executável portátil (Single-File / Self-Contained / x64)..." -ForegroundColor Yellow
 dotnet publish $projectPath `
     -f net8.0-windows10.0.19041.0 `
     -p:TargetFrameworks=net8.0-windows10.0.19041.0 `
@@ -25,12 +26,21 @@ dotnet publish $projectPath `
     -o $portableDir
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n[2/2] Publicação portátil concluída com sucesso!" -ForegroundColor Green
+    Write-Host "`n[2/3] Gerando binário versionado..." -ForegroundColor Yellow
+    $baseExe = Join-Path $portableDir "ClipVault.exe"
+    $versionedExe = Join-Path $portableDir "ClipVault_v$version.exe"
+
+    if (Test-Path $baseExe) {
+        Copy-Item -Path $baseExe -Destination $versionedExe -Force
+    }
+
+    Write-Host "`n[3/3] Publicação portátil concluída com sucesso!" -ForegroundColor Green
     Write-Host "Pasta Portátil: $portableDir" -ForegroundColor White
-    Write-Host "Executável: $portableDir\ClipVault.exe" -ForegroundColor Green
-    Write-Host "`nComo usar:" -ForegroundColor Cyan
-    Write-Host "• Basta copiar o arquivo 'ClipVault.exe' para qualquer pasta ou pendrive." -ForegroundColor Gray
-    Write-Host "• Ao executar, o ClipVault criará automaticamente o banco de dados e arquivos locais sem exigir instalação." -ForegroundColor Gray
+    Write-Host "Executável Versionado: $versionedExe" -ForegroundColor Green
+    Write-Host "`nInstruções de Uso:" -ForegroundColor Cyan
+    Write-Host "• Basta copiar o arquivo 'ClipVault_v$version.exe' para qualquer computador ou pendrive." -ForegroundColor Gray
+    Write-Host "• Não requer instalação: o banco SQLite (clipvault.db) e configurações (clipvault_config.json) são gerados na mesma pasta do executável." -ForegroundColor Gray
+    Write-Host "• Ao substituir por uma versão futura na mesma pasta, seus dados e configurações são mantidos automaticamente!" -ForegroundColor Gray
 } else {
     Write-Host "`nErro ao publicar o projeto portátil." -ForegroundColor Red
 }

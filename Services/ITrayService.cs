@@ -8,6 +8,7 @@ public interface ITrayService
     event Action? RequestSettingsWindow;
     event Action? RequestClearHistory;
     event Action? RequestToggleMonitoring;
+    event Action? RequestAboutWindow;
     event Action? RequestExit;
 
     void Initialize(object nativeWindow);

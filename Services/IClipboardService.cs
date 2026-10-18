@@ -4,7 +4,7 @@ using ClipVault.Models;
 
 namespace ClipVault.Services;
 
-public interface IClipboardService
+public interface IClipboardService : IDisposable
 {
     event EventHandler<ClipboardItem>? ItemCaptured;
     bool IsMonitoringPaused { get; set; }

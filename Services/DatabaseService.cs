@@ -24,11 +24,21 @@ public class DatabaseService : IDatabaseService
     {
         if (_db != null) return;
 
-        var storageDir = _settingsService.GetEffectiveStorageDirectory();
-        var dbPath = Path.Combine(storageDir, "clipvault.db3");
+        AppEnvironment.EnsureDirectoriesAndMigration();
+        var dbPath = AppEnvironment.DatabasePath;
 
         _db = new SQLiteAsyncConnection(dbPath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache);
         await _db.CreateTableAsync<ClipboardItem>();
+    }
+
+    public void Dispose()
+    {
+        try
+        {
+            _db?.CloseAsync().Wait(150);
+            _db = null;
+        }
+        catch { }
     }
 
     public async Task<List<ClipboardItem>> GetItemsAsync(string? filterCategory = "Todos", string? searchText = null)

@@ -10,7 +10,6 @@ namespace ClipVault.Services;
 
 public class SettingsService : ISettingsService
 {
-    private const string ConfigFileName = "clipvault_config.json";
     private readonly string _configFilePath;
     private AppConfig _currentConfig;
 
@@ -18,47 +17,9 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        var configDir = GetConfigDirectory();
-        _configFilePath = Path.Combine(configDir, ConfigFileName);
+        AppEnvironment.EnsureDirectoriesAndMigration();
+        _configFilePath = AppEnvironment.ConfigFilePath;
         _currentConfig = LoadConfig();
-    }
-
-    private static string GetConfigDirectory()
-    {
-        try
-        {
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var testPath = Path.Combine(baseDir, "ClipVault_Data");
-            Directory.CreateDirectory(testPath);
-            return testPath;
-        }
-        catch
-        {
-            var appData = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "ClipVault");
-            Directory.CreateDirectory(appData);
-            return appData;
-        }
-    }
-
-    private static string GetDefaultStorageDirectory()
-    {
-        try
-        {
-            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-            var portableDataDir = Path.Combine(baseDir, "ClipVault_Data", "Storage");
-            Directory.CreateDirectory(portableDataDir);
-            return portableDataDir;
-        }
-        catch
-        {
-            var appData = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "ClipVault", "Storage");
-            Directory.CreateDirectory(appData);
-            return appData;
-        }
     }
 
     private AppConfig LoadConfig()
@@ -73,20 +34,20 @@ public class SettingsService : ISettingsService
                 {
                     if (string.IsNullOrWhiteSpace(config.StorageDirectory))
                     {
-                        config.StorageDirectory = GetDefaultStorageDirectory();
+                        config.StorageDirectory = AppEnvironment.DefaultStorageDirectory;
                     }
                     return config;
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Fallback para padrão
+            System.Diagnostics.Debug.WriteLine($"Falha ao ler configuração: {ex.Message}");
         }
 
         var defaultConfig = new AppConfig
         {
-            StorageDirectory = GetDefaultStorageDirectory()
+            StorageDirectory = AppEnvironment.DefaultStorageDirectory
         };
         SaveConfig(defaultConfig);
         return defaultConfig;
@@ -111,7 +72,7 @@ public class SettingsService : ISettingsService
         var dir = _currentConfig.StorageDirectory;
         if (string.IsNullOrWhiteSpace(dir))
         {
-            dir = GetDefaultStorageDirectory();
+            dir = AppEnvironment.DefaultStorageDirectory;
         }
 
         if (!Directory.Exists(dir))

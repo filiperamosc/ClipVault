@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using ClipVault.Models;
 
@@ -16,9 +16,14 @@ public class ClipboardService : IClipboardService
 {
     private readonly IDatabaseService _databaseService;
     private readonly IStorageService _storageService;
+    private readonly SemaphoreSlim _captureLock = new(1, 1);
+    private readonly CancellationTokenSource _cts = new();
+
     private string? _lastHash;
+    private long _lastCaptureTimestamp;
     private bool _isInternalCopy;
     private bool _isStarted;
+    private bool _isDisposed;
 
     public event EventHandler<ClipboardItem>? ItemCaptured;
     public bool IsMonitoringPaused { get; set; }
@@ -31,7 +36,7 @@ public class ClipboardService : IClipboardService
 
     public void Start()
     {
-        if (_isStarted) return;
+        if (_isStarted || _isDisposed) return;
         _isStarted = true;
 
 #if WINDOWS
@@ -63,7 +68,7 @@ public class ClipboardService : IClipboardService
 #if WINDOWS
     private async void OnWindowsClipboardContentChanged(object? sender, object e)
     {
-        if (IsMonitoringPaused) return;
+        if (_isDisposed || _cts.IsCancellationRequested || IsMonitoringPaused) return;
 
         if (_isInternalCopy)
         {
@@ -71,19 +76,34 @@ public class ClipboardService : IClipboardService
             return;
         }
 
+        // 1. Debounce rígido de 500ms (ignora disparos repetidos da Ferramenta de Captura do Windows)
+        long now = Environment.TickCount64;
+        if (now - _lastCaptureTimestamp < 500)
+        {
+            return;
+        }
+
+        // 2. Prevenção de execução concorrente: se já estiver processando um frame, descarta
+        if (!_captureLock.Wait(0))
+        {
+            return;
+        }
+
         try
         {
+            _lastCaptureTimestamp = Environment.TickCount64;
+
             var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
             if (dataPackageView == null) return;
 
-            // 1. Verificar imagem primeiro (Print Screen / Bitmap copiado)
+            // Prioridade 1: Imagem (Print Screen / Snipping Tool / Bitmap copiado)
             if (dataPackageView.Contains(StandardDataFormats.Bitmap))
             {
                 await ProcessBitmapAsync(dataPackageView);
                 return;
             }
 
-            // 2. Verificar texto / URL / Código
+            // Prioridade 2: Texto / URL / Código
             if (dataPackageView.Contains(StandardDataFormats.Text))
             {
                 await ProcessTextAsync(dataPackageView);
@@ -94,18 +114,24 @@ public class ClipboardService : IClipboardService
         {
             System.Diagnostics.Debug.WriteLine($"Erro ao processar área de transferência: {ex.Message}");
         }
+        finally
+        {
+            _captureLock.Release();
+        }
     }
 
     private async Task ProcessTextAsync(Windows.ApplicationModel.DataTransfer.DataPackageView dataPackageView)
     {
         try
         {
+            if (_cts.IsCancellationRequested) return;
+
             var text = await dataPackageView.GetTextAsync();
             if (string.IsNullOrWhiteSpace(text)) return;
 
             var hash = _storageService.ComputeTextHash(text.Trim());
 
-            // Deduplicação consecutiva imediata
+            // Deduplicação estrita: comparar com último hash em memória e no banco
             if (_lastHash == null)
             {
                 _lastHash = await _databaseService.GetLastItemHashAsync();
@@ -117,7 +143,7 @@ public class ClipboardService : IClipboardService
             }
             _lastHash = hash;
 
-            // Detectar tipo (URL, Código ou Texto)
+            // Classificar tipo
             var type = "Text";
             if (Uri.TryCreate(text.Trim(), UriKind.Absolute, out var uri) &&
                 (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
@@ -156,6 +182,8 @@ public class ClipboardService : IClipboardService
     {
         try
         {
+            if (_cts.IsCancellationRequested) return;
+
             var streamRef = await dataPackageView.GetBitmapAsync();
             if (streamRef == null) return;
 
@@ -163,12 +191,13 @@ public class ClipboardService : IClipboardService
             using var memoryStream = new MemoryStream();
             using (var netStream = raStream.AsStreamForRead())
             {
-                await netStream.CopyToAsync(memoryStream);
+                await netStream.CopyToAsync(memoryStream, _cts.Token);
             }
 
             var bytes = memoryStream.ToArray();
             if (bytes.Length == 0) return;
 
+            // Verificação de Hash no buffer ANTES de salvar em disco
             var hash = _storageService.ComputeBytesHash(bytes);
 
             if (_lastHash == null)
@@ -176,12 +205,14 @@ public class ClipboardService : IClipboardService
                 _lastHash = await _databaseService.GetLastItemHashAsync();
             }
 
+            // Descarta sumariamente se for idêntica ao último hash registrado
             if (string.Equals(hash, _lastHash, StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
             _lastHash = hash;
 
+            // Salvar no disco e registrar apenas se for único
             var filePath = await _storageService.SaveImageAsync(bytes, ".png");
 
             var item = new ClipboardItem
@@ -221,6 +252,7 @@ public class ClipboardService : IClipboardService
 
         _isInternalCopy = true;
         _lastHash = item.ContentHash;
+        _lastCaptureTimestamp = Environment.TickCount64;
 
 #if WINDOWS
         try
@@ -259,5 +291,20 @@ public class ClipboardService : IClipboardService
             return false;
         }
 #endif
+    }
+
+    public void Dispose()
+    {
+        if (_isDisposed) return;
+        _isDisposed = true;
+
+        try
+        {
+            _cts.Cancel();
+            Stop();
+            _captureLock.Dispose();
+            _cts.Dispose();
+        }
+        catch { }
     }
 }

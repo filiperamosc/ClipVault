@@ -106,25 +106,12 @@ public partial class SettingsViewModel : ObservableObject
             if (folder != null && !string.IsNullOrWhiteSpace(folder.Path))
             {
                 StorageDirectory = folder.Path;
-                var cfg = _settingsService.CurrentConfig;
-                cfg.StorageDirectory = StorageDirectory;
-                _settingsService.SaveConfig(cfg);
-
-                UpdateStorageSize();
-                await ShowStatusAsync("Diretório de armazenamento atualizado com sucesso! ✔️", isError: false);
+                await ShowStatusAsync("Pasta selecionada no campo. Clique em 'Salvar Alterações' para aplicar. 💡", isError: false);
             }
         }
         catch (Exception ex)
         {
-            // Se a pasta já está preenchida e válida no disco, valida como sucesso
-            if (!string.IsNullOrWhiteSpace(StorageDirectory) && Directory.Exists(StorageDirectory))
-            {
-                await ShowStatusAsync("Diretório de armazenamento atualizado com sucesso! ✔️", isError: false);
-            }
-            else
-            {
-                await ShowStatusAsync($"Erro ao selecionar pasta: {ex.Message}", isError: true);
-            }
+            await ShowStatusAsync($"Não foi possível selecionar a pasta: {ex.Message}", isError: true);
         }
 #else
         await ShowStatusAsync("Seleção de pasta disponível no Windows.", isError: false);

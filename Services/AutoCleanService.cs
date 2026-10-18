@@ -9,8 +9,10 @@ public class AutoCleanService : IAutoCleanService, IDisposable
 {
     private readonly IDatabaseService _databaseService;
     private readonly ISettingsService _settingsService;
-    private Timer? _timer;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly CancellationTokenSource _cts = new();
+    private Timer? _timer;
+    private bool _isDisposed;
 
     public AutoCleanService(IDatabaseService databaseService, ISettingsService settingsService)
     {
@@ -20,7 +22,7 @@ public class AutoCleanService : IAutoCleanService, IDisposable
 
     public void StartPeriodicCleaning()
     {
-        // Dispara uma vez após 10 segundos da inicialização e depois a cada 24 horas
+        if (_isDisposed) return;
         _timer?.Dispose();
         _timer = new Timer(async _ => await SafeExecuteCleanAsync(), null, TimeSpan.FromSeconds(10), TimeSpan.FromHours(24));
     }
@@ -33,6 +35,8 @@ public class AutoCleanService : IAutoCleanService, IDisposable
 
     private async Task SafeExecuteCleanAsync()
     {
+        if (_isDisposed || _cts.IsCancellationRequested) return;
+
         try
         {
             await ExecuteCleanNowAsync();
@@ -45,9 +49,13 @@ public class AutoCleanService : IAutoCleanService, IDisposable
 
     public async Task<int> ExecuteCleanNowAsync()
     {
-        await _semaphore.WaitAsync();
+        if (_isDisposed || _cts.IsCancellationRequested) return 0;
+
+        await _semaphore.WaitAsync(_cts.Token);
         try
         {
+            if (_cts.IsCancellationRequested) return 0;
+
             var config = _settingsService.CurrentConfig;
             int totalRemoved = 0;
 
@@ -58,7 +66,9 @@ public class AutoCleanService : IAutoCleanService, IDisposable
                 totalRemoved += removedByAge;
             }
 
-            // 2. Limpeza por Tamanho de Armazenamento
+            if (_cts.IsCancellationRequested) return totalRemoved;
+
+            // 2. Limpeza por Limite de Armazenamento
             if (config.EnableAutoCleanBySize && config.MaxStorageMb > 0)
             {
                 long maxBytes = (long)config.MaxStorageMb * 1024 * 1024;
@@ -68,6 +78,10 @@ public class AutoCleanService : IAutoCleanService, IDisposable
 
             return totalRemoved;
         }
+        catch (OperationCanceledException)
+        {
+            return 0;
+        }
         finally
         {
             _semaphore.Release();
@@ -76,7 +90,16 @@ public class AutoCleanService : IAutoCleanService, IDisposable
 
     public void Dispose()
     {
-        _timer?.Dispose();
-        _semaphore.Dispose();
+        if (_isDisposed) return;
+        _isDisposed = true;
+
+        try
+        {
+            _cts.Cancel();
+            _timer?.Dispose();
+            _semaphore.Dispose();
+            _cts.Dispose();
+        }
+        catch { }
     }
 }

@@ -57,6 +57,33 @@ public partial class App : Application
                         }
                     });
                 };
+
+                trayService.RequestAboutWindow += () =>
+                {
+                    MainThread.BeginInvokeOnMainThread(async () =>
+                    {
+                        trayService.ShowWindow();
+                        if (MainPage is Shell shell)
+                        {
+                            var aboutPage = _serviceProvider.GetRequiredService<AboutPage>();
+                            await shell.Navigation.PushAsync(aboutPage);
+                        }
+                    });
+                };
+
+                trayService.RequestExit += () =>
+                {
+                    try
+                    {
+                        var clipboard = _serviceProvider.GetService<IClipboardService>();
+                        clipboard?.Dispose();
+                        var autoClean = _serviceProvider.GetService<IAutoCleanService>();
+                        (autoClean as IDisposable)?.Dispose();
+                        var db = _serviceProvider.GetService<IDatabaseService>();
+                        db?.Dispose();
+                    }
+                    catch { }
+                };
             }
 
             var autoCleanService = _serviceProvider.GetRequiredService<IAutoCleanService>();
