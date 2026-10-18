@@ -53,9 +53,12 @@ jobs:
             $tag = "v$appVersion"
           }
 
+          $binaryName = if ($tag.StartsWith("v")) { "ClipVault-$tag.exe" } else { "ClipVault-v$tag.exe" }
+
           Write-Output "VERSION=$appVersion" >> $env:GITHUB_ENV
           Write-Output "RELEASE_TAG=$tag" >> $env:GITHUB_ENV
-          Write-Output "Resolved Version: $appVersion, Release Tag: $tag"
+          Write-Output "BINARY_NAME=$binaryName" >> $env:GITHUB_ENV
+          Write-Output "Resolved Version: $appVersion, Release Tag: $tag, Binary Name: $binaryName"
 
       - name: Publish Portable Single-File Executable
         shell: pwsh
@@ -77,21 +80,58 @@ jobs:
             -o $outputDir
 
           $baseExe = Join-Path $outputDir "ClipVault.exe"
-          $versionedExe = Join-Path $outputDir "ClipVault_v$($env:VERSION).exe"
+          $targetExe = Join-Path $outputDir $env:BINARY_NAME
           if (Test-Path $baseExe) {
-            Copy-Item -Path $baseExe -Destination $versionedExe -Force
-            Write-Output "Binary generated: $versionedExe"
+            Move-Item -Path $baseExe -Destination $targetExe -Force
+            Get-ChildItem -Path $outputDir -Filter "*.exe" | Where-Object { $_.Name -ne $env:BINARY_NAME } | Remove-Item -Force
+            Write-Output "Single portable binary generated: $targetExe"
           } else {
             throw "ClipVault.exe was not found in $outputDir"
           }
+
+      - name: Generate Changelog for Current Version
+        shell: pwsh
+        run: |
+          git fetch --tags --force
+          $tag = $env:RELEASE_TAG
+          $allTags = git tag --sort=-creatordate | Where-Object { $_ -ne $tag -and $_ -ne "refs/tags/$tag" }
+          $prevTag = $allTags | Select-Object -First 1
+
+          Write-Output "Current release tag: $tag"
+          Write-Output "Previous release tag: $prevTag"
+
+          $changelogContent = @()
+          $changelogContent += "## ClipVault $tag"
+          $changelogContent += ""
+          $changelogContent += "### Alterações nesta versão:"
+
+          if ($prevTag) {
+            $commits = git log "$prevTag..HEAD" --pretty=format:"* %s (%h)" --no-merges
+          } else {
+            $commits = git log -n 15 --pretty=format:"* %s (%h)" --no-merges
+          }
+
+          if (-not [string]::IsNullOrWhiteSpace($commits)) {
+            $changelogContent += $commits
+          } else {
+            $changelogContent += "* Atualizações de estabilidade, melhorias de interface e otimizações de CI/CD."
+          }
+
+          $changelogContent += ""
+          $changelogContent += "---"
+          $changelogContent += "**Executável Portátil:** \`$($env:BINARY_NAME)\` (Single-file, Self-contained x64 - dispensa instalação)."
+
+          $notesPath = Join-Path $env:GITHUB_WORKSPACE "release_notes.md"
+          $changelogContent -join "`n" | Out-File -FilePath $notesPath -Encoding utf8
+          Write-Output "RELEASE_NOTES_PATH=$notesPath" >> $env:GITHUB_ENV
+          Write-Output "=== Release Notes ==="
+          Get-Content $notesPath
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ClipVault-Portable-x64
-          path: |
-            publish_output/ClipVault.exe
-            publish_output/ClipVault_v*.exe
+          path: publish_output/${{ env.BINARY_NAME }}
           if-no-files-found: error
 
       - name: Create or Update GitHub Release
@@ -99,11 +139,10 @@ jobs:
         with:
           tag_name: ${{ env.RELEASE_TAG }}
           name: ClipVault ${{ env.RELEASE_TAG }}
+          body_path: ${{ env.RELEASE_NOTES_PATH }}
           draft: false
           prerelease: false
-          generate_release_notes: true
-          files: |
-            publish_output/ClipVault.exe
-            publish_output/ClipVault_v*.exe
+          generate_release_notes: false
+          files: publish_output/${{ env.BINARY_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

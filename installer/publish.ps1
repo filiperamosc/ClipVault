@@ -28,17 +28,21 @@ dotnet publish $projectPath `
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`n[2/3] Gerando binário versionado..." -ForegroundColor Yellow
     $baseExe = Join-Path $portableDir "ClipVault.exe"
-    $versionedExe = Join-Path $portableDir "ClipVault_v$version.exe"
+    $versionedExe = Join-Path $portableDir "ClipVault-v$version.exe"
 
     if (Test-Path $baseExe) {
-        Copy-Item -Path $baseExe -Destination $versionedExe -Force
+        Move-Item -Path $baseExe -Destination $versionedExe -Force
+        $oldUnderscoreExe = Join-Path $portableDir "ClipVault_v$version.exe"
+        if (Test-Path $oldUnderscoreExe) {
+            Remove-Item -Path $oldUnderscoreExe -Force
+        }
     }
 
     Write-Host "`n[3/3] Publicação portátil concluída com sucesso!" -ForegroundColor Green
     Write-Host "Pasta Portátil: $portableDir" -ForegroundColor White
     Write-Host "Executável Versionado: $versionedExe" -ForegroundColor Green
     Write-Host "`nInstruções de Uso:" -ForegroundColor Cyan
-    Write-Host "• Basta copiar o arquivo 'ClipVault_v$version.exe' para qualquer computador ou pendrive." -ForegroundColor Gray
+    Write-Host "• Basta copiar o arquivo 'ClipVault-v$version.exe' para qualquer computador ou pendrive." -ForegroundColor Gray
     Write-Host "• Não requer instalação: o banco SQLite (clipvault.db) e configurações (clipvault_config.json) são gerados na mesma pasta do executável." -ForegroundColor Gray
     Write-Host "• Ao substituir por uma versão futura na mesma pasta, seus dados e configurações são mantidos automaticamente!" -ForegroundColor Gray
 } else {
