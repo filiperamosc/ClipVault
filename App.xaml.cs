@@ -173,6 +173,11 @@ public partial class App : Application
         try
         {
             appWindow?.SetIcon(iconPath);
+
+            if (Microsoft.UI.Windowing.AppWindowTitleBar.IsCustomizationSupported() && appWindow?.TitleBar != null)
+            {
+                appWindow.TitleBar.IconShowOptions = Microsoft.UI.Windowing.IconShowOptions.ShowIconAndSystemMenu;
+            }
         }
         catch (Exception ex)
         {

@@ -13,12 +13,22 @@ public partial class MainPage : ContentPage
     private readonly IServiceProvider _serviceProvider;
     private bool _isInitialized;
 
+    private CancellationTokenSource? _resizeCts;
+
     public MainPage(MainViewModel viewModel, IServiceProvider serviceProvider)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _serviceProvider = serviceProvider;
         BindingContext = _viewModel;
+
+        _viewModel.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(MainViewModel.IsGridView) && _viewModel.IsGridView)
+            {
+                UpdateGridSpanSafe();
+            }
+        };
     }
 
     protected override async void OnAppearing()
@@ -48,12 +58,12 @@ public partial class MainPage : ContentPage
         await Navigation.PushAsync(aboutPage);
     }
 
-    private void OnPageSizeChanged(object? sender, EventArgs e)
+    private void UpdateGridSpanSafe()
     {
-        if (Width <= 0) return;
+        if (Width <= 0 || !_viewModel.IsGridView) return;
 
         double width = Width;
-        int span = width switch
+        int targetSpan = width switch
         {
             < 520 => 1,
             < 820 => 2,
@@ -61,15 +71,47 @@ public partial class MainPage : ContentPage
             _ => 4
         };
 
-        if (_viewModel.GridSpan != span)
+        if (_viewModel.GridSpan != targetSpan)
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                if (_viewModel.GridSpan != span)
-                {
-                    _viewModel.GridSpan = span;
-                }
-            });
+            _viewModel.GridSpan = targetSpan;
         }
+    }
+
+    private void OnPageSizeChanged(object? sender, EventArgs e)
+    {
+        if (Width <= 0 || !_isInitialized || !_viewModel.IsGridView) return;
+
+        double width = Width;
+        int targetSpan = width switch
+        {
+            < 520 => 1,
+            < 820 => 2,
+            < 1150 => 3,
+            _ => 4
+        };
+
+        if (_viewModel.GridSpan == targetSpan) return;
+
+        _resizeCts?.Cancel();
+        _resizeCts?.Dispose();
+        var cts = new CancellationTokenSource();
+        _resizeCts = cts;
+
+        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(250), () =>
+        {
+            if (cts.IsCancellationRequested) return;
+
+            try
+            {
+                if (_viewModel.GridSpan != targetSpan && _viewModel.IsGridView)
+                {
+                    _viewModel.GridSpan = targetSpan;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Erro ao atualizar GridSpan: {ex.Message}");
+            }
+        });
     }
 }

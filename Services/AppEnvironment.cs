@@ -8,7 +8,7 @@ namespace ClipVault.Services;
 public static class AppEnvironment
 {
     public const string AppName = "ClipVault";
-    public const string Version = "1.1.3";
+    public const string Version = "1.1.4";
     public const string ReleaseDate = "Outubro de 2026";
     public const string Author = "Filipe R. Carvalho";
 
@@ -117,10 +117,27 @@ public static class AppEnvironment
                 using var stream = assembly.GetManifestResourceStream(resourceName);
                 if (stream != null)
                 {
-                    using var fs = File.Create(iconPath);
-                    stream.CopyTo(fs);
-                    fs.Flush();
-                    return iconPath;
+                    try
+                    {
+                        using var fs = File.Create(iconPath);
+                        stream.CopyTo(fs);
+                        fs.Flush();
+                        return iconPath;
+                    }
+                    catch
+                    {
+                        var tempDir = Path.Combine(Path.GetTempPath(), "ClipVault");
+                        Directory.CreateDirectory(tempDir);
+                        var tempIcon = Path.Combine(tempDir, "appicon.ico");
+                        if (!File.Exists(tempIcon) || new FileInfo(tempIcon).Length == 0)
+                        {
+                            stream.Position = 0;
+                            using var fsTemp = File.Create(tempIcon);
+                            stream.CopyTo(fsTemp);
+                            fsTemp.Flush();
+                        }
+                        return tempIcon;
+                    }
                 }
             }
 
