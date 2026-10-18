@@ -24,6 +24,19 @@ public static class MauiProgram
             });
 
 #if WINDOWS
+        Microsoft.Maui.Controls.Handlers.ShellHandler.Mapper.AppendToMapping("SuppressWinUINavControls", (handler, view) =>
+        {
+            if (handler.PlatformView is Microsoft.UI.Xaml.Controls.NavigationView navView)
+            {
+                navView.IsBackButtonVisible = Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Collapsed;
+                navView.IsTitleBarAutoPaddingEnabled = false;
+                navView.IsPaneToggleButtonVisible = false;
+                navView.Header = null;
+                navView.AlwaysShowHeader = false;
+                navView.PaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.LeftMinimal;
+            }
+        });
+
         builder.ConfigureLifecycleEvents(events =>
         {
             events.AddWindows(windows => windows

@@ -15,6 +15,15 @@
             <DataTemplate x:Key="MauiAppTitleBarTemplate">
                 <Grid Height="0" MaxHeight="0" Visibility="Collapsed" />
             </DataTemplate>
+
+            <!-- Desativa barra de cabeçalho, botão de voltar nativo e padding de topo do NavigationView -->
+            <Style TargetType="NavigationView">
+                <Setter Property="IsBackButtonVisible" Value="Collapsed" />
+                <Setter Property="IsTitleBarAutoPaddingEnabled" Value="False" />
+                <Setter Property="IsPaneToggleButtonVisible" Value="False" />
+                <Setter Property="PaneDisplayMode" Value="LeftMinimal" />
+                <Setter Property="AlwaysShowHeader" Value="False" />
+            </Style>
         </ResourceDictionary>
     </maui:MauiWinUIApplication.Resources>
 

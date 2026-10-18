@@ -4,9 +4,14 @@
              xmlns:vm="clr-namespace:ClipVault.ViewModels"
              x:Class="ClipVault.MainPage"
              x:DataType="vm:MainViewModel"
+             NavigationPage.HasNavigationBar="False"
              Shell.NavBarIsVisible="False"
              SizeChanged="OnPageSizeChanged"
              BackgroundColor="#0F0F12">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
 
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 

@@ -317,6 +317,47 @@ public partial class App : Application
                 return;
             }
 
+            if (element is Microsoft.UI.Xaml.Controls.NavigationView navView)
+            {
+                navView.IsBackButtonVisible = Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Collapsed;
+                navView.IsTitleBarAutoPaddingEnabled = false;
+                navView.IsPaneToggleButtonVisible = false;
+                navView.AlwaysShowHeader = false;
+                navView.Header = null;
+                navView.PaneDisplayMode = Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.LeftMinimal;
+
+                navView.RegisterPropertyChangedCallback(
+                    Microsoft.UI.Xaml.Controls.NavigationView.IsBackButtonVisibleProperty,
+                    (s, dp) =>
+                    {
+                        if (s is Microsoft.UI.Xaml.Controls.NavigationView nv &&
+                            nv.IsBackButtonVisible != Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Collapsed)
+                        {
+                            nv.IsBackButtonVisible = Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Collapsed;
+                        }
+                    });
+
+                navView.RegisterPropertyChangedCallback(
+                    Microsoft.UI.Xaml.Controls.NavigationView.HeaderProperty,
+                    (s, dp) =>
+                    {
+                        if (s is Microsoft.UI.Xaml.Controls.NavigationView nv && nv.Header != null)
+                        {
+                            nv.Header = null;
+                        }
+                    });
+
+                navView.RegisterPropertyChangedCallback(
+                    Microsoft.UI.Xaml.Controls.NavigationView.IsTitleBarAutoPaddingEnabledProperty,
+                    (s, dp) =>
+                    {
+                        if (s is Microsoft.UI.Xaml.Controls.NavigationView nv && nv.IsTitleBarAutoPaddingEnabled)
+                        {
+                            nv.IsTitleBarAutoPaddingEnabled = false;
+                        }
+                    });
+            }
+
             int count = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(element);
             for (int i = 0; i < count; i++)
             {

@@ -23,6 +23,20 @@ public partial class SettingsPage : ContentPage
 
     private async void OnBackClicked(object? sender, EventArgs e)
     {
-        await Navigation.PopAsync();
+        try
+        {
+            if (Navigation.NavigationStack.Count > 1)
+            {
+                await Navigation.PopAsync();
+            }
+            else if (Shell.Current != null)
+            {
+                await Shell.Current.GoToAsync("..");
+            }
+        }
+        catch
+        {
+            try { await Navigation.PopAsync(); } catch { }
+        }
     }
 }
