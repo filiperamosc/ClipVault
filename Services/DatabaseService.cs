@@ -40,14 +40,18 @@ public class DatabaseService : IDatabaseService
                 var dbPath = AppEnvironment.DatabasePath;
 
                 bool connectionSuccess = false;
+                SQLiteAsyncConnection? connection = null;
                 try
                 {
-                    var connection = new SQLiteAsyncConnection(
+                    connection = new SQLiteAsyncConnection(
                         dbPath,
                         SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
 
                     await connection.CreateTableAsync<ClipboardItem>().ConfigureAwait(false);
                     await EnsureSchemaColumnsAsync(connection).ConfigureAwait(false);
+
+                    // Testar se tabela está legível e operacional
+                    await connection.Table<ClipboardItem>().CountAsync().ConfigureAwait(false);
 
                     _db = connection;
                     _isInitialized = true;
@@ -56,6 +60,13 @@ public class DatabaseService : IDatabaseService
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Falha ao inicializar SQLite: {ex.Message}. Tentando recuperação e fallback limpo...");
+                    if (connection != null)
+                    {
+                        try { await connection.CloseAsync().ConfigureAwait(false); } catch { }
+                        connection = null;
+                    }
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
                 }
 
                 if (!connectionSuccess)
@@ -67,6 +78,9 @@ public class DatabaseService : IDatabaseService
                             try { await _db.CloseAsync().ConfigureAwait(false); } catch { }
                             _db = null;
                         }
+
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
 
                         if (File.Exists(dbPath))
                         {
@@ -80,17 +94,34 @@ public class DatabaseService : IDatabaseService
                             if (File.Exists(shmPath)) { try { File.Delete(shmPath); } catch { } }
                         }
 
+                        // Se o arquivo original não pôde ser movido/deletado (travado por outro processo), usa novo nome
+                        string effectiveDbPath = dbPath;
+                        if (File.Exists(dbPath))
+                        {
+                            effectiveDbPath = Path.Combine(AppEnvironment.AppRootDirectory, $"clipvault_recovered_{DateTime.UtcNow:yyyyMMdd_HHmmss}.db");
+                        }
+
                         var freshConnection = new SQLiteAsyncConnection(
-                            dbPath,
+                            effectiveDbPath,
                             SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
 
                         await freshConnection.CreateTableAsync<ClipboardItem>().ConfigureAwait(false);
+                        await EnsureSchemaColumnsAsync(freshConnection).ConfigureAwait(false);
+
                         _db = freshConnection;
                         _isInitialized = true;
                     }
                     catch (Exception fatalEx)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Falha catastrófica ao recriar SQLite limpo: {fatalEx.Message}");
+                        System.Diagnostics.Debug.WriteLine($"Falha catastrófica ao recriar SQLite: {fatalEx.Message}. Ativando fallback em memória.");
+                        try
+                        {
+                            var inMemoryConnection = new SQLiteAsyncConnection(":memory:", SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.FullMutex);
+                            await inMemoryConnection.CreateTableAsync<ClipboardItem>().ConfigureAwait(false);
+                            _db = inMemoryConnection;
+                            _isInitialized = true;
+                        }
+                        catch { }
                     }
                 }
             }).ConfigureAwait(false);
@@ -101,60 +132,72 @@ public class DatabaseService : IDatabaseService
         }
     }
 
-    private class ColumnInfo
+    public class TableColumnInfo
     {
         public string? name { get; set; }
     }
 
     private static async Task EnsureSchemaColumnsAsync(SQLiteAsyncConnection connection)
     {
+        var columnsToVerify = new (string Name, string TypeSql)[]
+        {
+            ("Type", "TEXT DEFAULT 'Text'"),
+            ("Content", "TEXT"),
+            ("PreviewText", "TEXT"),
+            ("FilePath", "TEXT"),
+            ("ThumbnailPath", "TEXT"),
+            ("ContentHash", "TEXT"),
+            ("ExtractedText", "TEXT"),
+            ("ImageTags", "TEXT"),
+            ("NormalizedSearchContent", "TEXT"),
+            ("ByteSize", "INTEGER DEFAULT 0"),
+            ("CreatedAt", "DATETIME"),
+            ("IsPinned", "INTEGER DEFAULT 0")
+        };
+
+        HashSet<string> existingNames = new(StringComparer.OrdinalIgnoreCase);
         try
         {
-            var columns = await connection.QueryAsync<ColumnInfo>("PRAGMA table_info(ClipboardItems);").ConfigureAwait(false);
-            var existingNames = new HashSet<string>(columns.Select(c => c.name ?? string.Empty), StringComparer.OrdinalIgnoreCase);
-
-            var columnsToVerify = new (string Name, string TypeSql)[]
+            var columns = await connection.QueryAsync<TableColumnInfo>("PRAGMA table_info(ClipboardItems);").ConfigureAwait(false);
+            if (columns != null)
             {
-                ("Type", "TEXT DEFAULT 'Text'"),
-                ("Content", "TEXT"),
-                ("PreviewText", "TEXT"),
-                ("FilePath", "TEXT"),
-                ("ThumbnailPath", "TEXT"),
-                ("ContentHash", "TEXT"),
-                ("ExtractedText", "TEXT"),
-                ("ImageTags", "TEXT"),
-                ("NormalizedSearchContent", "TEXT"),
-                ("ByteSize", "INTEGER DEFAULT 0"),
-                ("CreatedAt", "DATETIME"),
-                ("IsPinned", "INTEGER DEFAULT 0")
-            };
-
-            foreach (var (colName, colType) in columnsToVerify)
-            {
-                if (!existingNames.Contains(colName))
+                foreach (var col in columns)
                 {
-                    try
-                    {
-                        await connection.ExecuteAsync($"ALTER TABLE ClipboardItems ADD COLUMN {colName} {colType};").ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Aviso ao adicionar coluna '{colName}': {ex.Message}");
-                    }
+                    if (!string.IsNullOrWhiteSpace(col.name))
+                        existingNames.Add(col.name);
                 }
             }
-
-            try
-            {
-                await connection.ExecuteAsync("CREATE INDEX IF NOT EXISTS IX_ClipboardItems_IsPinned_CreatedAt ON ClipboardItems(IsPinned, CreatedAt);").ConfigureAwait(false);
-                await connection.ExecuteAsync("CREATE INDEX IF NOT EXISTS IX_ClipboardItems_Type ON ClipboardItems(Type);").ConfigureAwait(false);
-                await connection.ExecuteAsync("CREATE INDEX IF NOT EXISTS IX_ClipboardItems_ContentHash ON ClipboardItems(ContentHash);").ConfigureAwait(false);
-            }
-            catch { }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro na validação de schema: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Aviso ao consultar PRAGMA table_info: {ex.Message}");
+        }
+
+        foreach (var (colName, colType) in columnsToVerify)
+        {
+            if (existingNames.Count == 0 || !existingNames.Contains(colName))
+            {
+                try
+                {
+                    await connection.ExecuteAsync($"ALTER TABLE ClipboardItems ADD COLUMN {colName} {colType};").ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    // Se a coluna já existia (ex: falha no PRAGMA), erro duplicate column é capturado com segurança
+                    System.Diagnostics.Debug.WriteLine($"Aviso seguro ao adicionar coluna '{colName}': {ex.Message}");
+                }
+            }
+        }
+
+        try
+        {
+            await connection.ExecuteAsync("CREATE INDEX IF NOT EXISTS IX_ClipboardItems_IsPinned_CreatedAt ON ClipboardItems(IsPinned, CreatedAt);").ConfigureAwait(false);
+            await connection.ExecuteAsync("CREATE INDEX IF NOT EXISTS IX_ClipboardItems_Type ON ClipboardItems(Type);").ConfigureAwait(false);
+            await connection.ExecuteAsync("CREATE INDEX IF NOT EXISTS IX_ClipboardItems_ContentHash ON ClipboardItems(ContentHash);").ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Aviso seguro ao criar índices: {ex.Message}");
         }
     }
 

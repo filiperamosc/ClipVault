@@ -121,6 +121,16 @@ public class TrayService : ITrayService
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern IntPtr LoadImage(IntPtr hinst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr LoadImage(IntPtr hinst, IntPtr uId, uint uType, int cxDesired, int cyDesired, uint fuLoad);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    private static extern IntPtr GetModuleHandle(string? lpModuleName);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    private const int SW_RESTORE = 9;
+
     private const uint IMAGE_ICON = 1;
     private const uint LR_LOADFROMFILE = 0x00000010;
 
@@ -146,17 +156,46 @@ public class TrayService : ITrayService
                 };
             }
 
-            // Criar ícone da bandeja a partir do recurso .ico
-            string iconPath = AppEnvironment.EnsureIconExtracted();
+            // Criar ícone da bandeja com múltiplos níveis defensivos de fallback:
             IntPtr hIcon = IntPtr.Zero;
-            if (File.Exists(iconPath))
+            string iconPath = AppEnvironment.EnsureIconExtracted();
+
+            // 1. Tenta carregar a partir do arquivo .ico em disco (absoluto)
+            if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
             {
-                hIcon = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+                try
+                {
+                    hIcon = LoadImage(IntPtr.Zero, Path.GetFullPath(iconPath), IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+                }
+                catch { }
             }
 
+            // 2. Fallback: Recurso Win32 ID 1 compilado diretamente no executável (<ApplicationIcon>)
             if (hIcon == IntPtr.Zero)
             {
-                hIcon = LoadIcon(IntPtr.Zero, (IntPtr)32512);
+                try
+                {
+                    var hModule = GetModuleHandle(null);
+                    if (hModule != IntPtr.Zero)
+                    {
+                        hIcon = LoadImage(hModule, (IntPtr)1, IMAGE_ICON, 16, 16, 0);
+                        if (hIcon == IntPtr.Zero)
+                        {
+                            hIcon = LoadIcon(hModule, (IntPtr)1);
+                        }
+                    }
+                }
+                catch { }
+            }
+
+            // 3. Fallback: Ícone padrão da aplicação do Windows (32512 = IDI_APPLICATION)
+            if (hIcon == IntPtr.Zero)
+            {
+                try
+                {
+                    hIcon = LoadIcon(IntPtr.Zero, (IntPtr)32512);
+                }
+                catch { }
             }
 
             _nid = new NOTIFYICONDATAW
@@ -170,11 +209,18 @@ public class TrayService : ITrayService
                 szTip = "ClipVault - Gerenciador de Clipboard"
             };
 
-            Shell_NotifyIconW(NIM_ADD, ref _nid);
+            bool success = Shell_NotifyIconW(NIM_ADD, ref _nid);
+            if (!success)
+            {
+                Shell_NotifyIconW(NIM_MODIFY, ref _nid);
+            }
 
             // Subclass do HWND para capturar mensagens da bandeja
-            _subclassProcDelegate = new SubclassProc(WindowSubclassHandler);
-            _isSubclassed = SetWindowSubclass(_hwnd, _subclassProcDelegate, (UIntPtr)1, UIntPtr.Zero);
+            if (!_isSubclassed)
+            {
+                _subclassProcDelegate = new SubclassProc(WindowSubclassHandler);
+                _isSubclassed = SetWindowSubclass(_hwnd, _subclassProcDelegate, (UIntPtr)1, UIntPtr.Zero);
+            }
         }
 #endif
     }
@@ -257,10 +303,15 @@ public class TrayService : ITrayService
     public void ShowWindow()
     {
 #if WINDOWS
-        if (_appWindow != null)
+        if (_hwnd != IntPtr.Zero)
         {
-            _appWindow.Show();
-            SetForegroundWindow(_hwnd);
+            try
+            {
+                ShowWindow(_hwnd, SW_RESTORE);
+                _appWindow?.Show();
+                SetForegroundWindow(_hwnd);
+            }
+            catch { }
         }
 #endif
     }

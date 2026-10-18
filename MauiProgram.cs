@@ -32,10 +32,10 @@ public static class MauiProgram
                     try
                     {
                         ClipVault.WinUI.App.ConfigureNativeWindowIcon(nativeWindow);
-                        nativeWindow.Activated += (s, e) =>
+                        if (App.Current is App app)
                         {
-                            ClipVault.WinUI.App.ConfigureNativeWindowIcon(nativeWindow);
-                        };
+                            app.InitializeNative(nativeWindow);
+                        }
                     }
                     catch (Exception ex)
                     {

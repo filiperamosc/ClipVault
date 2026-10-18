@@ -17,9 +17,27 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        AppEnvironment.EnsureDirectoriesAndMigration();
-        _configFilePath = AppEnvironment.ConfigFilePath;
-        _currentConfig = LoadConfig();
+        try
+        {
+            AppEnvironment.EnsureDirectoriesAndMigration();
+            _configFilePath = AppEnvironment.ConfigFilePath;
+            _currentConfig = LoadConfig();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro ao inicializar SettingsService: {ex.Message}");
+            _configFilePath = Path.Combine(Path.GetTempPath(), "clipvault_config.json");
+            _currentConfig = new AppConfig
+            {
+                StorageDirectory = AppEnvironment.DefaultStorageDirectory,
+                EnableAutoCleanByDays = true,
+                AutoCleanDays = 15,
+                EnableAutoCleanBySize = true,
+                MaxStorageMb = 500,
+                StartWithWindows = false,
+                IsMonitoringPaused = false
+            };
+        }
     }
 
     private AppConfig LoadConfig()

@@ -43,6 +43,22 @@ public static class AppEnvironment
                 _appRootDirectory = AppContext.BaseDirectory;
             }
 
+            // Testar se o diretório tem permissão de escrita; caso contrário, redirecionar para LocalApplicationData
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(_appRootDirectory) && Directory.Exists(_appRootDirectory))
+                {
+                    var testFile = Path.Combine(_appRootDirectory, $".write_test_{Guid.NewGuid():N}.tmp");
+                    File.WriteAllText(testFile, "test");
+                    File.Delete(testFile);
+                }
+            }
+            catch
+            {
+                _appRootDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ClipVault");
+                try { Directory.CreateDirectory(_appRootDirectory); } catch { }
+            }
+
             return _appRootDirectory ?? Directory.GetCurrentDirectory();
         }
     }
