@@ -254,6 +254,15 @@ public partial class App : Application
             if (nativeWindow.ExtendsContentIntoTitleBar)
                 nativeWindow.ExtendsContentIntoTitleBar = false;
 
+            try { nativeWindow.SetTitleBar(null); } catch { }
+
+            if (nativeWindow.Content is Microsoft.UI.Xaml.FrameworkElement rootElement)
+            {
+                HideMauiTitleBar(rootElement);
+                rootElement.Loaded -= OnRootElementLoaded;
+                rootElement.Loaded += OnRootElementLoaded;
+            }
+
             if (appWindow == null || !Microsoft.UI.Windowing.AppWindowTitleBar.IsCustomizationSupported())
                 return;
 
@@ -282,6 +291,42 @@ public partial class App : Application
         {
             Debug.WriteLine($"Erro ao configurar barra de título nativa: {ex.Message}");
         }
+    }
+
+    private static void OnRootElementLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (sender is Microsoft.UI.Xaml.FrameworkElement fe)
+        {
+            HideMauiTitleBar(fe);
+        }
+    }
+
+    private static void HideMauiTitleBar(Microsoft.UI.Xaml.FrameworkElement? element)
+    {
+        if (element == null) return;
+        try
+        {
+            var name = element.Name;
+            var typeName = element.GetType().Name;
+            if (name == "AppTitleBar" || name == "AppTitleBarContentControl" ||
+                typeName == "AppTitleBar" || typeName == "AppTitleBarContentControl")
+            {
+                element.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                element.Height = 0;
+                element.MaxHeight = 0;
+                return;
+            }
+
+            int count = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(element);
+            for (int i = 0; i < count; i++)
+            {
+                if (Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(element, i) is Microsoft.UI.Xaml.FrameworkElement child)
+                {
+                    HideMauiTitleBar(child);
+                }
+            }
+        }
+        catch { }
     }
 
     public static void ApplyWindowIcon(IntPtr hWnd, Microsoft.UI.Windowing.AppWindow? appWindow, string iconPath)

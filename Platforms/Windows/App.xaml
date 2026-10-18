@@ -1,8 +1,22 @@
-﻿<maui:MauiWinUIApplication
+<maui:MauiWinUIApplication
     x:Class="ClipVault.WinUI.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:maui="using:Microsoft.Maui"
     xmlns:local="using:ClipVault.WinUI">
 
+    <maui:MauiWinUIApplication.Resources>
+        <ResourceDictionary>
+            <!-- Colapsa completamente a barra interna/duplicada do MAUI no WinUI 3 -->
+            <DataTemplate x:Key="MauiAppTitleBarContainerTemplate">
+                <Grid Height="0" MaxHeight="0" Visibility="Collapsed" />
+            </DataTemplate>
+
+            <DataTemplate x:Key="MauiAppTitleBarTemplate">
+                <Grid Height="0" MaxHeight="0" Visibility="Collapsed" />
+            </DataTemplate>
+        </ResourceDictionary>
+    </maui:MauiWinUIApplication.Resources>
+
 </maui:MauiWinUIApplication>
+
