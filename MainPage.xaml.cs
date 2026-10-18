@@ -36,4 +36,24 @@ public partial class MainPage : ContentPage
         var aboutPage = _serviceProvider.GetRequiredService<AboutPage>();
         await Navigation.PushAsync(aboutPage);
     }
+
+    private void OnPageSizeChanged(object? sender, EventArgs e)
+    {
+        if (Width > 0)
+        {
+            double width = Width;
+            int span = width switch
+            {
+                < 520 => 1,
+                < 820 => 2,
+                < 1150 => 3,
+                _ => 4
+            };
+
+            if (_viewModel.GridSpan != span)
+            {
+                _viewModel.GridSpan = span;
+            }
+        }
+    }
 }

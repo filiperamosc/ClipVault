@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClipVault.ViewModels"
+             x:Class="ClipVault.Views.ItemViewerPage"
+             x:DataType="vm:ClipboardItemViewModel"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#121214">
+
+    <Grid RowDefinitions="Auto,*" Padding="16,12">
+
+        <!-- Barra Superior / Cabeçalho -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,12" VerticalOptions="Center">
+            <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                <Button Text="← Voltar"
+                        Clicked="OnBackClicked"
+                        BackgroundColor="#27272A"
+                        TextColor="#E4E4E7"
+                        FontAttributes="Bold"
+                        FontSize="11"
+                        CornerRadius="6"
+                        HeightRequest="32"
+                        Padding="12,0" />
+
+                <Label Text="{Binding TypeIcon}" FontSize="16" VerticalOptions="Center" />
+                <Label Text="{Binding Type}"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="#818CF8"
+                       VerticalOptions="Center" />
+                <Label Text="•" TextColor="#52525B" VerticalOptions="Center" />
+                <Label Text="{Binding FormattedDate}"
+                       FontSize="11"
+                       TextColor="#A1A1AA"
+                       VerticalOptions="Center" />
+                <Label Text="•" TextColor="#52525B" VerticalOptions="Center" />
+                <Label Text="{Binding FormattedSize}"
+                       FontSize="11"
+                       TextColor="#A1A1AA"
+                       VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                <Button Text="📋 Copiar Conteúdo"
+                        Clicked="OnCopyContentClicked"
+                        BackgroundColor="#4F46E5"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="11"
+                        CornerRadius="6"
+                        HeightRequest="32"
+                        Padding="12,0" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- Conteúdo Principal -->
+        <Grid Grid.Row="1">
+
+            <!-- 1. MODO VISUALIZADOR DE IMAGEM -->
+            <Grid IsVisible="{Binding IsImage}" RowDefinitions="*,Auto">
+
+                <!-- Área Interativa da Imagem com Zoom e Pan -->
+                <Border Grid.Row="0"
+                        BackgroundColor="#18181B"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="#27272A"
+                        Padding="4">
+                    <Grid>
+                        <!-- Imagem com Gestos de Pinch e Pan -->
+                        <ContentView x:Name="ImageContainer" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
+                            <ContentView.GestureRecognizers>
+                                <PinchGestureRecognizer PinchUpdated="OnPinchUpdated" />
+                                <PanGestureRecognizer PanUpdated="OnPanUpdated" />
+                            </ContentView.GestureRecognizers>
+                            <Image x:Name="TargetImage"
+                                   Source="{Binding FilePath}"
+                                   Aspect="AspectFit"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </ContentView>
+
+                        <!-- Controles de Zoom para Desktop / Mouse -->
+                        <HorizontalStackLayout HorizontalOptions="End"
+                                               VerticalOptions="Start"
+                                               Spacing="6"
+                                               Margin="12"
+                                               ZIndex="10">
+                            <Button Text="➕"
+                                    ToolTipProperties.Text="Aumentar Zoom"
+                                    Clicked="OnZoomInClicked"
+                                    BackgroundColor="#D927272A"
+                                    TextColor="White"
+                                    CornerRadius="6"
+                                    HeightRequest="32"
+                                    WidthRequest="34"
+                                    Padding="0" />
+                            <Button Text="➖"
+                                    ToolTipProperties.Text="Diminuir Zoom"
+                                    Clicked="OnZoomOutClicked"
+                                    BackgroundColor="#D927272A"
+                                    TextColor="White"
+                                    CornerRadius="6"
+                                    HeightRequest="32"
+                                    WidthRequest="34"
+                                    Padding="0" />
+                            <Button Text="↺ 100%"
+                                    ToolTipProperties.Text="Redefinir Zoom"
+                                    Clicked="OnResetZoomClicked"
+                                    BackgroundColor="#D927272A"
+                                    TextColor="#38BDF8"
+                                    FontSize="10"
+                                    FontAttributes="Bold"
+                                    CornerRadius="6"
+                                    HeightRequest="32"
+                                    Padding="8,0" />
+                            <Button Text="📂 Abrir no Explorer"
+                                    ToolTipProperties.Text="Localizar arquivo no disco"
+                                    Clicked="OnOpenExplorerClicked"
+                                    BackgroundColor="#D927272A"
+                                    TextColor="#A1A1AA"
+                                    FontSize="10"
+                                    CornerRadius="6"
+                                    HeightRequest="32"
+                                    Padding="8,0" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Painel Inferior de Metadados de IA (Tags e OCR) -->
+                <VerticalStackLayout Grid.Row="1" Spacing="6" Margin="0,8,0,0">
+                    <!-- Tags de Visão Computacional -->
+                    <Border IsVisible="{Binding HasImageTags}"
+                            BackgroundColor="#1E1E28"
+                            StrokeShape="RoundRectangle 6"
+                            Stroke="#4338CA"
+                            Padding="10,6">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="🏷️ Tags Detectadas:"
+                                   FontSize="11"
+                                   FontAttributes="Bold"
+                                   TextColor="#818CF8"
+                                   VerticalOptions="Center" />
+                            <Label Text="{Binding ImageTags}"
+                                   FontSize="11"
+                                   TextColor="#E0E7FF"
+                                   VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <!-- Texto Extraído via OCR com Botão de Copiar Texto -->
+                    <Border IsVisible="{Binding HasExtractedText}"
+                            BackgroundColor="#18222D"
+                            StrokeShape="RoundRectangle 6"
+                            Stroke="#1E3A5F"
+                            Padding="10,8">
+                        <Grid RowDefinitions="Auto,*" RowSpacing="6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <Label Text="🔍 Texto Reconhecido (OCR Nativo):"
+                                           FontSize="11"
+                                           FontAttributes="Bold"
+                                           TextColor="#38BDF8"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                                <Button Grid.Column="1"
+                                        Text="📋 Copiar OCR"
+                                        Clicked="OnCopyOcrClicked"
+                                        BackgroundColor="#0369A1"
+                                        TextColor="White"
+                                        FontSize="10"
+                                        CornerRadius="4"
+                                        HeightRequest="24"
+                                        Padding="8,0" />
+                            </Grid>
+                            <ScrollView Grid.Row="1" MaximumHeightRequest="120">
+                                <Label Text="{Binding ExtractedText}"
+                                       FontSize="11"
+                                       TextColor="#F0F9FF"
+                                       LineBreakMode="WordWrap" />
+                            </ScrollView>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- 2. MODO VISUALIZADOR DE TEXTO / CÓDIGO / URL -->
+            <Border IsVisible="{Binding IsText}"
+                    BackgroundColor="#18181B"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#27272A"
+                    Padding="16">
+                <Grid RowDefinitions="*,Auto" RowSpacing="12">
+                    <ScrollView Grid.Row="0">
+                        <Editor Text="{Binding Content}"
+                                IsReadOnly="True"
+                                TextColor="#F4F4F5"
+                                BackgroundColor="Transparent"
+                                AutoSize="TextChanges"
+                                FontSize="13" />
+                    </ScrollView>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+                        <Label x:Name="TextStatsLabel"
+                               FontSize="11"
+                               TextColor="#71717A"
+                               VerticalOptions="Center" />
+                        <Button x:Name="OpenBrowserButton"
+                                Grid.Column="1"
+                                Text="🌐 Abrir no Navegador"
+                                Clicked="OnOpenBrowserClicked"
+                                IsVisible="False"
+                                BackgroundColor="#27272A"
+                                TextColor="#38BDF8"
+                                FontSize="11"
+                                CornerRadius="6"
+                                HeightRequest="30"
+                                Padding="12,0" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>

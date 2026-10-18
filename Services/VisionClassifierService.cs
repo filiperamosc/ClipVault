@@ -23,44 +23,47 @@ public class VisionClassifierService : IVisionClassifierService
     private readonly SemaphoreSlim _sessionLock = new(1, 1);
     private bool _initialized;
     private bool _isDisposed;
+    private string[]? _labels;
 
-    private static readonly Dictionary<int, string> CategoryMap = new()
+    private void EnsureLabels()
     {
-        // Telas, Computadores e Tecnologia
-        { 508, "Computador / Teclado" },
-        { 527, "Desktop / Gabinete" },
-        { 620, "Notebook / Laptop" },
-        { 664, "Monitor / Tela" },
-        { 681, "Notebook / Computador" },
-        { 782, "Tela / Interface" },
-        { 851, "Televisão / Monitor" },
-        { 916, "Página Web / Documento" },
-        { 920, "Diagrama / Gráfico" },
+        if (_labels != null && _labels.Length > 0) return;
 
-        // Veículos
-        { 407, "Ambulância" },
-        { 436, "Carro de Praia" },
-        { 479, "Carro / Automóvel" },
-        { 511, "Conversível" },
-        { 609, "Jipe / SUV" },
-        { 656, "Minivan" },
-        { 705, "Caminhão" },
-        { 751, "Carro de Corrida" },
-        { 817, "Carro Esportivo" },
+        try
+        {
+            var path = Path.Combine(AppEnvironment.AppRootDirectory, "imagenet_pt.txt");
+            if (File.Exists(path))
+            {
+                _labels = File.ReadAllLines(path, System.Text.Encoding.UTF8);
+                return;
+            }
 
-        // Pessoas, Vestimentas e Dia a Dia
-        { 834, "Traje / Pessoa" },
-        { 846, "Rosto / Retrato" },
-        { 981, "Foto / Retrato" },
-        { 982, "Ambiente / Interior" },
+            var localPath = Path.Combine(AppContext.BaseDirectory, "Resources", "Models", "imagenet_pt.txt");
+            if (File.Exists(localPath))
+            {
+                _labels = File.ReadAllLines(localPath, System.Text.Encoding.UTF8);
+                return;
+            }
 
-        // Natureza e Animais
-        { 985, "Natureza / Paisagem" },
-        { 970, "Pico / Montanha" },
-        { 972, "Praia / Litoral" },
-        { 281, "Gato / Felino" },
-        { 207, "Cachorro / Cão" }
-    };
+            var assembly = Assembly.GetExecutingAssembly();
+            using var stream = assembly.GetManifestResourceStream("ClipVault.Resources.Models.imagenet_pt.txt");
+            if (stream != null)
+            {
+                using var reader = new StreamReader(stream, System.Text.Encoding.UTF8);
+                var list = new List<string>();
+                string? line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    list.Add(line);
+                }
+                _labels = list.ToArray();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Falha ao carregar labels do ImageNet: {ex.Message}");
+        }
+    }
 
     private void EnsureSession()
     {
@@ -69,6 +72,8 @@ public class VisionClassifierService : IVisionClassifierService
 
         try
         {
+            EnsureLabels();
+
             // 1. Tentar ler do diretório da aplicação
             var modelPath = Path.Combine(AppEnvironment.AppRootDirectory, "mobilenet_v2.onnx");
             if (File.Exists(modelPath))
@@ -109,6 +114,7 @@ public class VisionClassifierService : IVisionClassifierService
         try
         {
             EnsureSession();
+            EnsureLabels();
             if (_session == null || cancellationToken.IsCancellationRequested) return null;
 
             // 1. Decodificar e redimensionar nativamente no Windows para 224x224
@@ -133,7 +139,7 @@ public class VisionClassifierService : IVisionClassifierService
             byte[] pixels = pixelData.DetachPixelData();
             if (pixels == null || pixels.Length < 224 * 224 * 4) return null;
 
-            // 2. Montar Tensor Normalizado [1, 3, 224, 224]
+            // 2. Montar Tensor Normalizado [1, 3, 224, 224] segundo padrão ImageNet
             int channelStride = 224 * 224;
             float[] tensorData = new float[3 * channelStride];
             float[] mean = { 0.485f, 0.456f, 0.406f };
@@ -164,32 +170,70 @@ public class VisionClassifierService : IVisionClassifierService
             using var results = _session.Run(inputs);
             var outputTensor = results.First().AsTensor<float>();
 
-            // 4. Obter Top-3 classes mais prováveis
-            var scores = new List<(int Index, float Score)>();
-            int idx = 0;
-            foreach (var score in outputTensor)
+            // 4. Calcular Softmax para obter probabilidades reais
+            var logits = outputTensor.ToArray();
+            float maxLogit = float.MinValue;
+            for (int i = 0; i < logits.Length; i++)
             {
-                scores.Add((idx++, score));
+                if (logits[i] > maxLogit) maxLogit = logits[i];
             }
 
-            var topClasses = scores.OrderByDescending(s => s.Score).Take(3).ToList();
-            var tags = new HashSet<string>();
-
-            foreach (var item in topClasses)
+            float sumExp = 0f;
+            float[] probs = new float[logits.Length];
+            for (int i = 0; i < logits.Length; i++)
             {
-                if (CategoryMap.TryGetValue(item.Index, out var label))
+                probs[i] = MathF.Exp(logits[i] - maxLogit);
+                sumExp += probs[i];
+            }
+
+            if (sumExp > 0f)
+            {
+                for (int i = 0; i < probs.Length; i++)
                 {
-                    tags.Add(label);
+                    probs[i] /= sumExp;
                 }
             }
 
-            if (tags.Count == 0)
+            // 5. Extrair Top-5 classes e filtrar multi-labels por significância
+            var ranked = probs.Select((prob, index) => (Index: index, Probability: prob))
+                              .OrderByDescending(p => p.Probability)
+                              .Take(5)
+                              .ToList();
+
+            var resultTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            for (int i = 0; i < ranked.Count; i++)
             {
-                // Tags heurísticas visuais caso a classe exata seja rara
-                tags.Add("Interface / Imagem");
+                var (classIndex, probability) = ranked[i];
+
+                // Critério multi-label:
+                // - A predição Top 1 é sempre incluída
+                // - Predições subsequentes (2 a 5) são incluídas se probabilidade >= 15% (ou >= 8% para top 3)
+                bool isSignificant = (i == 0) || (probability >= 0.15f) || (i < 3 && probability >= 0.08f);
+
+                if (isSignificant && _labels != null && classIndex >= 0 && classIndex < _labels.Length)
+                {
+                    var labelTokens = _labels[classIndex].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    foreach (var token in labelTokens)
+                    {
+                        if (!string.IsNullOrWhiteSpace(token))
+                        {
+                            resultTags.Add(token);
+                        }
+                    }
+                }
             }
 
-            return string.Join(", ", tags);
+            if (resultTags.Count == 0 && ranked.Count > 0 && _labels != null)
+            {
+                var topTokens = _labels[ranked[0].Index].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                foreach (var token in topTokens)
+                {
+                    resultTags.Add(token);
+                }
+            }
+
+            return resultTags.Count > 0 ? string.Join(", ", resultTags) : null;
         }
         catch (Exception ex)
         {

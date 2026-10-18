@@ -7,6 +7,8 @@ using ClipVault.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
+using ClipVault.Views;
 
 namespace ClipVault.ViewModels;
 
@@ -44,6 +46,9 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isListView = true;
+
+    [ObservableProperty]
+    private int _gridSpan = 3;
 
     public string ViewModeButtonText => IsGridView ? "📋 Modo Lista" : "🔲 Modo Grade";
 
@@ -109,12 +114,9 @@ public partial class MainViewModel : ObservableObject
 
         if (!string.IsNullOrWhiteSpace(SearchText))
         {
-            var search = SearchText.Trim();
-            bool match = (item.Content?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                         (item.PreviewText?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                         (item.ExtractedText?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                         (item.ImageTags?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false);
-            if (!match) return false;
+            var searchNorm = TextNormalizationHelper.RemoveDiacritics(SearchText.Trim());
+            var itemNorm = item.NormalizedSearchContent ?? TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
+            if (!itemNorm.Contains(searchNorm, StringComparison.OrdinalIgnoreCase)) return false;
         }
 
         return true;
@@ -210,6 +212,16 @@ public partial class MainViewModel : ObservableObject
         IsGridView = !IsGridView;
         IsListView = !IsGridView;
         OnPropertyChanged(nameof(ViewModeButtonText));
+    }
+
+    [RelayCommand]
+    public async Task OpenItemViewerAsync(ClipboardItemViewModel item)
+    {
+        if (item == null) return;
+        if (Shell.Current != null)
+        {
+            await Shell.Current.Navigation.PushAsync(new ItemViewerPage(item));
+        }
     }
 
     [RelayCommand]

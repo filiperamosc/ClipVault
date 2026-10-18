@@ -29,6 +29,9 @@ public class ClipboardItem
     [Indexed]
     public string? ImageTags { get; set; }
 
+    [Indexed]
+    public string? NormalizedSearchContent { get; set; }
+
     public long ByteSize { get; set; }
 
     [Indexed]

@@ -29,6 +29,21 @@ public class DatabaseService : IDatabaseService
 
         _db = new SQLiteAsyncConnection(dbPath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache);
         await _db.CreateTableAsync<ClipboardItem>();
+
+        // Migrar linhas legadas que ainda não tenham o vetor normalizado
+        try
+        {
+            var unnormalized = await _db.Table<ClipboardItem>()
+                                        .Where(i => i.NormalizedSearchContent == null || i.NormalizedSearchContent == "")
+                                        .Take(300)
+                                        .ToListAsync();
+            foreach (var row in unnormalized)
+            {
+                row.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(row.Content, row.PreviewText, row.ExtractedText, row.ImageTags);
+                await _db.UpdateAsync(row);
+            }
+        }
+        catch { }
     }
 
     public void Dispose()
@@ -48,39 +63,42 @@ public class DatabaseService : IDatabaseService
 
         if (!string.IsNullOrWhiteSpace(searchText))
         {
-            string pattern = $"%{searchText.Trim()}%";
+            string normalizedQuery = TextNormalizationHelper.RemoveDiacritics(searchText.Trim());
+            string pattern = $"%{normalizedQuery}%";
+            string rawPattern = $"%{searchText.Trim()}%";
             string sql;
 
             if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
             {
                 sql = @"SELECT * FROM ClipboardItems 
                         WHERE Type != 'Image' 
-                          AND (Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                          AND (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
                         ORDER BY IsPinned DESC, CreatedAt DESC";
+                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern);
             }
             else if (string.Equals(filterCategory, "Imagens", StringComparison.OrdinalIgnoreCase))
             {
                 sql = @"SELECT * FROM ClipboardItems 
                         WHERE Type = 'Image' 
-                          AND (PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                          AND (NormalizedSearchContent LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
                         ORDER BY IsPinned DESC, CreatedAt DESC";
-                return await _db.QueryAsync<ClipboardItem>(sql, pattern, pattern, pattern);
+                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern);
             }
             else if (string.Equals(filterCategory, "Fixados", StringComparison.OrdinalIgnoreCase))
             {
                 sql = @"SELECT * FROM ClipboardItems 
                         WHERE IsPinned = 1 
-                          AND (Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                          AND (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
                         ORDER BY CreatedAt DESC";
+                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern);
             }
             else
             {
                 sql = @"SELECT * FROM ClipboardItems 
-                        WHERE (Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                        WHERE (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
                         ORDER BY IsPinned DESC, CreatedAt DESC";
+                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern);
             }
-
-            return await _db.QueryAsync<ClipboardItem>(sql, pattern, pattern, pattern, pattern);
         }
 
         // Sem termo de busca: consulta padrão
@@ -112,12 +130,14 @@ public class DatabaseService : IDatabaseService
     public async Task<int> AddItemAsync(ClipboardItem item)
     {
         await InitializeAsync();
+        item.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
         return await _db!.InsertAsync(item);
     }
 
     public async Task<int> UpdateItemAsync(ClipboardItem item)
     {
         await InitializeAsync();
+        item.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
         return await _db!.UpdateAsync(item);
     }
 

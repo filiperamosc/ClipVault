@@ -38,7 +38,7 @@
                             Stroke="#3F3F46"
                             Padding="8,2"
                             HorizontalOptions="Center">
-                        <Label Text="Versão 1.1.0"
+                        <Label Text="Versão 1.1.1"
                                FontSize="11"
                                FontAttributes="Bold"
                                TextColor="#818CF8" />

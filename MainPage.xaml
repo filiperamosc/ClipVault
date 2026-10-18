@@ -5,6 +5,7 @@
              x:Class="ClipVault.MainPage"
              x:DataType="vm:MainViewModel"
              Shell.NavBarIsVisible="False"
+             SizeChanged="OnPageSizeChanged"
              BackgroundColor="#18181B">
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
@@ -197,6 +198,10 @@
                                 Stroke="#2B2B30"
                                 Padding="10,6"
                                 Margin="0,0,0,2">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=OpenItemViewerCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
 
                                 <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6" VerticalOptions="Center">
@@ -226,36 +231,41 @@
                                 </HorizontalStackLayout>
 
                                 <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                    <Button Text="📋 Copiar"
+                                    <Button Text="📋"
+                                            ToolTipProperties.Text="Copiar item"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#4F46E5"
                                             TextColor="White"
-                                            FontSize="10"
-                                            FontAttributes="Bold"
+                                            FontSize="11"
                                             CornerRadius="4"
                                             HeightRequest="24"
-                                            Padding="8,0" />
+                                            WidthRequest="28"
+                                            Padding="0" />
 
                                     <Button Text="{Binding PinIcon}"
+                                            ToolTipProperties.Text="{Binding PinText}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#27272A"
                                             TextColor="#F4F4F5"
-                                            FontSize="10"
+                                            FontSize="11"
                                             CornerRadius="4"
                                             HeightRequest="24"
-                                            Padding="6,0" />
+                                            WidthRequest="28"
+                                            Padding="0" />
 
                                     <Button Text="🗑️"
+                                            ToolTipProperties.Text="Excluir item"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#27272A"
                                             TextColor="#EF4444"
-                                            FontSize="10"
+                                            FontSize="11"
                                             CornerRadius="4"
                                             HeightRequest="24"
-                                            Padding="6,0" />
+                                            WidthRequest="28"
+                                            Padding="0" />
                                 </HorizontalStackLayout>
 
                                 <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
@@ -325,7 +335,7 @@
             <CollectionView ItemsSource="{Binding Items}"
                             IsVisible="{Binding IsGridView}">
                 <CollectionView.ItemsLayout>
-                    <GridItemsLayout Orientation="Vertical" Span="3" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
+                    <GridItemsLayout Orientation="Vertical" Span="{Binding GridSpan}" HorizontalItemSpacing="8" VerticalItemSpacing="8" />
                 </CollectionView.ItemsLayout>
 
                 <CollectionView.ItemTemplate>
@@ -335,6 +345,10 @@
                                 Stroke="#2B2B30"
                                 Padding="8"
                                 HeightRequest="185">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=OpenItemViewerCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
                             <Grid RowDefinitions="Auto,*,Auto" RowSpacing="6">
 
                                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -397,18 +411,19 @@
                                 </Grid>
 
                                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4">
-                                    <Button Text="📋 Copiar"
+                                    <Button Text="📋"
+                                            ToolTipProperties.Text="Copiar item"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#4F46E5"
                                             TextColor="White"
-                                            FontSize="9"
-                                            FontAttributes="Bold"
+                                            FontSize="10"
                                             CornerRadius="4"
                                             HeightRequest="22"
-                                            Padding="4,0" />
+                                            Padding="0" />
                                     <Button Grid.Column="1"
                                             Text="{Binding PinIcon}"
+                                            ToolTipProperties.Text="{Binding PinText}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#27272A"
@@ -420,6 +435,7 @@
                                             Padding="0" />
                                     <Button Grid.Column="2"
                                             Text="🗑️"
+                                            ToolTipProperties.Text="Excluir item"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
                                             CommandParameter="{Binding .}"
                                             BackgroundColor="#27272A"
@@ -444,7 +460,7 @@
                 Stroke="#242428"
                 Padding="16,4">
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="ClipVault v1.1.0 • Monitoramento Inteligente (OCR &amp; Visão Computacional)"
+                <Label Text="ClipVault v1.1.1 • Monitoramento Inteligente (OCR &amp; Visão Multi-Label)"
                        FontSize="10"
                        TextColor="#71717A"
                        VerticalOptions="Center" />
