@@ -1,0 +1,196 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using ClipVault.Models;
+using SQLite;
+
+namespace ClipVault.Services;
+
+public class DatabaseService : IDatabaseService
+{
+    private SQLiteAsyncConnection? _db;
+    private readonly ISettingsService _settingsService;
+    private readonly IStorageService _storageService;
+
+    public DatabaseService(ISettingsService settingsService, IStorageService storageService)
+    {
+        _settingsService = settingsService;
+        _storageService = storageService;
+    }
+
+    public async Task InitializeAsync()
+    {
+        if (_db != null) return;
+
+        var storageDir = _settingsService.GetEffectiveStorageDirectory();
+        var dbPath = Path.Combine(storageDir, "clipvault.db3");
+
+        _db = new SQLiteAsyncConnection(dbPath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache);
+        await _db.CreateTableAsync<ClipboardItem>();
+    }
+
+    public async Task<List<ClipboardItem>> GetItemsAsync(string? filterCategory = "Todos", string? searchText = null)
+    {
+        await InitializeAsync();
+        if (_db == null) return new List<ClipboardItem>();
+
+        var query = _db.Table<ClipboardItem>();
+
+        if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(i => i.Type != "Image");
+        }
+        else if (string.Equals(filterCategory, "Imagens", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(i => i.Type == "Image");
+        }
+        else if (string.Equals(filterCategory, "Fixados", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(i => i.IsPinned == true);
+        }
+
+        var items = await query.ToListAsync();
+
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var search = searchText.Trim();
+            items = items.Where(i =>
+                (i.Content != null && i.Content.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                (i.PreviewText != null && i.PreviewText.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                i.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy").Contains(search, StringComparison.OrdinalIgnoreCase)
+            ).ToList();
+        }
+
+        // Ordenação: Fixados no topo, depois por data mais recente
+        return items.OrderByDescending(i => i.IsPinned).ThenByDescending(i => i.CreatedAt).ToList();
+    }
+
+    public async Task<ClipboardItem?> GetItemByIdAsync(int id)
+    {
+        await InitializeAsync();
+        return await _db!.Table<ClipboardItem>().FirstOrDefaultAsync(i => i.Id == id);
+    }
+
+    public async Task<int> AddItemAsync(ClipboardItem item)
+    {
+        await InitializeAsync();
+        return await _db!.InsertAsync(item);
+    }
+
+    public async Task<int> UpdateItemAsync(ClipboardItem item)
+    {
+        await InitializeAsync();
+        return await _db!.UpdateAsync(item);
+    }
+
+    public async Task<int> DeleteItemAsync(ClipboardItem item)
+    {
+        await InitializeAsync();
+        if (item.IsImage)
+        {
+            _storageService.DeleteFileIfExists(item.FilePath);
+        }
+        return await _db!.DeleteAsync(item);
+    }
+
+    public async Task<int> TogglePinAsync(int id)
+    {
+        await InitializeAsync();
+        var item = await _db!.Table<ClipboardItem>().FirstOrDefaultAsync(i => i.Id == id);
+        if (item != null)
+        {
+            item.IsPinned = !item.IsPinned;
+            return await _db.UpdateAsync(item);
+        }
+        return 0;
+    }
+
+    public async Task<int> ClearHistoryAsync(bool keepPinned = true)
+    {
+        await InitializeAsync();
+        List<ClipboardItem> itemsToDelete;
+        if (keepPinned)
+        {
+            itemsToDelete = await _db!.Table<ClipboardItem>().Where(i => !i.IsPinned).ToListAsync();
+        }
+        else
+        {
+            itemsToDelete = await _db!.Table<ClipboardItem>().ToListAsync();
+        }
+
+        foreach (var item in itemsToDelete)
+        {
+            if (item.IsImage)
+            {
+                _storageService.DeleteFileIfExists(item.FilePath);
+            }
+            await _db!.DeleteAsync(item);
+        }
+
+        return itemsToDelete.Count;
+    }
+
+    public async Task<string?> GetLastItemHashAsync()
+    {
+        await InitializeAsync();
+        var lastItem = await _db!.Table<ClipboardItem>().OrderByDescending(i => i.Id).FirstOrDefaultAsync();
+        return lastItem?.ContentHash;
+    }
+
+    public async Task<int> AutoCleanByAgeAsync(int maxDays)
+    {
+        if (maxDays <= 0) return 0;
+        await InitializeAsync();
+
+        var cutoffDate = DateTime.UtcNow.AddDays(-maxDays);
+        var oldItems = await _db!.Table<ClipboardItem>()
+            .Where(i => !i.IsPinned && i.CreatedAt < cutoffDate)
+            .ToListAsync();
+
+        int removed = 0;
+        foreach (var item in oldItems)
+        {
+            if (item.IsImage)
+            {
+                _storageService.DeleteFileIfExists(item.FilePath);
+            }
+            await _db.DeleteAsync(item);
+            removed++;
+        }
+
+        return removed;
+    }
+
+    public async Task<int> AutoCleanBySizeAsync(long maxBytes)
+    {
+        if (maxBytes <= 0) return 0;
+        await InitializeAsync();
+
+        long currentSize = _storageService.GetTotalStorageSize();
+        if (currentSize <= maxBytes) return 0;
+
+        // Buscar itens não fixados, do mais antigo para o mais recente
+        var unpinnedItems = await _db!.Table<ClipboardItem>()
+            .Where(i => !i.IsPinned)
+            .OrderBy(i => i.CreatedAt)
+            .ToListAsync();
+
+        int removed = 0;
+        foreach (var item in unpinnedItems)
+        {
+            if (item.IsImage)
+            {
+                _storageService.DeleteFileIfExists(item.FilePath);
+            }
+            await _db.DeleteAsync(item);
+            removed++;
+
+            currentSize = _storageService.GetTotalStorageSize();
+            if (currentSize <= maxBytes) break;
+        }
+
+        return removed;
+    }
+}

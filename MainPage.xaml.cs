@@ -1,24 +1,32 @@
-﻿namespace ClipVault;
+using System;
+using ClipVault.ViewModels;
+using ClipVault.Views;
+using Microsoft.Maui.Controls;
+
+namespace ClipVault;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+    private readonly MainViewModel _viewModel;
+    private readonly IServiceProvider _serviceProvider;
 
-	public MainPage()
-	{
-		InitializeComponent();
-	}
+    public MainPage(MainViewModel viewModel, IServiceProvider serviceProvider)
+    {
+        InitializeComponent();
+        _viewModel = viewModel;
+        _serviceProvider = serviceProvider;
+        BindingContext = _viewModel;
+    }
 
-	private void OnCounterClicked(object sender, EventArgs e)
-	{
-		count++;
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _viewModel.InitializeAsync();
+    }
 
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+    private async void OnSettingsClicked(object sender, EventArgs e)
+    {
+        var settingsPage = _serviceProvider.GetRequiredService<SettingsPage>();
+        await Navigation.PushAsync(settingsPage);
+    }
 }
-

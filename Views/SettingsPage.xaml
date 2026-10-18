@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:ClipVault.ViewModels"
+             x:Class="ClipVault.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="Configurações do ClipVault"
+             BackgroundColor="#18181B">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20" MaximumWidthRequest="700">
+
+            <!-- Mensagem de Feedback / Status -->
+            <Border IsVisible="{Binding IsStatusVisible}"
+                    BackgroundColor="#22C55E"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="Transparent"
+                    Padding="12,8"
+                    Margin="0,0,0,10">
+                <Label Text="{Binding StatusMessage}"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       FontSize="13"
+                       HorizontalTextAlignment="Center" />
+            </Border>
+
+            <!-- Seção 1: Diretório de Armazenamento -->
+            <Border BackgroundColor="#202024"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="#2E2E33"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="📁 Diretório de Armazenamento"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#F4F4F5" />
+                    <Label Text="Escolha onde as imagens capturadas, arquivos e banco de dados serão salvos."
+                           FontSize="12"
+                           TextColor="#A1A1AA" />
+
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Border BackgroundColor="#27272A"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="#3F3F46"
+                                Padding="10,0">
+                            <Entry Text="{Binding StorageDirectory, Mode=TwoWay}"
+                                   TextColor="#FAFAFA"
+                                   FontSize="12"
+                                   VerticalOptions="Center" />
+                        </Border>
+                        <Button Grid.Column="1"
+                                Text="Alterar Pasta..."
+                                Command="{Binding PickFolderCommand}"
+                                BackgroundColor="#3F3F46"
+                                TextColor="White"
+                                CornerRadius="8"
+                                FontSize="12"
+                                Padding="14,0" />
+                    </Grid>
+
+                    <Label Text="{Binding CurrentStorageSizeFormatted, StringFormat='Armazenamento total em uso: {0}'}"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#6366F1" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Seção 2: Política de Autocleaning (Limpeza Automática) -->
+            <Border BackgroundColor="#202024"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="#2E2E33"
+                    Padding="16">
+                <VerticalStackLayout Spacing="14">
+                    <Label Text="🧹 Política de Limpeza Automática (Autocleaning)"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#F4F4F5" />
+                    <Label Text="Gerencie a retenção de dados para manter o sistema leve. Itens fixados 📌 nunca são removidos automaticamente."
+                           FontSize="12"
+                           TextColor="#A1A1AA" />
+
+                    <!-- Regra 1: Por Idade / Dias -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowSpacing="6" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding EnableAutoCleanByDays}" Color="#6366F1" />
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="8,0">
+                            <Label Text="Limpeza por Idade / Tempo"
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="#F4F4F5" />
+                            <Label Text="Excluir itens não fixados com mais de X dias"
+                                   FontSize="11"
+                                   TextColor="#71717A" />
+                        </VerticalStackLayout>
+                        <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                            <Entry Text="{Binding AutoCleanDays, Mode=TwoWay}"
+                                   Keyboard="Numeric"
+                                   WidthRequest="60"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="White"
+                                   BackgroundColor="#27272A" />
+                            <Label Text="dias" TextColor="#A1A1AA" VerticalOptions="Center" FontSize="12" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <BoxView HeightRequest="1" Color="#2E2E33" />
+
+                    <!-- Regra 2: Por Limite de Armazenamento -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" RowSpacing="6" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding EnableAutoCleanBySize}" Color="#6366F1" />
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="8,0">
+                            <Label Text="Limpeza por Limite de Armazenamento"
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="#F4F4F5" />
+                            <Label Text="Excluir itens mais antigos se a pasta exceder o limite"
+                                   FontSize="11"
+                                   TextColor="#71717A" />
+                        </VerticalStackLayout>
+                        <HorizontalStackLayout Grid.Column="2" Spacing="6" VerticalOptions="Center">
+                            <Entry Text="{Binding MaxStorageMb, Mode=TwoWay}"
+                                   Keyboard="Numeric"
+                                   WidthRequest="60"
+                                   HorizontalTextAlignment="Center"
+                                   TextColor="White"
+                                   BackgroundColor="#27272A" />
+                            <Label Text="MB" TextColor="#A1A1AA" VerticalOptions="Center" FontSize="12" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <!-- Botão Executar Limpeza Agora -->
+                    <Button Text="Executar Rotina de Limpeza Agora"
+                            Command="{Binding ExecuteCleanNowCommand}"
+                            BackgroundColor="#27272A"
+                            TextColor="#FBBF24"
+                            CornerRadius="8"
+                            FontSize="12"
+                            FontAttributes="Bold"
+                            Margin="0,8,0,0" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Seção 3: Sistema e Inicialização -->
+            <Border BackgroundColor="#202024"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="#2E2E33"
+                    Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="⚡ Sistema e Inicialização"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="#F4F4F5" />
+
+                    <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
+                        <CheckBox IsChecked="{Binding StartWithWindows}" Color="#6366F1" />
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="8,0">
+                            <Label Text="Iniciar automaticamente com o Windows"
+                                   FontAttributes="Bold"
+                                   FontSize="13"
+                                   TextColor="#F4F4F5" />
+                            <Label Text="Inicia silenciosamente na bandeja do sistema ao ligar o computador"
+                                   FontSize="11"
+                                   TextColor="#71717A" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Botão Salvar Todas as Configurações -->
+            <Button Text="💾 Salvar Alterações"
+                    Command="{Binding SaveSettingsCommand}"
+                    BackgroundColor="#6366F1"
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    FontSize="14" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
