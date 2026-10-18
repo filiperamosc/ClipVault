@@ -8,7 +8,7 @@ namespace ClipVault.Services;
 public static class AppEnvironment
 {
     public const string AppName = "ClipVault";
-    public const string Version = "1.5";
+    public const string Version = "1.5.1";
     public const string ReleaseDate = "Outubro de 2026";
     public const string Author = "Filipe R. Carvalho";
 
@@ -110,81 +110,82 @@ public static class AppEnvironment
         }
     }
 
-    public static string EnsureIconExtracted()
+    private const string IconResourceName = "ClipVault.AppIcon.clipvault.ico";
+    private static readonly object _iconLock = new();
+    private static string? _cachedIconPath;
+
+    /// <summary>
+    /// Bytes do ícone multirresolução (16→256px) incorporado no assembly.
+    /// </summary>
+    public static byte[]? GetEmbeddedIconBytes()
     {
         try
         {
-            // 1. Verificar se o ícone já existe no diretório raiz da aplicação
-            var rootIcon = Path.Combine(AppRootDirectory, "appicon.ico");
-            if (File.Exists(rootIcon) && new FileInfo(rootIcon).Length > 0)
-                return rootIcon;
-
-            // 2. Verificar no diretório base de execução (bin/publish)
-            var baseIcon = Path.Combine(AppContext.BaseDirectory, "appicon.ico");
-            if (File.Exists(baseIcon) && new FileInfo(baseIcon).Length > 0)
-                return baseIcon;
-
-            // 3. Verificar na pasta Resources/AppIcon
-            var localIcon = Path.Combine(AppContext.BaseDirectory, "Resources", "AppIcon", "appicon.ico");
-            if (File.Exists(localIcon) && new FileInfo(localIcon).Length > 0)
-                return localIcon;
-
-            // 4. Verificar no LocalApplicationData
-            var localAppDataDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ClipVault");
-            var localAppDataIcon = Path.Combine(localAppDataDir, "appicon.ico");
-            if (File.Exists(localAppDataIcon) && new FileInfo(localAppDataIcon).Length > 0)
-                return localAppDataIcon;
-
-            // 5. Extrair do EmbeddedResource incorporado no binário
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = Array.Find(assembly.GetManifestResourceNames(), n => n.EndsWith("appicon.ico", StringComparison.OrdinalIgnoreCase));
-            if (!string.IsNullOrEmpty(resourceName))
-            {
-                using var stream = assembly.GetManifestResourceStream(resourceName);
-                if (stream != null)
-                {
-                    // Tentar salvar no AppRootDirectory
-                    try
-                    {
-                        using var fs = File.Create(rootIcon);
-                        stream.CopyTo(fs);
-                        fs.Flush();
-                        return rootIcon;
-                    }
-                    catch
-                    {
-                        // Fallback para LocalApplicationData
-                        try
-                        {
-                            Directory.CreateDirectory(localAppDataDir);
-                            stream.Position = 0;
-                            using var fsLocal = File.Create(localAppDataIcon);
-                            stream.CopyTo(fsLocal);
-                            fsLocal.Flush();
-                            return localAppDataIcon;
-                        }
-                        catch
-                        {
-                            // Fallback para diretório temporário do Windows
-                            var tempDir = Path.Combine(Path.GetTempPath(), "ClipVault");
-                            Directory.CreateDirectory(tempDir);
-                            var tempIcon = Path.Combine(tempDir, "appicon.ico");
-                            stream.Position = 0;
-                            using var fsTemp = File.Create(tempIcon);
-                            stream.CopyTo(fsTemp);
-                            fsTemp.Flush();
-                            return tempIcon;
-                        }
-                    }
-                }
-            }
-
-            return rootIcon;
+            using var stream = assembly.GetManifestResourceStream(IconResourceName)
+                ?? (Array.Find(assembly.GetManifestResourceNames(), n => n.EndsWith("clipvault.ico", StringComparison.OrdinalIgnoreCase)) is string name
+                    ? assembly.GetManifestResourceStream(name)
+                    : null);
+            if (stream == null) return null;
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            return ms.ToArray();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Falha ao extrair ícone: {ex.Message}");
-            return Path.Combine(AppRootDirectory, "appicon.ico");
+            Debug.WriteLine($"Falha ao ler ícone incorporado: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Materializa o ícone incorporado em disco e retorna o caminho absoluto.
+    /// A fonte da verdade é SEMPRE o recurso incorporado: arquivos "appicon.ico" soltos
+    /// ao lado do executável (gerados pelo resizetizer do MAUI a partir do template .NET)
+    /// são ignorados. O conteúdo é validado byte a byte e regravado se divergir.
+    /// </summary>
+    public static string EnsureIconExtracted()
+    {
+        lock (_iconLock)
+        {
+            if (_cachedIconPath != null && File.Exists(_cachedIconPath))
+                return _cachedIconPath;
+
+            var bytes = GetEmbeddedIconBytes();
+            if (bytes == null || bytes.Length == 0)
+                return string.Empty;
+
+            var candidates = new[]
+            {
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppName),
+                Path.Combine(Path.GetTempPath(), AppName)
+            };
+
+            foreach (var dir in candidates)
+            {
+                try
+                {
+                    Directory.CreateDirectory(dir);
+                    var target = Path.Combine(dir, $"clipvault-{Version}.ico");
+
+                    bool upToDate = File.Exists(target) && File.ReadAllBytes(target).AsSpan().SequenceEqual(bytes);
+                    if (!upToDate)
+                    {
+                        var tmp = target + ".tmp";
+                        File.WriteAllBytes(tmp, bytes);
+                        File.Move(tmp, target, overwrite: true);
+                    }
+
+                    _cachedIconPath = Path.GetFullPath(target);
+                    return _cachedIconPath;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Falha ao gravar ícone em '{dir}': {ex.Message}");
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

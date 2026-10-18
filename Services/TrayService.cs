@@ -131,116 +131,159 @@ public class TrayService : ITrayService
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     private const int SW_RESTORE = 9;
 
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern uint RegisterWindowMessage(string lpString);
+
+    [DllImport("user32.dll")]
+    private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetricsForDpi(int nIndex, uint dpi);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr hWnd);
+
+    private const int SM_CXSMICON = 49;
+    private const uint WM_NULL = 0x0000;
     private const uint IMAGE_ICON = 1;
     private const uint LR_LOADFROMFILE = 0x00000010;
 
     private NOTIFYICONDATAW _nid;
+    private uint _taskbarCreatedMsg;
 #endif
 
     public void Initialize(object nativeWindow)
     {
 #if WINDOWS
-        if (nativeWindow is Microsoft.UI.Xaml.Window winuiWindow)
+        if (nativeWindow is not Microsoft.UI.Xaml.Window winuiWindow) return;
+        if (_hwnd != IntPtr.Zero) return; // idempotente
+
+        _hwnd = WindowNative.GetWindowHandle(winuiWindow);
+        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(_hwnd);
+        _appWindow = AppWindow.GetFromWindowId(windowId);
+
+        // Interceptar fechar (X) para apenas ocultar
+        if (_appWindow != null)
         {
-            _hwnd = WindowNative.GetWindowHandle(winuiWindow);
-            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(_hwnd);
-            _appWindow = AppWindow.GetFromWindowId(windowId);
-
-            // Interceptar fechar (X) para apenas ocultar
-            if (_appWindow != null)
+            _appWindow.Closing += (sender, args) =>
             {
-                _appWindow.Closing += (sender, args) =>
-                {
-                    args.Cancel = true;
-                    _appWindow.Hide();
-                };
-            }
-
-            // Criar ícone da bandeja com múltiplos níveis defensivos de fallback:
-            IntPtr hIcon = IntPtr.Zero;
-            string iconPath = AppEnvironment.EnsureIconExtracted();
-
-            // 1. Tenta carregar a partir do arquivo .ico em disco (absoluto)
-            if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
-            {
-                try
-                {
-                    hIcon = LoadImage(IntPtr.Zero, Path.GetFullPath(iconPath), IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
-                }
-                catch { }
-            }
-
-            // 2. Fallback: Recurso Win32 ID 1 compilado diretamente no executável (<ApplicationIcon>)
-            if (hIcon == IntPtr.Zero)
-            {
-                try
-                {
-                    var hModule = GetModuleHandle(null);
-                    if (hModule != IntPtr.Zero)
-                    {
-                        hIcon = LoadImage(hModule, (IntPtr)1, IMAGE_ICON, 16, 16, 0);
-                        if (hIcon == IntPtr.Zero)
-                        {
-                            hIcon = LoadIcon(hModule, (IntPtr)1);
-                        }
-                    }
-                }
-                catch { }
-            }
-
-            // 3. Fallback: Ícone padrão da aplicação do Windows (32512 = IDI_APPLICATION)
-            if (hIcon == IntPtr.Zero)
-            {
-                try
-                {
-                    hIcon = LoadIcon(IntPtr.Zero, (IntPtr)32512);
-                }
-                catch { }
-            }
-
-            _nid = new NOTIFYICONDATAW
-            {
-                cbSize = Marshal.SizeOf<NOTIFYICONDATAW>(),
-                hWnd = _hwnd,
-                uID = 1,
-                uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
-                uCallbackMessage = WM_TRAYICON,
-                hIcon = hIcon,
-                szTip = "ClipVault - Gerenciador de Clipboard"
+                args.Cancel = true;
+                _appWindow.Hide();
             };
+        }
 
-            bool success = Shell_NotifyIconW(NIM_ADD, ref _nid);
-            if (!success)
-            {
-                Shell_NotifyIconW(NIM_MODIFY, ref _nid);
-            }
+        // Explorer envia "TaskbarCreated" quando reinicia; sem re-registro o ícone some da bandeja para sempre.
+        _taskbarCreatedMsg = RegisterWindowMessage("TaskbarCreated");
 
-            // Subclass do HWND para capturar mensagens da bandeja
-            if (!_isSubclassed)
-            {
-                _subclassProcDelegate = new SubclassProc(WindowSubclassHandler);
-                _isSubclassed = SetWindowSubclass(_hwnd, _subclassProcDelegate, (UIntPtr)1, UIntPtr.Zero);
-            }
+        _nid = new NOTIFYICONDATAW
+        {
+            cbSize = Marshal.SizeOf<NOTIFYICONDATAW>(),
+            hWnd = _hwnd,
+            uID = 1,
+            uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
+            uCallbackMessage = WM_TRAYICON,
+            hIcon = LoadTrayIcon(),
+            szTip = "ClipVault - Gerenciador de Clipboard"
+        };
+
+        AddOrUpdateTrayIcon();
+
+        // Subclass do HWND para capturar mensagens da bandeja
+        if (!_isSubclassed)
+        {
+            _subclassProcDelegate = new SubclassProc(WindowSubclassHandler);
+            _isSubclassed = SetWindowSubclass(_hwnd, _subclassProcDelegate, (UIntPtr)1, UIntPtr.Zero);
         }
 #endif
     }
 
 #if WINDOWS
+    private void AddOrUpdateTrayIcon()
+    {
+        try
+        {
+            if (!Shell_NotifyIconW(NIM_ADD, ref _nid))
+                Shell_NotifyIconW(NIM_MODIFY, ref _nid);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Falha ao registrar ícone da bandeja: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Carrega o ícone da bandeja no tamanho exato do DPI (SM_CXSMICON) a partir do .ico
+    /// multirresolução do ClipVault, evitando reamostragem borrada e o ícone genérico.
+    /// </summary>
+    private IntPtr LoadTrayIcon()
+    {
+        int size = 16;
+        try
+        {
+            uint dpi = GetDpiForWindow(_hwnd);
+            if (dpi == 0) dpi = 96;
+            int metric = GetSystemMetricsForDpi(SM_CXSMICON, dpi);
+            if (metric > 0) size = metric;
+        }
+        catch { }
+
+        IntPtr hIcon = IntPtr.Zero;
+        try
+        {
+            string iconPath = AppEnvironment.EnsureIconExtracted();
+            if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
+                hIcon = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, size, size, LR_LOADFROMFILE);
+        }
+        catch { }
+
+        if (hIcon == IntPtr.Zero)
+        {
+            try
+            {
+                var hModule = GetModuleHandle(null);
+                if (hModule != IntPtr.Zero)
+                {
+                    hIcon = LoadImage(hModule, (IntPtr)32512, IMAGE_ICON, size, size, 0);
+                    if (hIcon == IntPtr.Zero) hIcon = LoadImage(hModule, (IntPtr)1, IMAGE_ICON, size, size, 0);
+                }
+            }
+            catch { }
+        }
+
+        if (hIcon == IntPtr.Zero)
+        {
+            try { hIcon = LoadIcon(IntPtr.Zero, (IntPtr)32512); } catch { }
+        }
+        return hIcon;
+    }
+
     private IntPtr WindowSubclassHandler(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam, UIntPtr uIdSubclass, UIntPtr dwRefData)
     {
-        if (uMsg == WM_TRAYICON)
+        try
         {
-            var msg = (uint)(lParam.ToInt64() & 0xFFFF);
-            if (msg == WM_LBUTTONDBLCLK || msg == WM_LBUTTONUP)
+            if (uMsg == WM_TRAYICON)
             {
-                ShowWindow();
-                return IntPtr.Zero;
+                var msg = (uint)(lParam.ToInt64() & 0xFFFF);
+                if (msg == WM_LBUTTONDBLCLK || msg == WM_LBUTTONUP)
+                {
+                    ShowWindow();
+                    return IntPtr.Zero;
+                }
+                else if (msg == WM_RBUTTONUP)
+                {
+                    ShowContextMenu();
+                    return IntPtr.Zero;
+                }
             }
-            else if (msg == WM_RBUTTONUP)
+            else if (_taskbarCreatedMsg != 0 && uMsg == _taskbarCreatedMsg)
             {
-                ShowContextMenu();
-                return IntPtr.Zero;
+                AddOrUpdateTrayIcon();
             }
+        }
+        catch (Exception ex)
+        {
+            // Exceções nunca podem atravessar a fronteira nativa do WndProc (derrubaria o processo)
+            System.Diagnostics.Debug.WriteLine($"Erro no handler da bandeja: {ex.Message}");
         }
 
         return DefSubclassProc(hWnd, uMsg, wParam, lParam);
@@ -265,6 +308,7 @@ public class TrayService : ITrayService
             SetForegroundWindow(_hwnd);
 
             int selectedCmd = TrackPopupMenuEx(hMenu, TPM_RIGHTBUTTON | TPM_RETURNCMD, pt.X, pt.Y, _hwnd, IntPtr.Zero);
+            PostMessage(_hwnd, WM_NULL, IntPtr.Zero, IntPtr.Zero);
 
             switch (selectedCmd)
             {

@@ -44,7 +44,7 @@ jobs:
           $csproj = [xml](Get-Content "ClipVault.csproj")
           $appVersion = $csproj.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
           if (-not $appVersion) {
-            $appVersion = "1.5"
+            $appVersion = "1.5.1"
           }
 
           if ($env:GITHUB_REF -like "refs/tags/*") {
