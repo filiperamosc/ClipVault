@@ -20,40 +20,45 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IStorageService _storageService;
 
     [ObservableProperty]
-    private string _storageDirectory = string.Empty;
+    public partial string StorageDirectory { get; set; }
 
     [ObservableProperty]
-    private bool _enableAutoCleanByDays;
+    public partial bool EnableAutoCleanByDays { get; set; }
 
     [ObservableProperty]
-    private int _autoCleanDays;
+    public partial int AutoCleanDays { get; set; }
 
     [ObservableProperty]
-    private bool _enableAutoCleanBySize;
+    public partial bool EnableAutoCleanBySize { get; set; }
 
     [ObservableProperty]
-    private int _maxStorageMb;
+    public partial int MaxStorageMb { get; set; }
 
     [ObservableProperty]
-    private bool _startWithWindows;
+    public partial bool StartWithWindows { get; set; }
 
     [ObservableProperty]
-    private string _currentStorageSizeFormatted = string.Empty;
+    public partial string CurrentStorageSizeFormatted { get; set; }
 
     [ObservableProperty]
-    private string _statusMessage = string.Empty;
+    public partial string StatusMessage { get; set; }
 
     [ObservableProperty]
-    private bool _isStatusVisible;
+    public partial bool IsStatusVisible { get; set; }
 
     [ObservableProperty]
-    private string _statusBackgroundColor = "#22C55E";
+    public partial string StatusBackgroundColor { get; set; }
 
     public SettingsViewModel(
         ISettingsService settingsService,
         IAutoCleanService autoCleanService,
         IStorageService storageService)
     {
+        StorageDirectory = string.Empty;
+        CurrentStorageSizeFormatted = string.Empty;
+        StatusMessage = string.Empty;
+        StatusBackgroundColor = "#22C55E";
+
         _settingsService = settingsService;
         _autoCleanService = autoCleanService;
         _storageService = storageService;

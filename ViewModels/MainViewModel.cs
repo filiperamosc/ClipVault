@@ -26,34 +26,34 @@ public partial class MainViewModel : ObservableObject
     private CancellationTokenSource? _toastCts;
 
     [ObservableProperty]
-    private string _selectedFilter = "Todos";
+    public partial string SelectedFilter { get; set; }
 
     [ObservableProperty]
-    private string _searchText = string.Empty;
+    public partial string SearchText { get; set; }
 
     [ObservableProperty]
-    private bool _isMonitoringPaused;
+    public partial bool IsMonitoringPaused { get; set; }
 
     [ObservableProperty]
-    private bool _isBusy;
+    public partial bool IsBusy { get; set; }
 
     [ObservableProperty]
-    private string _toastMessage = string.Empty;
+    public partial string ToastMessage { get; set; }
 
     [ObservableProperty]
-    private bool _isToastVisible;
+    public partial bool IsToastVisible { get; set; }
 
     [ObservableProperty]
-    private string _statusSubtitle = string.Empty;
+    public partial string StatusSubtitle { get; set; }
 
     [ObservableProperty]
-    private bool _isGridView;
+    public partial bool IsGridView { get; set; }
 
     [ObservableProperty]
-    private bool _isListView = true;
+    public partial bool IsListView { get; set; }
 
     [ObservableProperty]
-    private int _gridSpan = 3;
+    public partial int GridSpan { get; set; }
 
     // Segoe Fluent Icons: E8FD = BulletedList, F0E2 = GridView
     public string ViewModeIcon => IsGridView ? "\uE8FD" : "\uF0E2";
@@ -83,6 +83,13 @@ public partial class MainViewModel : ObservableObject
         ISettingsService settingsService,
         IStorageService storageService)
     {
+        SelectedFilter = "Todos";
+        SearchText = string.Empty;
+        ToastMessage = string.Empty;
+        StatusSubtitle = string.Empty;
+        IsListView = true;
+        GridSpan = 3;
+
         _databaseService = databaseService;
         _clipboardService = clipboardService;
         _trayService = trayService;

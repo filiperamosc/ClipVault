@@ -9,13 +9,13 @@ public partial class ClipboardItemViewModel : ObservableObject
     public ClipboardItem Model { get; }
 
     [ObservableProperty]
-    private bool _isPinned;
+    public partial bool IsPinned { get; set; }
 
     [ObservableProperty]
-    private string? _extractedText;
+    public partial string? ExtractedText { get; set; }
 
     [ObservableProperty]
-    private string? _imageTags;
+    public partial string? ImageTags { get; set; }
 
     public int Id => Model.Id;
     public string Type => Model.Type;
@@ -55,9 +55,9 @@ public partial class ClipboardItemViewModel : ObservableObject
     public ClipboardItemViewModel(ClipboardItem model)
     {
         Model = model;
-        _isPinned = model.IsPinned;
-        _extractedText = model.ExtractedText;
-        _imageTags = model.ImageTags;
+        IsPinned = model.IsPinned;
+        ExtractedText = model.ExtractedText;
+        ImageTags = model.ImageTags;
     }
 
     public void UpdatePinnedState(bool pinned)

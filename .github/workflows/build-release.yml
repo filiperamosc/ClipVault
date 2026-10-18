@@ -25,6 +25,14 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/ClipVault.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Install .NET MAUI Windows Workload
         run: |
           dotnet workload install maui-windows
