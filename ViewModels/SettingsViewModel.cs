@@ -76,10 +76,18 @@ public partial class SettingsViewModel : ObservableObject
 
     public void UpdateStorageSize()
     {
-        var totalBytes = _storageService.GetTotalStorageSize();
-        CurrentStorageSizeFormatted = totalBytes < 1024 * 1024
-            ? $"{totalBytes / 1024.0:F1} KB"
-            : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
+        _ = Task.Run(() =>
+        {
+            var totalBytes = _storageService.GetTotalStorageSize();
+            var formatted = totalBytes < 1024 * 1024
+                ? $"{totalBytes / 1024.0:F1} KB"
+                : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
+
+            Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() =>
+            {
+                CurrentStorageSizeFormatted = formatted;
+            });
+        });
     }
 
     [RelayCommand]

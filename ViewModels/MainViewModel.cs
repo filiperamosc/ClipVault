@@ -73,7 +73,6 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<ClipboardItemViewModel> Items { get; } = new();
 
-    // Garantir que apenas o CollectionView visível esteja conectado à ObservableCollection no WinUI 3
     public ObservableCollection<ClipboardItemViewModel>? ListItemsSource => IsListView ? Items : null;
     public ObservableCollection<ClipboardItemViewModel>? GridItemsSource => IsGridView ? Items : null;
 
@@ -105,7 +104,7 @@ public partial class MainViewModel : ObservableObject
         {
             try
             {
-                if (Items.Any(i => i.Id == item.Id && item.Id != 0))
+                if (item.Id != 0 && Items.Any(i => i.Id == item.Id))
                 {
                     return;
                 }
@@ -184,13 +183,13 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task LoadItemsAsync()
     {
-        await _loadLock.WaitAsync();
+        await _loadLock.WaitAsync().ConfigureAwait(false);
         try
         {
             string filterSnapshot = SelectedFilter;
             string searchSnapshot = SearchText;
 
-            var list = await _databaseService.GetItemsAsync(filterSnapshot, searchSnapshot);
+            var list = await _databaseService.GetItemsAsync(filterSnapshot, searchSnapshot).ConfigureAwait(false);
             var viewModels = list.Select(item => new ClipboardItemViewModel(item)).ToList();
 
             MainThread.BeginInvokeOnMainThread(() =>
@@ -243,7 +242,7 @@ public partial class MainViewModel : ObservableObject
             OnPropertyChanged(nameof(FilterFixadosFg));
         });
 
-        await LoadItemsAsync();
+        await Task.Run(LoadItemsAsync);
     }
 
     partial void OnSearchTextChanged(string value)
@@ -259,10 +258,10 @@ public partial class MainViewModel : ObservableObject
             {
                 try
                 {
-                    await Task.Delay(120, cts.Token);
+                    await Task.Delay(120, cts.Token).ConfigureAwait(false);
                     if (!cts.Token.IsCancellationRequested)
                     {
-                        await LoadItemsAsync();
+                        await LoadItemsAsync().ConfigureAwait(false);
                     }
                 }
                 catch (OperationCanceledException)
@@ -280,16 +279,16 @@ public partial class MainViewModel : ObservableObject
         bool success = await _clipboardService.CopyToClipboardAsync(item.Model);
         if (success)
         {
-            await ShowToastAsync("Copiado para a área de transferência");
+            _ = ShowToastAsync("Copiado para a área de transferência");
         }
     }
 
     [RelayCommand]
-    public async Task DeleteItemAsync(ClipboardItemViewModel item)
+    public void DeleteItem(ClipboardItemViewModel item)
     {
         if (item == null) return;
-        await _databaseService.DeleteItemAsync(item.Model);
 
+        // 1. Atualização visual instantânea na UI Thread (0ms de latência)
         MainThread.BeginInvokeOnMainThread(() =>
         {
             try
@@ -298,7 +297,6 @@ public partial class MainViewModel : ObservableObject
                 {
                     Items.Remove(item);
                 }
-                UpdateStatusSubtitle();
             }
             catch (Exception ex)
             {
@@ -306,17 +304,32 @@ public partial class MainViewModel : ObservableObject
             }
         });
 
-        await ShowToastAsync("Item removido do histórico");
+        // 2. Persistência no SQLite e remoção do arquivo estritamente em segundo plano
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _databaseService.DeleteItemAsync(item.Model).ConfigureAwait(false);
+                UpdateStatusSubtitle();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao excluir item em background: {ex.Message}");
+            }
+        });
+
+        _ = ShowToastAsync("Item removido do histórico");
     }
 
     [RelayCommand]
-    public async Task TogglePinAsync(ClipboardItemViewModel item)
+    public void TogglePin(ClipboardItemViewModel item)
     {
         if (item == null) return;
 
-        await _databaseService.TogglePinAsync(item.Id);
         bool newPinnedState = !item.IsPinned;
+        int itemId = item.Id;
 
+        // 1. Impacto visual instantâneo na tela (ícone, cor e posição na lista) sem aguardar o disco
         MainThread.BeginInvokeOnMainThread(() =>
         {
             try
@@ -333,7 +346,6 @@ public partial class MainViewModel : ObservableObject
                     return;
                 }
 
-                // Calcular nova posição ordenada sem destruir a árvore visual (sem Items.Clear)
                 int targetIndex = 0;
                 for (int i = 0; i < Items.Count; i++)
                 {
@@ -360,23 +372,59 @@ public partial class MainViewModel : ObservableObject
                 targetIndex = Math.Clamp(targetIndex, 0, Math.Max(0, Items.Count - 1));
                 if (currentIndex != targetIndex)
                 {
-                    Items.Move(currentIndex, targetIndex);
+                    Items.RemoveAt(currentIndex);
+                    Items.Insert(targetIndex, item);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Erro ao reordenar item fixado na UI Thread: {ex.Message}");
+                Debug.WriteLine($"Erro ao atualizar fixação na UI Thread: {ex.Message}");
             }
         });
 
-        await ShowToastAsync(newPinnedState ? "Item fixado no topo" : "Item desafixado");
+        // 2. Atualização assíncrona no SQLite em segundo plano
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _databaseService.TogglePinAsync(itemId).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao persistir fixação no SQLite: {ex.Message}");
+            }
+        });
+
+        _ = ShowToastAsync(newPinnedState ? "Item fixado no topo" : "Item desafixado");
     }
 
     [RelayCommand]
     public async Task ClearHistoryAsync()
     {
-        int deleted = await _databaseService.ClearHistoryAsync(keepPinned: true);
-        await LoadItemsAsync();
+        // 1. Remover imediatamente da tela todos os itens não fixados
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try
+            {
+                for (int i = Items.Count - 1; i >= 0; i--)
+                {
+                    if (!Items[i].IsPinned)
+                    {
+                        Items.RemoveAt(i);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao limpar lista na UI Thread: {ex.Message}");
+            }
+        });
+
+        // 2. Executar limpeza de banco e disco em background
+        int deleted = await Task.Run(async () =>
+            await _databaseService.ClearHistoryAsync(keepPinned: true).ConfigureAwait(false));
+
+        UpdateStatusSubtitle();
         await ShowToastAsync($"Histórico limpo ({deleted} itens removidos)");
     }
 
@@ -389,7 +437,6 @@ public partial class MainViewModel : ObservableObject
             {
                 bool targetGrid = !IsGridView;
 
-                // Desconectar temporariamente o CollectionView anterior antes de exibir o novo
                 IsGridView = targetGrid;
                 IsListView = !targetGrid;
 
@@ -435,25 +482,31 @@ public partial class MainViewModel : ObservableObject
         MainThread.BeginInvokeOnMainThread(() =>
         {
             IsMonitoringPaused = paused;
-            UpdateStatusSubtitle();
         });
 
+        UpdateStatusSubtitle();
         var msg = paused ? "Monitoramento pausado" : "Monitoramento ativo";
         await ShowToastAsync(msg);
     }
 
     public void UpdateStatusSubtitle()
     {
-        long totalBytes = _storageService.GetTotalStorageSize();
-        string sizeStr = totalBytes < 1024 * 1024
-            ? $"{totalBytes / 1024.0:F1} KB"
-            : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
-
-        string subtitle = $"{Items.Count} itens • {sizeStr}";
-
-        MainThread.BeginInvokeOnMainThread(() =>
+        // Calcular tamanho do diretório em background para jamais bloquear a UI Thread com I/O de disco
+        _ = Task.Run(() =>
         {
-            StatusSubtitle = subtitle;
+            try
+            {
+                long totalBytes = _storageService.GetTotalStorageSize();
+                string sizeStr = totalBytes < 1024 * 1024
+                    ? $"{totalBytes / 1024.0:F1} KB"
+                    : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    StatusSubtitle = $"{Items.Count} itens • {sizeStr}";
+                });
+            }
+            catch { }
         });
     }
 
@@ -472,7 +525,7 @@ public partial class MainViewModel : ObservableObject
                 IsToastVisible = true;
             });
 
-            await Task.Delay(2200, cts.Token);
+            await Task.Delay(2200, cts.Token).ConfigureAwait(false);
 
             if (!cts.Token.IsCancellationRequested)
             {

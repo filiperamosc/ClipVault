@@ -16,89 +16,41 @@ public class DatabaseService : IDatabaseService
     private volatile bool _isInitialized;
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
-    private readonly IVisionClassifierService _visionClassifierService;
-    private bool _visionMigrated;
 
     public DatabaseService(
         ISettingsService settingsService,
-        IStorageService storageService,
-        IVisionClassifierService visionClassifierService)
+        IStorageService storageService)
     {
         _settingsService = settingsService;
         _storageService = storageService;
-        _visionClassifierService = visionClassifierService;
     }
 
     public async Task InitializeAsync()
     {
         if (_isInitialized && _db != null) return;
 
-        await _initLock.WaitAsync();
+        await _initLock.WaitAsync().ConfigureAwait(false);
         try
         {
             if (_isInitialized && _db != null) return;
 
-            AppEnvironment.EnsureDirectoriesAndMigration();
-            var dbPath = AppEnvironment.DatabasePath;
-
-            var connection = new SQLiteAsyncConnection(
-                dbPath,
-                SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
-
-            await connection.CreateTableAsync<ClipboardItem>();
-            _db = connection;
-            _isInitialized = true;
-
-            if (!_visionMigrated)
+            await Task.Run(async () =>
             {
-                _visionMigrated = true;
-                _ = Task.Run(MigrateLegacyMetadataAsync);
-            }
+                AppEnvironment.EnsureDirectoriesAndMigration();
+                var dbPath = AppEnvironment.DatabasePath;
+
+                var connection = new SQLiteAsyncConnection(
+                    dbPath,
+                    SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
+
+                await connection.CreateTableAsync<ClipboardItem>().ConfigureAwait(false);
+                _db = connection;
+                _isInitialized = true;
+            }).ConfigureAwait(false);
         }
         finally
         {
             _initLock.Release();
-        }
-    }
-
-    private async Task MigrateLegacyMetadataAsync()
-    {
-        try
-        {
-            if (_db == null) return;
-
-            var unnormalized = await _db.Table<ClipboardItem>()
-                                        .Where(i => i.NormalizedSearchContent == null || i.NormalizedSearchContent == "")
-                                        .Take(200)
-                                        .ToListAsync();
-            foreach (var row in unnormalized)
-            {
-                row.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(row.Content, row.PreviewText, row.ExtractedText, row.ImageTags);
-                await _db.UpdateAsync(row);
-            }
-
-            var imageRows = await _db.Table<ClipboardItem>()
-                                     .Where(i => i.Type == "Image" && (i.ImageTags == null || i.ImageTags == "" || i.ImageTags.Contains("Interface") || i.ImageTags.Contains("elemento visual")))
-                                     .Take(50)
-                                     .ToListAsync();
-
-            foreach (var img in imageRows)
-            {
-                if (!string.IsNullOrWhiteSpace(img.FilePath) && File.Exists(img.FilePath))
-                {
-                    var freshTags = await _visionClassifierService.ClassifyImageAsync(img.FilePath);
-                    if (img.ImageTags != freshTags)
-                    {
-                        img.ImageTags = freshTags;
-                        img.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(img.Content, img.PreviewText, img.ExtractedText, img.ImageTags);
-                        await _db.UpdateAsync(img);
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"Erro na migração em segundo plano: {ex.Message}");
         }
     }
 
@@ -115,220 +67,255 @@ public class DatabaseService : IDatabaseService
 
     public async Task<List<ClipboardItem>> GetItemsAsync(string? filterCategory = "Todos", string? searchText = null)
     {
-        await InitializeAsync();
+        await InitializeAsync().ConfigureAwait(false);
         if (_db == null) return new List<ClipboardItem>();
 
-        if (!string.IsNullOrWhiteSpace(searchText))
+        return await Task.Run(async () =>
         {
-            string normalizedQuery = TextNormalizationHelper.RemoveDiacritics(searchText.Trim());
-            string pattern = $"%{normalizedQuery}%";
-            string rawPattern = $"%{searchText.Trim()}%";
-            string sql;
-
-            if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(searchText))
             {
-                sql = @"SELECT * FROM ClipboardItems 
-                        WHERE Type != 'Image' 
-                          AND (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
-                        ORDER BY IsPinned DESC, CreatedAt DESC";
-                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern);
-            }
-            else if (string.Equals(filterCategory, "Imagens", StringComparison.OrdinalIgnoreCase))
-            {
-                sql = @"SELECT * FROM ClipboardItems 
-                        WHERE Type = 'Image' 
-                          AND (NormalizedSearchContent LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
-                        ORDER BY IsPinned DESC, CreatedAt DESC";
-                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern);
-            }
-            else if (string.Equals(filterCategory, "Fixados", StringComparison.OrdinalIgnoreCase))
-            {
-                sql = @"SELECT * FROM ClipboardItems 
-                        WHERE IsPinned = 1 
-                          AND (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
-                        ORDER BY CreatedAt DESC";
-                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern);
-            }
-            else
-            {
-                sql = @"SELECT * FROM ClipboardItems 
-                        WHERE (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
-                        ORDER BY IsPinned DESC, CreatedAt DESC";
-                return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern);
-            }
-        }
+                string normalizedQuery = TextNormalizationHelper.RemoveDiacritics(searchText.Trim());
+                string pattern = $"%{normalizedQuery}%";
+                string rawPattern = $"%{searchText.Trim()}%";
+                string sql;
 
-        var query = _db.Table<ClipboardItem>();
+                if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
+                {
+                    sql = @"SELECT * FROM ClipboardItems 
+                            WHERE Type != 'Image' 
+                              AND (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                            ORDER BY IsPinned DESC, CreatedAt DESC";
+                    return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern).ConfigureAwait(false);
+                }
+                else if (string.Equals(filterCategory, "Imagens", StringComparison.OrdinalIgnoreCase))
+                {
+                    sql = @"SELECT * FROM ClipboardItems 
+                            WHERE Type = 'Image' 
+                              AND (NormalizedSearchContent LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                            ORDER BY IsPinned DESC, CreatedAt DESC";
+                    return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern).ConfigureAwait(false);
+                }
+                else if (string.Equals(filterCategory, "Fixados", StringComparison.OrdinalIgnoreCase))
+                {
+                    sql = @"SELECT * FROM ClipboardItems 
+                            WHERE IsPinned = 1 
+                              AND (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                            ORDER BY CreatedAt DESC";
+                    return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern).ConfigureAwait(false);
+                }
+                else
+                {
+                    sql = @"SELECT * FROM ClipboardItems 
+                            WHERE (NormalizedSearchContent LIKE ? OR Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                            ORDER BY IsPinned DESC, CreatedAt DESC";
+                    return await _db.QueryAsync<ClipboardItem>(sql, pattern, rawPattern, rawPattern, rawPattern, rawPattern).ConfigureAwait(false);
+                }
+            }
 
-        if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
-        {
-            query = query.Where(i => i.Type != "Image");
-        }
-        else if (string.Equals(filterCategory, "Imagens", StringComparison.OrdinalIgnoreCase))
-        {
-            query = query.Where(i => i.Type == "Image");
-        }
-        else if (string.Equals(filterCategory, "Fixados", StringComparison.OrdinalIgnoreCase))
-        {
-            query = query.Where(i => i.IsPinned == true);
-        }
+            string baseSql = filterCategory switch
+            {
+                var f when string.Equals(f, "Textos", StringComparison.OrdinalIgnoreCase) =>
+                    "SELECT * FROM ClipboardItems WHERE Type != 'Image' ORDER BY IsPinned DESC, CreatedAt DESC",
+                var f when string.Equals(f, "Imagens", StringComparison.OrdinalIgnoreCase) =>
+                    "SELECT * FROM ClipboardItems WHERE Type = 'Image' ORDER BY IsPinned DESC, CreatedAt DESC",
+                var f when string.Equals(f, "Fixados", StringComparison.OrdinalIgnoreCase) =>
+                    "SELECT * FROM ClipboardItems WHERE IsPinned = 1 ORDER BY CreatedAt DESC",
+                _ =>
+                    "SELECT * FROM ClipboardItems ORDER BY IsPinned DESC, CreatedAt DESC"
+            };
 
-        var items = await query.ToListAsync();
-        return items.OrderByDescending(i => i.IsPinned).ThenByDescending(i => i.CreatedAt).ToList();
+            return await _db.QueryAsync<ClipboardItem>(baseSql).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 
     public async Task<ClipboardItem?> GetItemByIdAsync(int id)
     {
-        await InitializeAsync();
-        return await _db!.Table<ClipboardItem>().FirstOrDefaultAsync(i => i.Id == id);
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
+            await _db!.Table<ClipboardItem>().FirstOrDefaultAsync(i => i.Id == id).ConfigureAwait(false)
+        ).ConfigureAwait(false);
     }
 
     public async Task<int> AddItemAsync(ClipboardItem item)
     {
-        await InitializeAsync();
-        item.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
-        return await _db!.InsertAsync(item);
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
+        {
+            item.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
+            return await _db!.InsertAsync(item).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 
     public async Task<int> UpdateItemAsync(ClipboardItem item)
     {
-        await InitializeAsync();
-        item.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
-        return await _db!.UpdateAsync(item);
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
+        {
+            item.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(item.Content, item.PreviewText, item.ExtractedText, item.ImageTags);
+            return await _db!.UpdateAsync(item).ConfigureAwait(false);
+        }).ConfigureAwait(false);
     }
 
     public async Task<int> DeleteItemAsync(ClipboardItem item)
     {
-        await InitializeAsync();
-        if (item.IsImage)
-        {
-            _storageService.DeleteFileIfExists(item.FilePath);
-        }
-        return await _db!.DeleteAsync(item);
-    }
-
-    public async Task<int> TogglePinAsync(int id)
-    {
-        await InitializeAsync();
-        var item = await _db!.Table<ClipboardItem>().FirstOrDefaultAsync(i => i.Id == id);
-        if (item != null)
-        {
-            item.IsPinned = !item.IsPinned;
-            return await _db.UpdateAsync(item);
-        }
-        return 0;
-    }
-
-    public async Task<int> ClearHistoryAsync(bool keepPinned = true)
-    {
-        await InitializeAsync();
-        List<ClipboardItem> itemsToDelete;
-        if (keepPinned)
-        {
-            itemsToDelete = await _db!.Table<ClipboardItem>().Where(i => !i.IsPinned).ToListAsync();
-        }
-        else
-        {
-            itemsToDelete = await _db!.Table<ClipboardItem>().ToListAsync();
-        }
-
-        foreach (var item in itemsToDelete)
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
         {
             if (item.IsImage)
             {
                 _storageService.DeleteFileIfExists(item.FilePath);
             }
-            await _db!.DeleteAsync(item);
-        }
+            return await _db!.DeleteAsync(item).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+    }
 
-        return itemsToDelete.Count;
+    public async Task<int> TogglePinAsync(int id)
+    {
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
+        {
+            return await _db!.ExecuteAsync(
+                "UPDATE ClipboardItems SET IsPinned = CASE WHEN IsPinned = 1 THEN 0 ELSE 1 END WHERE Id = ?",
+                id).ConfigureAwait(false);
+        }).ConfigureAwait(false);
+    }
+
+    public async Task<int> ClearHistoryAsync(bool keepPinned = true)
+    {
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
+        {
+            List<ClipboardItem> itemsToDelete;
+            if (keepPinned)
+            {
+                itemsToDelete = await _db!.Table<ClipboardItem>().Where(i => !i.IsPinned).ToListAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                itemsToDelete = await _db!.Table<ClipboardItem>().ToListAsync().ConfigureAwait(false);
+            }
+
+            foreach (var item in itemsToDelete)
+            {
+                if (item.IsImage)
+                {
+                    _storageService.DeleteFileIfExists(item.FilePath);
+                }
+            }
+
+            if (keepPinned)
+            {
+                await _db.ExecuteAsync("DELETE FROM ClipboardItems WHERE IsPinned = 0").ConfigureAwait(false);
+            }
+            else
+            {
+                await _db.ExecuteAsync("DELETE FROM ClipboardItems").ConfigureAwait(false);
+            }
+
+            return itemsToDelete.Count;
+        }).ConfigureAwait(false);
     }
 
     public async Task<string?> GetLastItemHashAsync()
     {
-        await InitializeAsync();
-        var lastItem = await _db!.Table<ClipboardItem>().OrderByDescending(i => i.Id).FirstOrDefaultAsync();
-        return lastItem?.ContentHash;
+        await InitializeAsync().ConfigureAwait(false);
+        return await Task.Run(async () =>
+        {
+            var lastItem = await _db!.Table<ClipboardItem>().OrderByDescending(i => i.Id).FirstOrDefaultAsync().ConfigureAwait(false);
+            return lastItem?.ContentHash;
+        }).ConfigureAwait(false);
     }
 
     public async Task<bool> IsDuplicateRecentHashAsync(string hash, int withinSeconds = 15)
     {
         if (string.IsNullOrWhiteSpace(hash)) return false;
-        await InitializeAsync();
+        await InitializeAsync().ConfigureAwait(false);
         if (_db == null) return false;
 
-        var lastItem = await _db.Table<ClipboardItem>().OrderByDescending(i => i.Id).FirstOrDefaultAsync();
-        if (lastItem != null && string.Equals(lastItem.ContentHash, hash, StringComparison.OrdinalIgnoreCase))
+        return await Task.Run(async () =>
         {
-            return true;
-        }
+            var lastItem = await _db.Table<ClipboardItem>().OrderByDescending(i => i.Id).FirstOrDefaultAsync().ConfigureAwait(false);
+            if (lastItem != null && string.Equals(lastItem.ContentHash, hash, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
 
-        var cutoff = DateTime.UtcNow.AddSeconds(-withinSeconds);
-        var recentMatch = await _db.Table<ClipboardItem>()
-            .Where(i => i.ContentHash == hash && i.CreatedAt >= cutoff)
-            .FirstOrDefaultAsync();
+            var cutoff = DateTime.UtcNow.AddSeconds(-withinSeconds);
+            var recentMatch = await _db.Table<ClipboardItem>()
+                .Where(i => i.ContentHash == hash && i.CreatedAt >= cutoff)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
 
-        return recentMatch != null;
+            return recentMatch != null;
+        }).ConfigureAwait(false);
     }
 
     public async Task<int> AutoCleanByAgeAsync(int maxDays)
     {
         if (maxDays <= 0) return 0;
-        await InitializeAsync();
+        await InitializeAsync().ConfigureAwait(false);
 
-        var cutoffDate = DateTime.UtcNow.AddDays(-maxDays);
-        var oldItems = await _db!.Table<ClipboardItem>()
-            .Where(i => !i.IsPinned && i.CreatedAt < cutoffDate)
-            .ToListAsync();
-
-        int removed = 0;
-        foreach (var item in oldItems)
+        return await Task.Run(async () =>
         {
-            if (item.IsImage)
-            {
-                _storageService.DeleteFileIfExists(item.FilePath);
-            }
-            await _db.DeleteAsync(item);
-            removed++;
-        }
+            var cutoffDate = DateTime.UtcNow.AddDays(-maxDays);
+            var oldItems = await _db!.Table<ClipboardItem>()
+                .Where(i => !i.IsPinned && i.CreatedAt < cutoffDate)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
-        return removed;
+            int removed = 0;
+            foreach (var item in oldItems)
+            {
+                if (item.IsImage)
+                {
+                    _storageService.DeleteFileIfExists(item.FilePath);
+                }
+                await _db.DeleteAsync(item).ConfigureAwait(false);
+                removed++;
+            }
+
+            return removed;
+        }).ConfigureAwait(false);
     }
 
     public async Task<int> AutoCleanBySizeAsync(long maxBytes)
     {
         if (maxBytes <= 0) return 0;
-        await InitializeAsync();
+        await InitializeAsync().ConfigureAwait(false);
 
-        long currentTotal = _storageService.GetTotalStorageSize();
-        if (currentTotal <= maxBytes) return 0;
-
-        var candidates = await _db!.Table<ClipboardItem>()
-            .Where(i => !i.IsPinned)
-            .OrderBy(i => i.CreatedAt)
-            .ToListAsync();
-
-        int removed = 0;
-        foreach (var item in candidates)
+        return await Task.Run(async () =>
         {
-            if (currentTotal <= maxBytes) break;
+            long currentTotal = _storageService.GetTotalStorageSize();
+            if (currentTotal <= maxBytes) return 0;
 
-            long freed = item.ByteSize;
-            if (item.IsImage && !string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
+            var candidates = await _db!.Table<ClipboardItem>()
+                .Where(i => !i.IsPinned)
+                .OrderBy(i => i.CreatedAt)
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            int removed = 0;
+            foreach (var item in candidates)
             {
-                try
+                if (currentTotal <= maxBytes) break;
+
+                long freed = item.ByteSize;
+                if (item.IsImage && !string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
                 {
-                    freed = new FileInfo(item.FilePath).Length;
+                    try
+                    {
+                        freed = new FileInfo(item.FilePath).Length;
+                    }
+                    catch { }
+                    _storageService.DeleteFileIfExists(item.FilePath);
                 }
-                catch { }
-                _storageService.DeleteFileIfExists(item.FilePath);
+
+                await _db.DeleteAsync(item).ConfigureAwait(false);
+                currentTotal -= freed;
+                removed++;
             }
 
-            await _db.DeleteAsync(item);
-            currentTotal -= freed;
-            removed++;
-        }
-
-        return removed;
+            return removed;
+        }).ConfigureAwait(false);
     }
 }
