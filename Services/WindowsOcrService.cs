@@ -1,13 +1,13 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 #if WINDOWS
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
-using Windows.Storage;
 #endif
 
 namespace ClipVault.Services;
@@ -44,17 +44,29 @@ public class WindowsOcrService : IOcrService
         try
         {
             EnsureEngine();
-            if (_ocrEngine == null) return null;
+            if (_ocrEngine == null || cancellationToken.IsCancellationRequested) return null;
 
-            var file = await StorageFile.GetFileFromPathAsync(imagePath);
-            using var stream = await file.OpenAsync(FileAccessMode.Read);
-            var decoder = await BitmapDecoder.CreateAsync(stream);
-            using var softwareBitmap = await decoder.GetSoftwareBitmapAsync();
+            using var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var raStream = fileStream.AsRandomAccessStream();
+            var decoder = await BitmapDecoder.CreateAsync(raStream);
+            using var softwareBitmap = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+
+            if (softwareBitmap.PixelWidth > OcrEngine.MaxImageDimension || softwareBitmap.PixelHeight > OcrEngine.MaxImageDimension)
+            {
+                return null;
+            }
 
             var ocrResult = await _ocrEngine.RecognizeAsync(softwareBitmap);
-            if (ocrResult != null && !string.IsNullOrWhiteSpace(ocrResult.Text))
+            if (ocrResult != null && ocrResult.Lines != null && ocrResult.Lines.Count > 0)
             {
-                return ocrResult.Text.Trim();
+                var lines = ocrResult.Lines
+                    .Select(l => l.Text?.Trim())
+                    .Where(t => !string.IsNullOrWhiteSpace(t));
+                var fullText = string.Join(Environment.NewLine, lines);
+                if (!string.IsNullOrWhiteSpace(fullText))
+                {
+                    return fullText.Trim();
+                }
             }
         }
         catch (Exception ex)

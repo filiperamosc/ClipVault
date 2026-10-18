@@ -185,14 +185,14 @@
                         </HorizontalStackLayout>
                     </Border>
 
-                    <!-- Texto Extraído via OCR -->
+                    <!-- Texto Extraído via OCR (Selecionável e com Rolagem) -->
                     <Border IsVisible="{Binding HasExtractedText}"
                             BackgroundColor="#18181C"
                             StrokeShape="RoundRectangle 8"
                             Stroke="#1E3A5F"
                             Padding="12,8">
-                        <Grid RowDefinitions="Auto,*" RowSpacing="6">
-                            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" VerticalOptions="Center">
                                 <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                                     <Label Text="&#xE890;"
                                            FontFamily="Segoe Fluent Icons"
@@ -217,11 +217,17 @@
                                         MinimumWidthRequest="0"
                                         Padding="10,0" />
                             </Grid>
-                            <ScrollView Grid.Row="1" MaximumHeightRequest="110">
-                                <Label Text="{Binding ExtractedText}"
-                                       FontSize="11.5"
-                                       TextColor="#F0F9FF"
-                                       LineBreakMode="WordWrap" />
+                            <ScrollView Grid.Row="1"
+                                        MaximumHeightRequest="140"
+                                        VerticalScrollBarVisibility="Always">
+                                <Editor Text="{Binding ExtractedText, Mode=OneWay}"
+                                        IsReadOnly="True"
+                                        AutoSize="TextChanges"
+                                        FontSize="12"
+                                        TextColor="#F0F9FF"
+                                        BackgroundColor="#121216"
+                                        MinimumHeightRequest="56"
+                                        MaximumHeightRequest="140" />
                             </ScrollView>
                         </Grid>
                     </Border>

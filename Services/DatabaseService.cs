@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ClipVault.Models;
 using SQLite;
@@ -11,12 +12,17 @@ namespace ClipVault.Services;
 public class DatabaseService : IDatabaseService
 {
     private SQLiteAsyncConnection? _db;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
+    private volatile bool _isInitialized;
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
     private readonly IVisionClassifierService _visionClassifierService;
     private bool _visionMigrated;
 
-    public DatabaseService(ISettingsService settingsService, IStorageService storageService, IVisionClassifierService visionClassifierService)
+    public DatabaseService(
+        ISettingsService settingsService,
+        IStorageService storageService,
+        IVisionClassifierService visionClassifierService)
     {
         _settingsService = settingsService;
         _storageService = storageService;
@@ -25,56 +31,75 @@ public class DatabaseService : IDatabaseService
 
     public async Task InitializeAsync()
     {
-        if (_db != null) return;
+        if (_isInitialized && _db != null) return;
 
-        AppEnvironment.EnsureDirectoriesAndMigration();
-        var dbPath = AppEnvironment.DatabasePath;
-
-        _db = new SQLiteAsyncConnection(dbPath, SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache);
-        await _db.CreateTableAsync<ClipboardItem>();
-
+        await _initLock.WaitAsync();
         try
         {
+            if (_isInitialized && _db != null) return;
+
+            AppEnvironment.EnsureDirectoriesAndMigration();
+            var dbPath = AppEnvironment.DatabasePath;
+
+            var connection = new SQLiteAsyncConnection(
+                dbPath,
+                SQLiteOpenFlags.Create | SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.SharedCache | SQLiteOpenFlags.FullMutex);
+
+            await connection.CreateTableAsync<ClipboardItem>();
+            _db = connection;
+            _isInitialized = true;
+
             if (!_visionMigrated)
             {
                 _visionMigrated = true;
-                var imageRows = await _db.Table<ClipboardItem>()
-                                         .Where(i => i.Type == "Image")
-                                         .Take(100)
-                                         .ToListAsync();
-
-                foreach (var img in imageRows)
-                {
-                    if (!string.IsNullOrWhiteSpace(img.FilePath) && File.Exists(img.FilePath))
-                    {
-                        var freshTags = await _visionClassifierService.ClassifyImageAsync(img.FilePath);
-                        if (img.ImageTags != freshTags)
-                        {
-                            img.ImageTags = freshTags;
-                            img.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(img.Content, img.PreviewText, img.ExtractedText, img.ImageTags);
-                            await _db.UpdateAsync(img);
-                        }
-                    }
-                    else if (img.ImageTags != null)
-                    {
-                        img.ImageTags = null;
-                        img.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(img.Content, img.PreviewText, img.ExtractedText, null);
-                        await _db.UpdateAsync(img);
-                    }
-                }
+                _ = Task.Run(MigrateLegacyMetadataAsync);
             }
+        }
+        finally
+        {
+            _initLock.Release();
+        }
+    }
+
+    private async Task MigrateLegacyMetadataAsync()
+    {
+        try
+        {
+            if (_db == null) return;
 
             var unnormalized = await _db.Table<ClipboardItem>()
                                         .Where(i => i.NormalizedSearchContent == null || i.NormalizedSearchContent == "")
-                                        .Take(300)
+                                        .Take(200)
                                         .ToListAsync();
             foreach (var row in unnormalized)
             {
                 row.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(row.Content, row.PreviewText, row.ExtractedText, row.ImageTags);
                 await _db.UpdateAsync(row);
             }
+
+            var imageRows = await _db.Table<ClipboardItem>()
+                                     .Where(i => i.Type == "Image" && (i.ImageTags == null || i.ImageTags == "" || i.ImageTags.Contains("Interface") || i.ImageTags.Contains("elemento visual")))
+                                     .Take(50)
+                                     .ToListAsync();
+
+            foreach (var img in imageRows)
+            {
+                if (!string.IsNullOrWhiteSpace(img.FilePath) && File.Exists(img.FilePath))
+                {
+                    var freshTags = await _visionClassifierService.ClassifyImageAsync(img.FilePath);
+                    if (img.ImageTags != freshTags)
+                    {
+                        img.ImageTags = freshTags;
+                        img.NormalizedSearchContent = TextNormalizationHelper.BuildSearchVector(img.Content, img.PreviewText, img.ExtractedText, img.ImageTags);
+                        await _db.UpdateAsync(img);
+                    }
+                }
+            }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Erro na migração em segundo plano: {ex.Message}");
+        }
     }
 
     public void Dispose()
@@ -83,6 +108,7 @@ public class DatabaseService : IDatabaseService
         {
             _db?.CloseAsync().Wait(150);
             _db = null;
+            _isInitialized = false;
         }
         catch { }
     }
@@ -132,7 +158,6 @@ public class DatabaseService : IDatabaseService
             }
         }
 
-        // Sem termo de busca: consulta padrão
         var query = _db.Table<ClipboardItem>();
 
         if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
@@ -226,6 +251,26 @@ public class DatabaseService : IDatabaseService
         return lastItem?.ContentHash;
     }
 
+    public async Task<bool> IsDuplicateRecentHashAsync(string hash, int withinSeconds = 15)
+    {
+        if (string.IsNullOrWhiteSpace(hash)) return false;
+        await InitializeAsync();
+        if (_db == null) return false;
+
+        var lastItem = await _db.Table<ClipboardItem>().OrderByDescending(i => i.Id).FirstOrDefaultAsync();
+        if (lastItem != null && string.Equals(lastItem.ContentHash, hash, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var cutoff = DateTime.UtcNow.AddSeconds(-withinSeconds);
+        var recentMatch = await _db.Table<ClipboardItem>()
+            .Where(i => i.ContentHash == hash && i.CreatedAt >= cutoff)
+            .FirstOrDefaultAsync();
+
+        return recentMatch != null;
+    }
+
     public async Task<int> AutoCleanByAgeAsync(int maxDays)
     {
         if (maxDays <= 0) return 0;
@@ -255,27 +300,33 @@ public class DatabaseService : IDatabaseService
         if (maxBytes <= 0) return 0;
         await InitializeAsync();
 
-        long currentSize = _storageService.GetTotalStorageSize();
-        if (currentSize <= maxBytes) return 0;
+        long currentTotal = _storageService.GetTotalStorageSize();
+        if (currentTotal <= maxBytes) return 0;
 
-        // Buscar itens não fixados, do mais antigo para o mais recente
-        var unpinnedItems = await _db!.Table<ClipboardItem>()
+        var candidates = await _db!.Table<ClipboardItem>()
             .Where(i => !i.IsPinned)
             .OrderBy(i => i.CreatedAt)
             .ToListAsync();
 
         int removed = 0;
-        foreach (var item in unpinnedItems)
+        foreach (var item in candidates)
         {
-            if (item.IsImage)
+            if (currentTotal <= maxBytes) break;
+
+            long freed = item.ByteSize;
+            if (item.IsImage && !string.IsNullOrEmpty(item.FilePath) && File.Exists(item.FilePath))
             {
+                try
+                {
+                    freed = new FileInfo(item.FilePath).Length;
+                }
+                catch { }
                 _storageService.DeleteFileIfExists(item.FilePath);
             }
-            await _db.DeleteAsync(item);
-            removed++;
 
-            currentSize = _storageService.GetTotalStorageSize();
-            if (currentSize <= maxBytes) break;
+            await _db.DeleteAsync(item);
+            currentTotal -= freed;
+            removed++;
         }
 
         return removed;

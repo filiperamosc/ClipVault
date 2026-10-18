@@ -16,6 +16,7 @@ public interface IDatabaseService : IDisposable
     Task<int> TogglePinAsync(int id);
     Task<int> ClearHistoryAsync(bool keepPinned = true);
     Task<string?> GetLastItemHashAsync();
+    Task<bool> IsDuplicateRecentHashAsync(string hash, int withinSeconds = 15);
     Task<int> AutoCleanByAgeAsync(int maxDays);
     Task<int> AutoCleanBySizeAsync(long maxBytes);
 }

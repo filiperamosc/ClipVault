@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using ClipVault.Services;
 using ClipVault.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,28 @@ public partial class App : Application
     {
         InitializeComponent();
         _serviceProvider = serviceProvider;
+
+        AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+        {
+            Debug.WriteLine($"Exceção global capturada: {e.ExceptionObject}");
+        };
+
+        TaskScheduler.UnobservedTaskException += (s, e) =>
+        {
+            Debug.WriteLine($"Exceção de Task em background observada: {e.Exception.Message}");
+            e.SetObserved();
+        };
+
+#if WINDOWS
+        if (Microsoft.UI.Xaml.Application.Current != null)
+        {
+            Microsoft.UI.Xaml.Application.Current.UnhandledException += (s, e) =>
+            {
+                Debug.WriteLine($"Exceção WinUI capturada e tratada: {e.Message}");
+                e.Handled = true;
+            };
+        }
+#endif
 
         MainPage = new AppShell();
     }
@@ -47,7 +71,7 @@ public partial class App : Application
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Erro ao definir ícone da janela nativa: {ex.Message}");
+                    Debug.WriteLine($"Erro ao definir ícone da janela nativa: {ex.Message}");
                 }
 
                 var trayService = _serviceProvider.GetRequiredService<ITrayService>();

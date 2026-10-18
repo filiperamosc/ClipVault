@@ -1,11 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using ClipVault.Models;
 
 #if WINDOWS
 using Windows.ApplicationModel.DataTransfer;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 #endif
@@ -20,8 +23,9 @@ public class ClipboardService : IClipboardService
     private readonly CancellationTokenSource _cts = new();
 
     private string? _lastHash;
+    private string? _lastImageHash;
     private long _lastCaptureTimestamp;
-    private bool _isInternalCopy;
+    private long _ignoreInternalUntilTimestamp;
     private bool _isStarted;
     private bool _isDisposed;
 
@@ -56,7 +60,7 @@ public class ClipboardService : IClipboardService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Falha ao iniciar listener do Windows: {ex.Message}");
+            Debug.WriteLine($"Falha ao iniciar listener do Windows: {ex.Message}");
         }
 #endif
     }
@@ -80,20 +84,19 @@ public class ClipboardService : IClipboardService
     {
         if (_isDisposed || _cts.IsCancellationRequested || IsMonitoringPaused) return;
 
-        if (_isInternalCopy)
-        {
-            _isInternalCopy = false;
-            return;
-        }
-
-        // 1. Debounce rígido de 500ms (ignora disparos repetidos da Ferramenta de Captura do Windows)
         long now = Environment.TickCount64;
-        if (now - _lastCaptureTimestamp < 500)
+        if (now < _ignoreInternalUntilTimestamp)
         {
             return;
         }
 
-        // 2. Prevenção de execução concorrente: se já estiver processando um frame, descarta
+        // Debounce temporal inicial para rajadas simultâneas (< 350ms)
+        if (now - _lastCaptureTimestamp < 350)
+        {
+            return;
+        }
+
+        // Garantir execução estritamente sequencial para que a verificação de Hash nunca sofra condição de corrida
         if (!_captureLock.Wait(0))
         {
             return;
@@ -103,30 +106,38 @@ public class ClipboardService : IClipboardService
         {
             _lastCaptureTimestamp = Environment.TickCount64;
 
+            // Pequeno atraso de estabilização (80ms) para que a Ferramenta de Captura do Windows conclua a escrita do buffer
+            await Task.Delay(80, _cts.Token);
+
             var dataPackageView = Windows.ApplicationModel.DataTransfer.Clipboard.GetContent();
             if (dataPackageView == null) return;
 
-            // Prioridade 1: Imagem (Print Screen / Snipping Tool / Bitmap copiado)
             if (dataPackageView.Contains(StandardDataFormats.Bitmap))
             {
                 await ProcessBitmapAsync(dataPackageView);
                 return;
             }
 
-            // Prioridade 2: Texto / URL / Código
             if (dataPackageView.Contains(StandardDataFormats.Text))
             {
                 await ProcessTextAsync(dataPackageView);
                 return;
             }
         }
+        catch (OperationCanceledException)
+        {
+        }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao processar área de transferência: {ex.Message}");
+            Debug.WriteLine($"Erro ao processar área de transferência: {ex.Message}");
         }
         finally
         {
-            _captureLock.Release();
+            try
+            {
+                _captureLock.Release();
+            }
+            catch { }
         }
     }
 
@@ -140,20 +151,23 @@ public class ClipboardService : IClipboardService
             if (string.IsNullOrWhiteSpace(text)) return;
 
             var hash = _storageService.ComputeTextHash(text.Trim());
+            if (string.IsNullOrEmpty(hash)) return;
 
-            // Deduplicação estrita: comparar com último hash em memória e no banco
             if (_lastHash == null)
             {
                 _lastHash = await _databaseService.GetLastItemHashAsync();
             }
 
-            if (string.Equals(hash, _lastHash, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(hash, _lastHash, StringComparison.OrdinalIgnoreCase) ||
+                await _databaseService.IsDuplicateRecentHashAsync(hash, withinSeconds: 15))
             {
+                Debug.WriteLine("Texto duplicado consecutivo descartado pelo filtro de Hash.");
                 return;
             }
-            _lastHash = hash;
 
-            // Classificar tipo
+            _lastHash = hash;
+            _lastCaptureTimestamp = Environment.TickCount64;
+
             var type = "Text";
             if (Uri.TryCreate(text.Trim(), UriKind.Absolute, out var uri) &&
                 (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
@@ -184,7 +198,7 @@ public class ClipboardService : IClipboardService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao processar texto: {ex.Message}");
+            Debug.WriteLine($"Erro ao processar texto: {ex.Message}");
         }
     }
 
@@ -198,40 +212,106 @@ public class ClipboardService : IClipboardService
             if (streamRef == null) return;
 
             using var raStream = await streamRef.OpenReadAsync();
-            using var memoryStream = new MemoryStream();
-            using (var netStream = raStream.AsStreamForRead())
+            if (raStream == null || raStream.Size == 0) return;
+
+            byte[] bytesToSave;
+            string hash;
+
+            try
             {
-                await netStream.CopyToAsync(memoryStream, _cts.Token);
+                // Decodificar os pixels reais da imagem para calcular o Hash SHA-256 dos canais RGB puros.
+                // Isso impede que a Ferramenta de Captura do Windows gere hashes diferentes ao regravar
+                // cabeçalhos DIB/BMP vs PNG do mesmo print em eventos subsequentes.
+                var decoder = await BitmapDecoder.CreateAsync(raStream);
+                uint width = decoder.PixelWidth;
+                uint height = decoder.PixelHeight;
+
+                var pixelData = await decoder.GetPixelDataAsync(
+                    BitmapPixelFormat.Rgba8,
+                    BitmapAlphaMode.Ignore,
+                    new BitmapTransform(),
+                    ExifOrientationMode.IgnoreExifOrientation,
+                    ColorManagementMode.DoNotColorManage);
+
+                byte[] rawPixels = pixelData.DetachPixelData();
+                if (rawPixels == null || rawPixels.Length == 0) return;
+
+                // Normalizar canal Alpha para 255 em todos os pixels antes do Hash e da codificação PNG
+                for (int i = 3; i < rawPixels.Length; i += 4)
+                {
+                    rawPixels[i] = 255;
+                }
+
+                hash = _storageService.ComputeBytesHash(rawPixels);
+
+                // Verificar duplicidade ANTES de codificar PNG ou gravar em disco
+                if (_lastHash == null)
+                {
+                    _lastHash = await _databaseService.GetLastItemHashAsync();
+                }
+
+                if (string.Equals(hash, _lastImageHash, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(hash, _lastHash, StringComparison.OrdinalIgnoreCase) ||
+                    await _databaseService.IsDuplicateRecentHashAsync(hash, withinSeconds: 30))
+                {
+                    Debug.WriteLine($"Captura de imagem duplicada descartada (SHA-256 idêntico: {hash[..12]}...).");
+                    return;
+                }
+
+                // Codificar para formato PNG real em memória
+                using var pngRandomAccessStream = new InMemoryRandomAccessStream();
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, pngRandomAccessStream);
+                encoder.SetPixelData(
+                    BitmapPixelFormat.Rgba8,
+                    BitmapAlphaMode.Ignore,
+                    width,
+                    height,
+                    96.0,
+                    96.0,
+                    rawPixels);
+                await encoder.FlushAsync();
+
+                pngRandomAccessStream.Seek(0);
+                using var ms = new MemoryStream();
+                await pngRandomAccessStream.AsStreamForRead().CopyToAsync(ms, _cts.Token);
+                bytesToSave = ms.ToArray();
+            }
+            catch
+            {
+                raStream.Seek(0);
+                using var fallbackMs = new MemoryStream();
+                await raStream.AsStreamForRead().CopyToAsync(fallbackMs, _cts.Token);
+                bytesToSave = fallbackMs.ToArray();
+                if (bytesToSave.Length == 0) return;
+
+                hash = _storageService.ComputeBytesHash(bytesToSave);
+
+                if (_lastHash == null)
+                {
+                    _lastHash = await _databaseService.GetLastItemHashAsync();
+                }
+
+                if (string.Equals(hash, _lastImageHash, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(hash, _lastHash, StringComparison.OrdinalIgnoreCase) ||
+                    await _databaseService.IsDuplicateRecentHashAsync(hash, withinSeconds: 30))
+                {
+                    return;
+                }
             }
 
-            var bytes = memoryStream.ToArray();
-            if (bytes.Length == 0) return;
-
-            // Verificação de Hash no buffer ANTES de salvar em disco
-            var hash = _storageService.ComputeBytesHash(bytes);
-
-            if (_lastHash == null)
-            {
-                _lastHash = await _databaseService.GetLastItemHashAsync();
-            }
-
-            // Descarta sumariamente se for idêntica ao último hash registrado
-            if (string.Equals(hash, _lastHash, StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
+            _lastImageHash = hash;
             _lastHash = hash;
+            _lastCaptureTimestamp = Environment.TickCount64;
 
-            // Salvar no disco e registrar apenas se for único
-            var filePath = await _storageService.SaveImageAsync(bytes, ".png");
+            var filePath = await _storageService.SaveImageAsync(bytesToSave, ".png");
 
             var item = new ClipboardItem
             {
                 Type = "Image",
                 FilePath = filePath,
-                PreviewText = $"Imagem ({bytes.Length / 1024.0:F1} KB)",
+                PreviewText = $"Imagem ({bytesToSave.Length / 1024.0:F1} KB)",
                 ContentHash = hash,
-                ByteSize = bytes.Length,
+                ByteSize = bytesToSave.Length,
                 CreatedAt = DateTime.UtcNow,
                 IsPinned = false
             };
@@ -239,14 +319,13 @@ public class ClipboardService : IClipboardService
             await _databaseService.AddItemAsync(item);
             ItemCaptured?.Invoke(this, item);
 
-            // Processamento em segundo plano de OCR (Windows) e Visão Computacional (ONNX)
+            // Processamento em segundo plano de OCR (Windows) e Classificação Visual (ONNX)
             _ = Task.Run(async () =>
             {
                 try
                 {
                     bool hasUpdate = false;
 
-                    // 1. OCR Nativo do Windows
                     var extractedText = await _ocrService.ExtractTextFromImageAsync(filePath, _cts.Token);
                     if (!string.IsNullOrWhiteSpace(extractedText))
                     {
@@ -254,7 +333,6 @@ public class ClipboardService : IClipboardService
                         hasUpdate = true;
                     }
 
-                    // 2. Classificação de Imagem ONNX MobileNetV2
                     var tags = await _visionClassifierService.ClassifyImageAsync(filePath, _cts.Token);
                     if (!string.IsNullOrWhiteSpace(tags))
                     {
@@ -270,13 +348,13 @@ public class ClipboardService : IClipboardService
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Erro no processamento visual da imagem: {ex.Message}");
+                    Debug.WriteLine($"Erro no processamento visual da imagem: {ex.Message}");
                 }
             }, _cts.Token);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao processar imagem: {ex.Message}");
+            Debug.WriteLine($"Erro ao processar imagem: {ex.Message}");
         }
     }
 #endif
@@ -295,8 +373,15 @@ public class ClipboardService : IClipboardService
     {
         if (item == null) return false;
 
-        _isInternalCopy = true;
-        _lastHash = item.ContentHash;
+        _ignoreInternalUntilTimestamp = Environment.TickCount64 + 1200;
+        if (!string.IsNullOrEmpty(item.ContentHash))
+        {
+            _lastHash = item.ContentHash;
+            if (item.IsImage)
+            {
+                _lastImageHash = item.ContentHash;
+            }
+        }
         _lastCaptureTimestamp = Environment.TickCount64;
 
 #if WINDOWS
@@ -321,8 +406,8 @@ public class ClipboardService : IClipboardService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao copiar para Windows Clipboard: {ex.Message}");
-            _isInternalCopy = false;
+            Debug.WriteLine($"Erro ao copiar para Windows Clipboard: {ex.Message}");
+            _ignoreInternalUntilTimestamp = 0;
             return false;
         }
 #else

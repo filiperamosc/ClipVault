@@ -1,14 +1,16 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ClipVault.Models;
 using ClipVault.Services;
+using ClipVault.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
-using ClipVault.Views;
 
 namespace ClipVault.ViewModels;
 
@@ -19,6 +21,9 @@ public partial class MainViewModel : ObservableObject
     private readonly ITrayService _trayService;
     private readonly ISettingsService _settingsService;
     private readonly IStorageService _storageService;
+    private readonly SemaphoreSlim _loadLock = new(1, 1);
+    private CancellationTokenSource? _searchDebounceCts;
+    private CancellationTokenSource? _toastCts;
 
     [ObservableProperty]
     private string _selectedFilter = "Todos";
@@ -68,6 +73,10 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<ClipboardItemViewModel> Items { get; } = new();
 
+    // Garantir que apenas o CollectionView visível esteja conectado à ObservableCollection no WinUI 3
+    public ObservableCollection<ClipboardItemViewModel>? ListItemsSource => IsListView ? Items : null;
+    public ObservableCollection<ClipboardItemViewModel>? GridItemsSource => IsGridView ? Items : null;
+
     public MainViewModel(
         IDatabaseService databaseService,
         IClipboardService clipboardService,
@@ -90,30 +99,61 @@ public partial class MainViewModel : ObservableObject
 
     private void OnItemCaptured(object? sender, ClipboardItem item)
     {
+        if (item == null) return;
+
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            if (MatchesFilter(item))
+            try
             {
-                var vm = new ClipboardItemViewModel(item);
-                int insertIndex = 0;
-                while (insertIndex < Items.Count && Items[insertIndex].IsPinned)
+                if (Items.Any(i => i.Id == item.Id && item.Id != 0))
                 {
-                    insertIndex++;
+                    return;
                 }
-                Items.Insert(insertIndex, vm);
+
+                if (MatchesFilter(item))
+                {
+                    var vm = new ClipboardItemViewModel(item);
+                    int insertIndex = 0;
+                    while (insertIndex < Items.Count && Items[insertIndex].IsPinned)
+                    {
+                        insertIndex++;
+                    }
+
+                    if (insertIndex <= Items.Count)
+                    {
+                        Items.Insert(insertIndex, vm);
+                    }
+                    else
+                    {
+                        Items.Add(vm);
+                    }
+                }
+                UpdateStatusSubtitle();
             }
-            UpdateStatusSubtitle();
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao inserir item na UI Thread: {ex.Message}");
+            }
         });
     }
 
     private void OnItemUpdated(object? sender, ClipboardItem item)
     {
+        if (item == null) return;
+
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            var existing = Items.FirstOrDefault(i => i.Id == item.Id);
-            if (existing != null)
+            try
             {
-                existing.UpdateVisionMetadata(item.ExtractedText, item.ImageTags);
+                var existing = Items.FirstOrDefault(i => i.Id == item.Id);
+                if (existing != null)
+                {
+                    existing.UpdateVisionMetadata(item.ExtractedText, item.ImageTags);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao atualizar metadados na UI Thread: {ex.Message}");
             }
         });
     }
@@ -138,53 +178,99 @@ public partial class MainViewModel : ObservableObject
     public async Task InitializeAsync()
     {
         await LoadItemsAsync();
-        UpdateStatusSubtitle();
         _clipboardService.Start();
     }
 
     [RelayCommand]
     public async Task LoadItemsAsync()
     {
-        IsBusy = true;
+        await _loadLock.WaitAsync();
         try
         {
-            var list = await _databaseService.GetItemsAsync(SelectedFilter, SearchText);
-            Items.Clear();
-            foreach (var item in list)
+            string filterSnapshot = SelectedFilter;
+            string searchSnapshot = SearchText;
+
+            var list = await _databaseService.GetItemsAsync(filterSnapshot, searchSnapshot);
+            var viewModels = list.Select(item => new ClipboardItemViewModel(item)).ToList();
+
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                Items.Add(new ClipboardItemViewModel(item));
-            }
-            UpdateStatusSubtitle();
+                try
+                {
+                    IsBusy = true;
+                    Items.Clear();
+                    foreach (var vm in viewModels)
+                    {
+                        Items.Add(vm);
+                    }
+                    UpdateStatusSubtitle();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Erro ao sincronizar coleção na UI Thread: {ex.Message}");
+                }
+                finally
+                {
+                    IsBusy = false;
+                }
+            });
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Erro ao carregar itens: {ex.Message}");
+            Debug.WriteLine($"Erro ao carregar itens do banco: {ex.Message}");
         }
         finally
         {
-            IsBusy = false;
+            _loadLock.Release();
         }
     }
 
     [RelayCommand]
     public async Task SetFilterAsync(string filter)
     {
-        if (SelectedFilter == filter) return;
-        SelectedFilter = filter;
-        OnPropertyChanged(nameof(FilterTodosBg));
-        OnPropertyChanged(nameof(FilterTodosFg));
-        OnPropertyChanged(nameof(FilterTextosBg));
-        OnPropertyChanged(nameof(FilterTextosFg));
-        OnPropertyChanged(nameof(FilterImagensBg));
-        OnPropertyChanged(nameof(FilterImagensFg));
-        OnPropertyChanged(nameof(FilterFixadosBg));
-        OnPropertyChanged(nameof(FilterFixadosFg));
+        if (string.IsNullOrWhiteSpace(filter) || SelectedFilter == filter) return;
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            SelectedFilter = filter;
+            OnPropertyChanged(nameof(FilterTodosBg));
+            OnPropertyChanged(nameof(FilterTodosFg));
+            OnPropertyChanged(nameof(FilterTextosBg));
+            OnPropertyChanged(nameof(FilterTextosFg));
+            OnPropertyChanged(nameof(FilterImagensBg));
+            OnPropertyChanged(nameof(FilterImagensFg));
+            OnPropertyChanged(nameof(FilterFixadosBg));
+            OnPropertyChanged(nameof(FilterFixadosFg));
+        });
+
         await LoadItemsAsync();
     }
 
     partial void OnSearchTextChanged(string value)
     {
-        _ = LoadItemsAsync();
+        try
+        {
+            _searchDebounceCts?.Cancel();
+            _searchDebounceCts?.Dispose();
+            var cts = new CancellationTokenSource();
+            _searchDebounceCts = cts;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(120, cts.Token);
+                    if (!cts.Token.IsCancellationRequested)
+                    {
+                        await LoadItemsAsync();
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            });
+        }
+        catch { }
     }
 
     [RelayCommand]
@@ -203,8 +289,23 @@ public partial class MainViewModel : ObservableObject
     {
         if (item == null) return;
         await _databaseService.DeleteItemAsync(item.Model);
-        Items.Remove(item);
-        UpdateStatusSubtitle();
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try
+            {
+                if (Items.Contains(item))
+                {
+                    Items.Remove(item);
+                }
+                UpdateStatusSubtitle();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao remover item na UI Thread: {ex.Message}");
+            }
+        });
+
         await ShowToastAsync("Item removido do histórico");
     }
 
@@ -212,10 +313,63 @@ public partial class MainViewModel : ObservableObject
     public async Task TogglePinAsync(ClipboardItemViewModel item)
     {
         if (item == null) return;
+
         await _databaseService.TogglePinAsync(item.Id);
-        item.UpdatePinnedState(!item.IsPinned);
-        await LoadItemsAsync();
-        await ShowToastAsync(item.IsPinned ? "Item fixado no topo" : "Item desafixado");
+        bool newPinnedState = !item.IsPinned;
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try
+            {
+                item.UpdatePinnedState(newPinnedState);
+
+                int currentIndex = Items.IndexOf(item);
+                if (currentIndex < 0) return;
+
+                if (SelectedFilter == "Fixados" && !newPinnedState)
+                {
+                    Items.RemoveAt(currentIndex);
+                    UpdateStatusSubtitle();
+                    return;
+                }
+
+                // Calcular nova posição ordenada sem destruir a árvore visual (sem Items.Clear)
+                int targetIndex = 0;
+                for (int i = 0; i < Items.Count; i++)
+                {
+                    if (ReferenceEquals(Items[i], item)) continue;
+
+                    var other = Items[i];
+                    bool otherComesBefore = false;
+
+                    if (other.IsPinned && !newPinnedState)
+                    {
+                        otherComesBefore = true;
+                    }
+                    else if (other.IsPinned == newPinnedState && other.Model.CreatedAt > item.Model.CreatedAt)
+                    {
+                        otherComesBefore = true;
+                    }
+
+                    if (otherComesBefore)
+                    {
+                        targetIndex++;
+                    }
+                }
+
+                targetIndex = Math.Clamp(targetIndex, 0, Math.Max(0, Items.Count - 1));
+                if (currentIndex != targetIndex)
+                {
+                    Items.Move(currentIndex, targetIndex);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao reordenar item fixado na UI Thread: {ex.Message}");
+            }
+        });
+
+        await ShowToastAsync(newPinnedState ? "Item fixado no topo" : "Item desafixado");
     }
 
     [RelayCommand]
@@ -229,32 +383,63 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public void ToggleViewMode()
     {
-        IsGridView = !IsGridView;
-        IsListView = !IsGridView;
-        OnPropertyChanged(nameof(ViewModeIcon));
-        OnPropertyChanged(nameof(ViewModeTooltip));
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            try
+            {
+                bool targetGrid = !IsGridView;
+
+                // Desconectar temporariamente o CollectionView anterior antes de exibir o novo
+                IsGridView = targetGrid;
+                IsListView = !targetGrid;
+
+                OnPropertyChanged(nameof(ListItemsSource));
+                OnPropertyChanged(nameof(GridItemsSource));
+                OnPropertyChanged(nameof(ViewModeIcon));
+                OnPropertyChanged(nameof(ViewModeTooltip));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao alternar modo de exibição na UI Thread: {ex.Message}");
+            }
+        });
     }
 
     [RelayCommand]
     public async Task OpenItemViewerAsync(ClipboardItemViewModel item)
     {
         if (item == null) return;
-        if (Shell.Current != null)
+        await MainThread.InvokeOnMainThreadAsync(async () =>
         {
-            await Shell.Current.Navigation.PushAsync(new ItemViewerPage(item));
-        }
+            try
+            {
+                if (Shell.Current != null)
+                {
+                    await Shell.Current.Navigation.PushAsync(new ItemViewerPage(item));
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Erro ao abrir visualizador: {ex.Message}");
+            }
+        });
     }
 
     [RelayCommand]
     public async Task ToggleMonitoringAsync()
     {
-        IsMonitoringPaused = !IsMonitoringPaused;
-        _clipboardService.IsMonitoringPaused = IsMonitoringPaused;
-        _trayService.UpdateStatus(IsMonitoringPaused);
+        bool paused = !IsMonitoringPaused;
+        _clipboardService.IsMonitoringPaused = paused;
+        _trayService.UpdateStatus(paused);
 
-        var msg = IsMonitoringPaused ? "Monitoramento pausado" : "Monitoramento ativo";
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            IsMonitoringPaused = paused;
+            UpdateStatusSubtitle();
+        });
+
+        var msg = paused ? "Monitoramento pausado" : "Monitoramento ativo";
         await ShowToastAsync(msg);
-        UpdateStatusSubtitle();
     }
 
     public void UpdateStatusSubtitle()
@@ -264,14 +449,41 @@ public partial class MainViewModel : ObservableObject
             ? $"{totalBytes / 1024.0:F1} KB"
             : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
 
-        StatusSubtitle = $"{Items.Count} itens • {sizeStr}";
+        string subtitle = $"{Items.Count} itens • {sizeStr}";
+
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            StatusSubtitle = subtitle;
+        });
     }
 
     private async Task ShowToastAsync(string message)
     {
-        ToastMessage = message;
-        IsToastVisible = true;
-        await Task.Delay(2200);
-        IsToastVisible = false;
+        try
+        {
+            _toastCts?.Cancel();
+            _toastCts?.Dispose();
+            var cts = new CancellationTokenSource();
+            _toastCts = cts;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                ToastMessage = message;
+                IsToastVisible = true;
+            });
+
+            await Task.Delay(2200, cts.Token);
+
+            if (!cts.Token.IsCancellationRequested)
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    IsToastVisible = false;
+                });
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
     }
 }

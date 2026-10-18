@@ -2,6 +2,7 @@ using System;
 using ClipVault.ViewModels;
 using ClipVault.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 
 namespace ClipVault;
@@ -10,6 +11,7 @@ public partial class MainPage : ContentPage
 {
     private readonly MainViewModel _viewModel;
     private readonly IServiceProvider _serviceProvider;
+    private bool _isInitialized;
 
     public MainPage(MainViewModel viewModel, IServiceProvider serviceProvider)
     {
@@ -22,7 +24,16 @@ public partial class MainPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.InitializeAsync();
+
+        if (!_isInitialized)
+        {
+            _isInitialized = true;
+            await _viewModel.InitializeAsync();
+        }
+        else
+        {
+            _viewModel.UpdateStatusSubtitle();
+        }
     }
 
     private async void OnSettingsClicked(object sender, EventArgs e)
@@ -39,21 +50,26 @@ public partial class MainPage : ContentPage
 
     private void OnPageSizeChanged(object? sender, EventArgs e)
     {
-        if (Width > 0)
-        {
-            double width = Width;
-            int span = width switch
-            {
-                < 520 => 1,
-                < 820 => 2,
-                < 1150 => 3,
-                _ => 4
-            };
+        if (Width <= 0) return;
 
-            if (_viewModel.GridSpan != span)
+        double width = Width;
+        int span = width switch
+        {
+            < 520 => 1,
+            < 820 => 2,
+            < 1150 => 3,
+            _ => 4
+        };
+
+        if (_viewModel.GridSpan != span)
+        {
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                _viewModel.GridSpan = span;
-            }
+                if (_viewModel.GridSpan != span)
+                {
+                    _viewModel.GridSpan = span;
+                }
+            });
         }
     }
 }
