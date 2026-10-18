@@ -1,3 +1,4 @@
+using System;
 using ClipVault.ViewModels;
 using Microsoft.Maui.Controls;
 
@@ -18,5 +19,10 @@ public partial class SettingsPage : ContentPage
     {
         base.OnAppearing();
         _viewModel.LoadFromConfig();
+    }
+
+    private async void OnBackClicked(object? sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }

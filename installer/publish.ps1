@@ -1,5 +1,5 @@
 # Script de automação para compilar e gerar o executável portátil (Self-Contained Single-File)
-$version = "1.1.2"
+$version = "1.1.3"
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "    ClipVault v$version - Publicação Portátil " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan

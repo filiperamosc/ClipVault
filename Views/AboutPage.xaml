@@ -40,7 +40,7 @@
                             Stroke="#32323D"
                             Padding="10,3"
                             HorizontalOptions="Center">
-                        <Label Text="Versão 1.1.2"
+                        <Label Text="Versão 1.1.3"
                                FontSize="11"
                                FontAttributes="Bold"
                                TextColor="#818CF8" />

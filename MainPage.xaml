@@ -592,7 +592,7 @@
                 Stroke="#1F1F26"
                 Padding="16,5">
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="ClipVault v1.1.2 • Monitoramento de Área de Transferência"
+                <Label Text="ClipVault v1.1.3 • Monitoramento de Área de Transferência"
                        FontSize="10.5"
                        TextColor="#71717A"
                        VerticalOptions="Center" />

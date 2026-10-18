@@ -4,14 +4,15 @@ Gerenciador de área de transferência (Clipboard Manager) de alta performance p
 
 ---
 
-## Destaques da Versão 1.1.2
+## Destaques da Versão 1.1.3
 
+- **Refinamento Fluent Design nas Configurações**: Resolução do glitch visual de dupla borda no campo de diretório, redesenho minimalista do cabeçalho com botão nativo de retorno e alinhamento proporcional harmônico para botões de ação secundária e expurgo.
 - **Interface Windows 11 Fluent Design & Clean UI**: Layout minimalista em modo escuro (`#0F0F12` / `#18181C`), cantos arredondados (`CornerRadius="8"`), tipografia limpa e ícones vetoriais nativos (`Segoe Fluent Icons`).
 - **Modo Grade com Proporção Estrutural (`22,*,36`)**: Cards dimensionados para priorizar a visualização do conteúdo principal (`*`), mantendo os controles de ação compactos e exclusivamente baseados em ícones na barra inferior (`36px`).
-- **Classificação Visual ONNX Calibrada (`Limiar >= 60%`)**: Inferência local via ONNX Runtime (`MobileNetV2`), com alinhamento exato das 1.001 classes do grafo (`background` offset + 1.000 classes ImageNet), recorte central proporcional (`224x224`), normalização simétrica `[-1, 1]` e filtro rígido de confiança mínima de **60% (`0.60f`)** para eliminar falsos positivos.
-- **OCR Nativo do Windows**: Reconhecimento óptico de caracteres em segundo plano integrado ao subsistema `Windows.Media.Ocr`, extraindo textos de capturas de tela e imagens.
-- **Busca Unificada Insensível a Acentos (Ignore Diacritics)**: Indexação vetorial normalizada em SQLite (`System.Globalization`), permitindo consultas imediatas que ignoram acentuação e caixa alta/baixa em textos, OCR e categorias visuais.
-- **Portabilidade Real (Single-File)**: Executável independente autocontido (`portable\ClipVault_v1.1.2.exe`) que opera sem necessidade de instalação, mantendo o banco de dados (`clipvault.db`) e configurações (`clipvault_config.json`) no mesmo diretório do executável.
+- **Classificação Visual ONNX Calibrada (`Limiar >= 40%`)**: Inferência local via ONNX Runtime (`MobileNetV2`), com alinhamento exato das 1.001 classes do grafo (`background` offset + 1.000 classes ImageNet), pré-processamento duplo (Letterbox + Center Crop `224x224`), interpolação bilinear e agregação de probabilidades semânticas.
+- **OCR Nativo do Windows com Leitor Selecionável**: Reconhecimento óptico de caracteres em segundo plano integrado diretamente ao subsistema `Windows.Media.Ocr`, com leitor scrollável e selecionável no visualizador modal.
+- **Captura Resiliente com Retry Pattern e SoftwareBitmap**: Mecanismo com backoff progressivo contra bloqueios transitórios de clipboard e codificação PNG direta via WIC sem distorções de stride.
+- **Portabilidade Real (Single-File)**: Executável independente autocontido (`ClipVault_v1.1.3.exe`) com esteira de CI/CD via GitHub Actions.
 
 ---
 
