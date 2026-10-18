@@ -105,15 +105,11 @@ ClipVault/
 dotnet build -f net8.0-windows10.0.19041.0 -c Debug
 ```
 
-### Publicação do Binário Portátil (Single-File / Self-Contained)
-Execute o script automatizado:
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\publish.ps1
-```
-O executável final independente será gerado em:
-```
-portable\ClipVault_v1.1.2.exe
-```
+### Automação de CI/CD e Releases (GitHub Actions)
+O projeto conta com esteira automatizada em `.github/workflows/build-release.yml`:
+- **Disparos (Triggers)**: Executado automaticamente a cada push na branch `main` ou na criação de novas tags (`v*`).
+- **Ambiente**: Runner Windows (`windows-latest`) com SDK .NET 8 e workload `maui-windows`.
+- **Publicação**: Gera o executável Single-File autônomo versionado (`ClipVault_v1.1.2.exe`), anexa como artefato da build e publica automaticamente como **GitHub Release**.
 
 ---
 
