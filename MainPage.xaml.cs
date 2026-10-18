@@ -60,58 +60,76 @@ public partial class MainPage : ContentPage
 
     private void UpdateGridSpanSafe()
     {
-        if (Width <= 0 || !_viewModel.IsGridView) return;
-
-        double width = Width;
-        int targetSpan = width switch
+        try
         {
-            < 520 => 1,
-            < 820 => 2,
-            < 1150 => 3,
-            _ => 4
-        };
+            if (Width <= 0 || !_viewModel.IsGridView) return;
 
-        if (_viewModel.GridSpan != targetSpan)
+            double width = Width;
+            int targetSpan = width switch
+            {
+                < 520 => 1,
+                < 820 => 2,
+                < 1150 => 3,
+                _ => 4
+            };
+
+            targetSpan = Math.Clamp(targetSpan, 1, 4);
+
+            if (_viewModel.GridSpan != targetSpan)
+            {
+                _viewModel.GridSpan = targetSpan;
+            }
+        }
+        catch (Exception ex)
         {
-            _viewModel.GridSpan = targetSpan;
+            System.Diagnostics.Debug.WriteLine($"Erro ao calcular GridSpan seguro: {ex.Message}");
         }
     }
 
     private void OnPageSizeChanged(object? sender, EventArgs e)
     {
-        if (Width <= 0 || !_isInitialized || !_viewModel.IsGridView) return;
-
-        double width = Width;
-        int targetSpan = width switch
+        try
         {
-            < 520 => 1,
-            < 820 => 2,
-            < 1150 => 3,
-            _ => 4
-        };
+            if (Width <= 0 || !_isInitialized || !_viewModel.IsGridView) return;
 
-        if (_viewModel.GridSpan == targetSpan) return;
-
-        _resizeCts?.Cancel();
-        _resizeCts?.Dispose();
-        var cts = new CancellationTokenSource();
-        _resizeCts = cts;
-
-        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(250), () =>
-        {
-            if (cts.IsCancellationRequested) return;
-
-            try
+            double width = Width;
+            int targetSpan = width switch
             {
-                if (_viewModel.GridSpan != targetSpan && _viewModel.IsGridView)
+                < 520 => 1,
+                < 820 => 2,
+                < 1150 => 3,
+                _ => 4
+            };
+
+            targetSpan = Math.Clamp(targetSpan, 1, 4);
+
+            if (_viewModel.GridSpan == targetSpan) return;
+
+            _resizeCts?.Cancel();
+            _resizeCts?.Dispose();
+            var cts = new CancellationTokenSource();
+            _resizeCts = cts;
+
+            Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(250), () =>
+            {
+                if (cts.IsCancellationRequested) return;
+
+                try
                 {
-                    _viewModel.GridSpan = targetSpan;
+                    if (_viewModel.GridSpan != targetSpan && _viewModel.IsGridView)
+                    {
+                        _viewModel.GridSpan = targetSpan;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Erro ao atualizar GridSpan: {ex.Message}");
-            }
-        });
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Erro ao atualizar GridSpan: {ex.Message}");
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"OnPageSizeChanged erro: {ex.Message}");
+        }
     }
 }

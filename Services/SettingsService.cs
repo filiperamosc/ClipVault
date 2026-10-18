@@ -29,27 +29,70 @@ public class SettingsService : ISettingsService
             if (File.Exists(_configFilePath))
             {
                 var json = File.ReadAllText(_configFilePath);
-                var config = JsonSerializer.Deserialize<AppConfig>(json);
-                if (config != null)
+                if (!string.IsNullOrWhiteSpace(json))
                 {
-                    if (string.IsNullOrWhiteSpace(config.StorageDirectory))
+                    var options = new JsonSerializerOptions
                     {
-                        config.StorageDirectory = AppEnvironment.DefaultStorageDirectory;
+                        PropertyNameCaseInsensitive = true,
+                        ReadCommentHandling = JsonCommentHandling.Skip,
+                        AllowTrailingCommas = true
+                    };
+
+                    var config = JsonSerializer.Deserialize<AppConfig>(json, options);
+                    if (config != null)
+                    {
+                        // Validação e sanitização contra valores nulos ou quebrados de versões legadas
+                        if (string.IsNullOrWhiteSpace(config.StorageDirectory))
+                        {
+                            config.StorageDirectory = AppEnvironment.DefaultStorageDirectory;
+                        }
+
+                        if (config.AutoCleanDays <= 0)
+                        {
+                            config.AutoCleanDays = 15;
+                        }
+
+                        if (config.MaxStorageMb <= 0)
+                        {
+                            config.MaxStorageMb = 500;
+                        }
+
+                        return config;
                     }
-                    return config;
                 }
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Falha ao ler configuração: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Falha ao ler configuração: {ex.Message}. Efetuando fallback seguro.");
+            try
+            {
+                if (File.Exists(_configFilePath))
+                {
+                    var backup = _configFilePath + $".corrupt.{DateTime.UtcNow:yyyyMMdd_HHmmss}.bak";
+                    File.Copy(_configFilePath, backup, overwrite: true);
+                }
+            }
+            catch { }
         }
 
         var defaultConfig = new AppConfig
         {
-            StorageDirectory = AppEnvironment.DefaultStorageDirectory
+            StorageDirectory = AppEnvironment.DefaultStorageDirectory,
+            EnableAutoCleanByDays = true,
+            AutoCleanDays = 15,
+            EnableAutoCleanBySize = true,
+            MaxStorageMb = 500,
+            StartWithWindows = false,
+            IsMonitoringPaused = false
         };
-        SaveConfig(defaultConfig);
+
+        try
+        {
+            SaveConfig(defaultConfig);
+        }
+        catch { }
+
         return defaultConfig;
     }
 
@@ -59,11 +102,20 @@ public class SettingsService : ISettingsService
         {
             _currentConfig = config;
             var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_configFilePath, json);
+            var tempFile = _configFilePath + ".tmp";
+            File.WriteAllText(tempFile, json);
+            File.Move(tempFile, _configFilePath, overwrite: true);
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Erro ao salvar configurações: {ex.Message}");
+            try
+            {
+                // Fallback para gravação direta
+                var json = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_configFilePath, json);
+            }
+            catch { }
         }
     }
 

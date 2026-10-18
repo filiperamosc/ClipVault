@@ -170,32 +170,49 @@ public partial class App : Application
         if (string.IsNullOrEmpty(iconPath) || !System.IO.File.Exists(iconPath))
             return;
 
+        string absolutePath = System.IO.Path.GetFullPath(iconPath);
+
+        // 1. Invocação primária direta de AppWindow.SetIcon com o caminho absoluto do .ico
         try
         {
-            appWindow?.SetIcon(iconPath);
-
-            if (Microsoft.UI.Windowing.AppWindowTitleBar.IsCustomizationSupported() && appWindow?.TitleBar != null)
+            if (appWindow != null)
             {
-                appWindow.TitleBar.IconShowOptions = Microsoft.UI.Windowing.IconShowOptions.ShowIconAndSystemMenu;
+                appWindow.SetIcon(absolutePath);
+
+                if (Microsoft.UI.Windowing.AppWindowTitleBar.IsCustomizationSupported() && appWindow.TitleBar != null)
+                {
+                    appWindow.TitleBar.IconShowOptions = Microsoft.UI.Windowing.IconShowOptions.ShowIconAndSystemMenu;
+                }
             }
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"AppWindow.SetIcon erro: {ex.Message}");
+            Debug.WriteLine($"AppWindow.SetIcon(path) erro: {ex.Message}");
         }
 
+        // 2. Interop Win32 via LoadImage para obter HICON nativo e aplicar via IconId e WM_SETICON
         try
         {
             if (hWnd != IntPtr.Zero)
             {
-                var hSmall = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+                var hSmall = LoadImage(IntPtr.Zero, absolutePath, IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
                 if (hSmall != IntPtr.Zero)
                 {
                     SendMessage(hWnd, WM_SETICON, ICON_SMALL, hSmall);
                     SetClassLongPtr(hWnd, GCLP_HICONSM, hSmall);
+
+                    if (appWindow != null)
+                    {
+                        try
+                        {
+                            var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(hSmall);
+                            appWindow.SetIcon(iconId);
+                        }
+                        catch { }
+                    }
                 }
 
-                var hBig = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+                var hBig = LoadImage(IntPtr.Zero, absolutePath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
                 if (hBig != IntPtr.Zero)
                 {
                     SendMessage(hWnd, WM_SETICON, ICON_BIG, hBig);

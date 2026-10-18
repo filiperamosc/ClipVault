@@ -31,14 +31,10 @@ public static class MauiProgram
                 {
                     try
                     {
-                        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
-                        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-                        var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-                        var iconPath = AppEnvironment.EnsureIconExtracted();
-                        App.ApplyWindowIcon(hWnd, appWindow, iconPath);
+                        ClipVault.WinUI.App.ConfigureNativeWindowIcon(nativeWindow);
                         nativeWindow.Activated += (s, e) =>
                         {
-                            App.ApplyWindowIcon(hWnd, appWindow, iconPath);
+                            ClipVault.WinUI.App.ConfigureNativeWindowIcon(nativeWindow);
                         };
                     }
                     catch (Exception ex)

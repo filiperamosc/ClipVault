@@ -20,9 +20,9 @@
 		<ApplicationId>com.companyname.clipvault</ApplicationId>
 
 		<!-- Versions -->
-		<Version>1.1.4</Version>
-		<ApplicationDisplayVersion>1.1.4</ApplicationDisplayVersion>
-		<ApplicationVersion>8</ApplicationVersion>
+		<Version>1.5.0</Version>
+		<ApplicationDisplayVersion>1.5</ApplicationDisplayVersion>
+		<ApplicationVersion>9</ApplicationVersion>
 		<ApplicationIcon>Resources\AppIcon\appicon.ico</ApplicationIcon>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">11.0</SupportedOSPlatformVersion>

@@ -444,9 +444,17 @@ public partial class MainViewModel : ObservableObject
             {
                 bool targetGrid = !IsGridView;
 
+                if (targetGrid)
+                {
+                    if (GridSpan < 1) GridSpan = 1;
+                    if (GridSpan > 4) GridSpan = 4;
+                }
+
                 IsGridView = targetGrid;
                 IsListView = !targetGrid;
 
+                OnPropertyChanged(nameof(IsGridView));
+                OnPropertyChanged(nameof(IsListView));
                 OnPropertyChanged(nameof(ListItemsSource));
                 OnPropertyChanged(nameof(GridItemsSource));
                 OnPropertyChanged(nameof(ViewModeIcon));

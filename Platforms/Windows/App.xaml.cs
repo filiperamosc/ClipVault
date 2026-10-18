@@ -1,7 +1,7 @@
-﻿using Microsoft.UI.Xaml;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Microsoft.UI.Xaml;
+using System;
+using System.Diagnostics;
+using ClipVault.Services;
 
 namespace ClipVault.WinUI;
 
@@ -20,5 +20,25 @@ public partial class App : MauiWinUIApplication
 	}
 
 	protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
+
+	/// <summary>
+	/// Configura nativamente o ícone da janela WinUI 3 via interop HWND e AppWindow.SetIcon.
+	/// </summary>
+	public static void ConfigureNativeWindowIcon(Microsoft.UI.Xaml.Window nativeWindow)
+	{
+		try
+		{
+			var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+			var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+			var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+			var iconPath = AppEnvironment.EnsureIconExtracted();
+
+			ClipVault.App.ApplyWindowIcon(hWnd, appWindow, iconPath);
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"Erro ao configurar ícone nativo da janela WinUI 3: {ex.Message}");
+		}
+	}
 }
 
