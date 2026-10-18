@@ -34,6 +34,22 @@ public partial class App : Application
         {
             if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window nativeWindow)
             {
+                try
+                {
+                    var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+                    var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                    var iconPath = AppEnvironment.EnsureIconExtracted();
+                    if (!string.IsNullOrEmpty(iconPath) && System.IO.File.Exists(iconPath))
+                    {
+                        appWindow?.SetIcon(iconPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Erro ao definir ícone da janela nativa: {ex.Message}");
+                }
+
                 var trayService = _serviceProvider.GetRequiredService<ITrayService>();
                 trayService.Initialize(nativeWindow);
 

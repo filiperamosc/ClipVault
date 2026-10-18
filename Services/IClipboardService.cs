@@ -7,6 +7,7 @@ namespace ClipVault.Services;
 public interface IClipboardService : IDisposable
 {
     event EventHandler<ClipboardItem>? ItemCaptured;
+    event EventHandler<ClipboardItem>? ItemUpdated;
     bool IsMonitoringPaused { get; set; }
     void Start();
     void Stop();

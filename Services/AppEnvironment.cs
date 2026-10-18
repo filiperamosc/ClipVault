@@ -1,13 +1,14 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace ClipVault.Services;
 
 public static class AppEnvironment
 {
     public const string AppName = "ClipVault";
-    public const string Version = "1.0.3";
+    public const string Version = "1.1.0";
     public const string ReleaseDate = "Outubro de 2026";
     public const string Author = "Filipe R. Carvalho";
 
@@ -78,10 +79,43 @@ public static class AppEnvironment
             {
                 Directory.CreateDirectory(DefaultStorageDirectory);
             }
+
+            EnsureIconExtracted();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"Erro ao inicializar AppEnvironment: {ex.Message}");
+        }
+    }
+
+    public static string EnsureIconExtracted()
+    {
+        try
+        {
+            var iconPath = Path.Combine(AppRootDirectory, "appicon.ico");
+            if (File.Exists(iconPath)) return iconPath;
+
+            var localIcon = Path.Combine(AppContext.BaseDirectory, "Resources", "AppIcon", "appicon.ico");
+            if (File.Exists(localIcon))
+            {
+                File.Copy(localIcon, iconPath, overwrite: true);
+                return iconPath;
+            }
+
+            var assembly = Assembly.GetExecutingAssembly();
+            using var stream = assembly.GetManifestResourceStream("ClipVault.Resources.AppIcon.appicon.ico");
+            if (stream != null)
+            {
+                using var fs = File.Create(iconPath);
+                stream.CopyTo(fs);
+            }
+
+            return iconPath;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Falha ao extrair ícone: {ex.Message}");
+            return Path.Combine(AppRootDirectory, "appicon.ico");
         }
     }
 }

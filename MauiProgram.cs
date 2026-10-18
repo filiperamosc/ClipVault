@@ -25,6 +25,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISettingsService, SettingsService>();
         builder.Services.AddSingleton<IStorageService, StorageService>();
         builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+        builder.Services.AddSingleton<IOcrService, WindowsOcrService>();
+        builder.Services.AddSingleton<IVisionClassifierService, VisionClassifierService>();
         builder.Services.AddSingleton<IClipboardService, ClipboardService>();
         builder.Services.AddSingleton<ITrayService, TrayService>();
         builder.Services.AddSingleton<IAutoCleanService, AutoCleanService>();

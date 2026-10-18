@@ -46,6 +46,44 @@ public class DatabaseService : IDatabaseService
         await InitializeAsync();
         if (_db == null) return new List<ClipboardItem>();
 
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            string pattern = $"%{searchText.Trim()}%";
+            string sql;
+
+            if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
+            {
+                sql = @"SELECT * FROM ClipboardItems 
+                        WHERE Type != 'Image' 
+                          AND (Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                        ORDER BY IsPinned DESC, CreatedAt DESC";
+            }
+            else if (string.Equals(filterCategory, "Imagens", StringComparison.OrdinalIgnoreCase))
+            {
+                sql = @"SELECT * FROM ClipboardItems 
+                        WHERE Type = 'Image' 
+                          AND (PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                        ORDER BY IsPinned DESC, CreatedAt DESC";
+                return await _db.QueryAsync<ClipboardItem>(sql, pattern, pattern, pattern);
+            }
+            else if (string.Equals(filterCategory, "Fixados", StringComparison.OrdinalIgnoreCase))
+            {
+                sql = @"SELECT * FROM ClipboardItems 
+                        WHERE IsPinned = 1 
+                          AND (Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                        ORDER BY CreatedAt DESC";
+            }
+            else
+            {
+                sql = @"SELECT * FROM ClipboardItems 
+                        WHERE (Content LIKE ? OR PreviewText LIKE ? OR ExtractedText LIKE ? OR ImageTags LIKE ?) 
+                        ORDER BY IsPinned DESC, CreatedAt DESC";
+            }
+
+            return await _db.QueryAsync<ClipboardItem>(sql, pattern, pattern, pattern, pattern);
+        }
+
+        // Sem termo de busca: consulta padrão
         var query = _db.Table<ClipboardItem>();
 
         if (string.Equals(filterCategory, "Textos", StringComparison.OrdinalIgnoreCase))
@@ -62,18 +100,6 @@ public class DatabaseService : IDatabaseService
         }
 
         var items = await query.ToListAsync();
-
-        if (!string.IsNullOrWhiteSpace(searchText))
-        {
-            var search = searchText.Trim();
-            items = items.Where(i =>
-                (i.Content != null && i.Content.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                (i.PreviewText != null && i.PreviewText.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
-                i.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy").Contains(search, StringComparison.OrdinalIgnoreCase)
-            ).ToList();
-        }
-
-        // Ordenação: Fixados no topo, depois por data mais recente
         return items.OrderByDescending(i => i.IsPinned).ThenByDescending(i => i.CreatedAt).ToList();
     }
 

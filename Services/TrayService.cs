@@ -118,6 +118,12 @@ public class TrayService : ITrayService
     [DllImport("user32.dll")]
     private static extern IntPtr LoadIcon(IntPtr hInstance, IntPtr lpIconName);
 
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern IntPtr LoadImage(IntPtr hinst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
+
+    private const uint IMAGE_ICON = 1;
+    private const uint LR_LOADFROMFILE = 0x00000010;
+
     private NOTIFYICONDATAW _nid;
 #endif
 
@@ -140,8 +146,18 @@ public class TrayService : ITrayService
                 };
             }
 
-            // Criar ícone da bandeja
-            IntPtr hIcon = LoadIcon(IntPtr.Zero, (IntPtr)32512); // IDI_APPLICATION padrão
+            // Criar ícone da bandeja a partir do recurso .ico
+            string iconPath = AppEnvironment.EnsureIconExtracted();
+            IntPtr hIcon = IntPtr.Zero;
+            if (File.Exists(iconPath))
+            {
+                hIcon = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+            }
+
+            if (hIcon == IntPtr.Zero)
+            {
+                hIcon = LoadIcon(IntPtr.Zero, (IntPtr)32512);
+            }
 
             _nid = new NOTIFYICONDATAW
             {

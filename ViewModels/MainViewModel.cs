@@ -63,6 +63,7 @@ public partial class MainViewModel : ObservableObject
         _storageService = storageService;
 
         _clipboardService.ItemCaptured += OnItemCaptured;
+        _clipboardService.ItemUpdated += OnItemUpdated;
 
         _trayService.RequestClearHistory += () => MainThread.BeginInvokeOnMainThread(async () => await ClearHistoryAsync());
         _trayService.RequestToggleMonitoring += () => MainThread.BeginInvokeOnMainThread(async () => await ToggleMonitoringAsync());
@@ -88,6 +89,18 @@ public partial class MainViewModel : ObservableObject
         });
     }
 
+    private void OnItemUpdated(object? sender, ClipboardItem item)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var existing = Items.FirstOrDefault(i => i.Id == item.Id);
+            if (existing != null)
+            {
+                existing.UpdateAiMetadata(item.ExtractedText, item.ImageTags);
+            }
+        });
+    }
+
     private bool MatchesFilter(ClipboardItem item)
     {
         if (SelectedFilter == "Textos" && item.Type == "Image") return false;
@@ -98,7 +111,9 @@ public partial class MainViewModel : ObservableObject
         {
             var search = SearchText.Trim();
             bool match = (item.Content?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                         (item.PreviewText?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false);
+                         (item.PreviewText?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                         (item.ExtractedText?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                         (item.ImageTags?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false);
             if (!match) return false;
         }
 

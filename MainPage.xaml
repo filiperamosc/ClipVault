@@ -107,7 +107,7 @@
                            Margin="0,0,6,0" />
                     <Entry Grid.Column="1"
                            Text="{Binding SearchText, Mode=TwoWay}"
-                           Placeholder="Pesquisar por texto, código ou data..."
+                           Placeholder="Pesquisar por texto, OCR, tags de IA ou data..."
                            PlaceholderColor="#71717A"
                            TextColor="#FAFAFA"
                            BackgroundColor="Transparent"
@@ -266,16 +266,54 @@
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2" />
 
-                                    <Border IsVisible="{Binding IsImage}"
-                                            StrokeShape="RoundRectangle 6"
-                                            Stroke="#2E2E33"
-                                            BackgroundColor="#141416"
-                                            Padding="2"
-                                            HorizontalOptions="Start">
-                                        <Image Source="{Binding FilePath}"
-                                               MaximumHeightRequest="95"
-                                               Aspect="AspectFit" />
-                                    </Border>
+                                    <Grid IsVisible="{Binding IsImage}" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                        <Border StrokeShape="RoundRectangle 6"
+                                                Stroke="#2E2E33"
+                                                BackgroundColor="#141416"
+                                                Padding="2"
+                                                VerticalOptions="Start">
+                                            <Image Source="{Binding FilePath}"
+                                                   MaximumHeightRequest="95"
+                                                   Aspect="AspectFit" />
+                                        </Border>
+
+                                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                            <!-- Tags de Visão Computacional -->
+                                            <Border IsVisible="{Binding HasImageTags}"
+                                                    BackgroundColor="#1E1E28"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    Stroke="#4338CA"
+                                                    Padding="6,2"
+                                                    HorizontalOptions="Start">
+                                                <HorizontalStackLayout Spacing="4">
+                                                    <Label Text="🏷️" FontSize="10" VerticalOptions="Center" />
+                                                    <Label Text="{Binding ImageTags}"
+                                                           FontSize="10"
+                                                           FontAttributes="Bold"
+                                                           TextColor="#A5B4FC"
+                                                           VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </Border>
+
+                                            <!-- Texto Extraído via OCR -->
+                                            <Border IsVisible="{Binding HasExtractedText}"
+                                                    BackgroundColor="#18222D"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    Stroke="#1E3A5F"
+                                                    Padding="6,3"
+                                                    HorizontalOptions="Start">
+                                                <HorizontalStackLayout Spacing="6">
+                                                    <Label Text="🔍 OCR" FontSize="9" FontAttributes="Bold" TextColor="#38BDF8" VerticalOptions="Center" />
+                                                    <Label Text="{Binding OcrPreview}"
+                                                           FontSize="10"
+                                                           TextColor="#E0F2FE"
+                                                           LineBreakMode="TailTruncation"
+                                                           MaxLines="2"
+                                                           VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </Border>
+                                        </VerticalStackLayout>
+                                    </Grid>
                                 </VerticalStackLayout>
                             </Grid>
                         </Border>
@@ -296,7 +334,7 @@
                                 StrokeShape="RoundRectangle 8"
                                 Stroke="#2B2B30"
                                 Padding="8"
-                                HeightRequest="170">
+                                HeightRequest="185">
                             <Grid RowDefinitions="Auto,*,Auto" RowSpacing="6">
 
                                 <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -315,16 +353,47 @@
                                            LineBreakMode="TailTruncation"
                                            MaxLines="4" />
 
-                                    <Border IsVisible="{Binding IsImage}"
-                                            StrokeShape="RoundRectangle 6"
-                                            Stroke="#2E2E33"
-                                            BackgroundColor="#141416"
-                                            Padding="2">
-                                        <Image Source="{Binding FilePath}"
-                                               Aspect="AspectFit"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center" />
-                                    </Border>
+                                    <Grid IsVisible="{Binding IsImage}">
+                                        <Border StrokeShape="RoundRectangle 6"
+                                                Stroke="#2E2E33"
+                                                BackgroundColor="#141416"
+                                                Padding="2">
+                                            <Image Source="{Binding FilePath}"
+                                                   Aspect="AspectFit"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+
+                                        <!-- Badges de Tags e OCR sobrepostas -->
+                                        <VerticalStackLayout VerticalOptions="End" HorizontalOptions="Fill" Spacing="2" Margin="3">
+                                            <Border IsVisible="{Binding HasImageTags}"
+                                                    BackgroundColor="#E61E1E28"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    Stroke="#4338CA"
+                                                    Padding="4,1"
+                                                    HorizontalOptions="Start">
+                                                <Label Text="{Binding ImageTags}"
+                                                       FontSize="9"
+                                                       TextColor="#A5B4FC"
+                                                       FontAttributes="Bold"
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1" />
+                                            </Border>
+
+                                            <Border IsVisible="{Binding HasExtractedText}"
+                                                    BackgroundColor="#E618222D"
+                                                    StrokeShape="RoundRectangle 4"
+                                                    Stroke="#1E3A5F"
+                                                    Padding="4,1"
+                                                    HorizontalOptions="Start">
+                                                <Label Text="{Binding OcrPreview}"
+                                                       FontSize="8"
+                                                       TextColor="#E0F2FE"
+                                                       LineBreakMode="TailTruncation"
+                                                       MaxLines="1" />
+                                            </Border>
+                                        </VerticalStackLayout>
+                                    </Grid>
                                 </Grid>
 
                                 <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4">
@@ -375,7 +444,7 @@
                 Stroke="#242428"
                 Padding="16,4">
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="ClipVault v1.0.3 • Monitoramento Contínuo em Segundo Plano"
+                <Label Text="ClipVault v1.1.0 • Monitoramento Inteligente (OCR &amp; Visão Computacional)"
                        FontSize="10"
                        TextColor="#71717A"
                        VerticalOptions="Center" />

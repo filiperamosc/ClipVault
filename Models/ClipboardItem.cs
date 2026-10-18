@@ -23,6 +23,12 @@ public class ClipboardItem
     [Indexed]
     public string? ContentHash { get; set; }
 
+    [Indexed]
+    public string? ExtractedText { get; set; }
+
+    [Indexed]
+    public string? ImageTags { get; set; }
+
     public long ByteSize { get; set; }
 
     [Indexed]

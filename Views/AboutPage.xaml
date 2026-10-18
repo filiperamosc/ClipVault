@@ -38,7 +38,7 @@
                             Stroke="#3F3F46"
                             Padding="8,2"
                             HorizontalOptions="Center">
-                        <Label Text="Versão 1.0.3"
+                        <Label Text="Versão 1.1.0"
                                FontSize="11"
                                FontAttributes="Bold"
                                TextColor="#818CF8" />
@@ -69,7 +69,7 @@
 
                 <BoxView HeightRequest="1" Color="#2E2E33" Margin="0,4" />
 
-                <Label Text="Aplicativo portátil de alta performance para monitoramento inteligente da área de transferência com persistência local SQLite."
+                <Label Text="Aplicativo portátil de alta performance para monitoramento inteligente da área de transferência com OCR nativo Windows, visão computacional ONNX e SQLite local."
                        FontSize="11"
                        TextColor="#A1A1AA"
                        HorizontalTextAlignment="Center" />

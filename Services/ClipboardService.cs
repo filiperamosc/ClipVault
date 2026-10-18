@@ -26,12 +26,22 @@ public class ClipboardService : IClipboardService
     private bool _isDisposed;
 
     public event EventHandler<ClipboardItem>? ItemCaptured;
+    public event EventHandler<ClipboardItem>? ItemUpdated;
     public bool IsMonitoringPaused { get; set; }
 
-    public ClipboardService(IDatabaseService databaseService, IStorageService storageService)
+    private readonly IOcrService _ocrService;
+    private readonly IVisionClassifierService _visionClassifierService;
+
+    public ClipboardService(
+        IDatabaseService databaseService,
+        IStorageService storageService,
+        IOcrService ocrService,
+        IVisionClassifierService visionClassifierService)
     {
         _databaseService = databaseService;
         _storageService = storageService;
+        _ocrService = ocrService;
+        _visionClassifierService = visionClassifierService;
     }
 
     public void Start()
@@ -228,6 +238,41 @@ public class ClipboardService : IClipboardService
 
             await _databaseService.AddItemAsync(item);
             ItemCaptured?.Invoke(this, item);
+
+            // Processamento em segundo plano de OCR (Windows) e Visão Computacional (ONNX)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    bool hasUpdate = false;
+
+                    // 1. OCR Nativo do Windows
+                    var extractedText = await _ocrService.ExtractTextFromImageAsync(filePath, _cts.Token);
+                    if (!string.IsNullOrWhiteSpace(extractedText))
+                    {
+                        item.ExtractedText = extractedText;
+                        hasUpdate = true;
+                    }
+
+                    // 2. Classificação de Imagem ONNX MobileNetV2
+                    var tags = await _visionClassifierService.ClassifyImageAsync(filePath, _cts.Token);
+                    if (!string.IsNullOrWhiteSpace(tags))
+                    {
+                        item.ImageTags = tags;
+                        hasUpdate = true;
+                    }
+
+                    if (hasUpdate && !_cts.IsCancellationRequested)
+                    {
+                        await _databaseService.UpdateItemAsync(item);
+                        ItemUpdated?.Invoke(this, item);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Erro no enriquecimento IA da imagem: {ex.Message}");
+                }
+            }, _cts.Token);
         }
         catch (Exception ex)
         {
