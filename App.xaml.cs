@@ -64,10 +64,12 @@ public partial class App : Application
                     var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
                     var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
                     var iconPath = AppEnvironment.EnsureIconExtracted();
-                    if (!string.IsNullOrEmpty(iconPath) && System.IO.File.Exists(iconPath))
+
+                    ApplyWindowIcon(hWnd, appWindow, iconPath);
+                    nativeWindow.Activated += (sender, args) =>
                     {
-                        appWindow?.SetIcon(iconPath);
-                    }
+                        ApplyWindowIcon(hWnd, appWindow, iconPath);
+                    };
                 }
                 catch (Exception ex)
                 {
@@ -133,4 +135,73 @@ public partial class App : Application
 
         return window;
     }
+
+#if WINDOWS
+    [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Auto)]
+    private static extern IntPtr LoadImage(IntPtr hinst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetClassLongPtr")]
+    private static extern IntPtr SetClassLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetClassLong")]
+    private static extern IntPtr SetClassLong32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+    private static IntPtr SetClassLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+    {
+        if (IntPtr.Size == 8)
+            return SetClassLongPtr64(hWnd, nIndex, dwNewLong);
+        else
+            return SetClassLong32(hWnd, nIndex, dwNewLong);
+    }
+
+    private const uint WM_SETICON = 0x0080;
+    private const IntPtr ICON_SMALL = 0;
+    private const IntPtr ICON_BIG = (IntPtr)1;
+    private const int GCLP_HICON = -14;
+    private const int GCLP_HICONSM = -34;
+    private const uint IMAGE_ICON = 1;
+    private const uint LR_LOADFROMFILE = 0x00000010;
+
+    public static void ApplyWindowIcon(IntPtr hWnd, Microsoft.UI.Windowing.AppWindow? appWindow, string iconPath)
+    {
+        if (string.IsNullOrEmpty(iconPath) || !System.IO.File.Exists(iconPath))
+            return;
+
+        try
+        {
+            appWindow?.SetIcon(iconPath);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"AppWindow.SetIcon erro: {ex.Message}");
+        }
+
+        try
+        {
+            if (hWnd != IntPtr.Zero)
+            {
+                var hSmall = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, 16, 16, LR_LOADFROMFILE);
+                if (hSmall != IntPtr.Zero)
+                {
+                    SendMessage(hWnd, WM_SETICON, ICON_SMALL, hSmall);
+                    SetClassLongPtr(hWnd, GCLP_HICONSM, hSmall);
+                }
+
+                var hBig = LoadImage(IntPtr.Zero, iconPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+                if (hBig != IntPtr.Zero)
+                {
+                    SendMessage(hWnd, WM_SETICON, ICON_BIG, hBig);
+                    SetClassLongPtr(hWnd, GCLP_HICON, hBig);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Win32 WM_SETICON erro: {ex.Message}");
+        }
+    }
+#endif
 }

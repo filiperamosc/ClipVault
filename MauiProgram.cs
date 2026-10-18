@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Hosting;
 using Microsoft.Maui.Hosting;
 
+using Microsoft.Maui.LifecycleEvents;
+
 namespace ClipVault;
 
 public static class MauiProgram
@@ -20,6 +22,32 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+
+#if WINDOWS
+        builder.ConfigureLifecycleEvents(events =>
+        {
+            events.AddWindows(windows => windows
+                .OnWindowCreated(nativeWindow =>
+                {
+                    try
+                    {
+                        var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+                        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+                        var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                        var iconPath = AppEnvironment.EnsureIconExtracted();
+                        App.ApplyWindowIcon(hWnd, appWindow, iconPath);
+                        nativeWindow.Activated += (s, e) =>
+                        {
+                            App.ApplyWindowIcon(hWnd, appWindow, iconPath);
+                        };
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Erro no ciclo de vida da janela: {ex.Message}");
+                    }
+                }));
+        });
+#endif
 
         // Registro de Serviços (Singletons)
         builder.Services.AddSingleton<ISettingsService, SettingsService>();

@@ -16,7 +16,7 @@ dotnet publish $projectPath `
     -f net8.0-windows10.0.19041.0 `
     -p:TargetFrameworks=net8.0-windows10.0.19041.0 `
     -c Release `
-    -r win10-x64 `
+    -r win-x64 `
     --self-contained true `
     -p:PublishSingleFile=true `
     -p:IncludeNativeLibrariesForSelfExtract=true `

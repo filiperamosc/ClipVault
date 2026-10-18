@@ -10,6 +10,11 @@ public partial class AboutPage : ContentPage
         InitializeComponent();
     }
 
+    private async void OnBackClicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
+
     private async void OnCloseClicked(object sender, EventArgs e)
     {
         await Navigation.PopAsync();

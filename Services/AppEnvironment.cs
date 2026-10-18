@@ -93,21 +93,35 @@ public static class AppEnvironment
         try
         {
             var iconPath = Path.Combine(AppRootDirectory, "appicon.ico");
-            if (File.Exists(iconPath)) return iconPath;
+            if (File.Exists(iconPath) && new FileInfo(iconPath).Length > 0)
+                return iconPath;
 
             var localIcon = Path.Combine(AppContext.BaseDirectory, "Resources", "AppIcon", "appicon.ico");
-            if (File.Exists(localIcon))
+            if (File.Exists(localIcon) && new FileInfo(localIcon).Length > 0)
             {
                 File.Copy(localIcon, iconPath, overwrite: true);
                 return iconPath;
             }
 
-            var assembly = Assembly.GetExecutingAssembly();
-            using var stream = assembly.GetManifestResourceStream("ClipVault.Resources.AppIcon.appicon.ico");
-            if (stream != null)
+            var baseIcon = Path.Combine(AppContext.BaseDirectory, "appicon.ico");
+            if (File.Exists(baseIcon) && new FileInfo(baseIcon).Length > 0)
             {
-                using var fs = File.Create(iconPath);
-                stream.CopyTo(fs);
+                File.Copy(baseIcon, iconPath, overwrite: true);
+                return iconPath;
+            }
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = Array.Find(assembly.GetManifestResourceNames(), n => n.EndsWith("appicon.ico", StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrEmpty(resourceName))
+            {
+                using var stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream != null)
+                {
+                    using var fs = File.Create(iconPath);
+                    stream.CopyTo(fs);
+                    fs.Flush();
+                    return iconPath;
+                }
             }
 
             return iconPath;

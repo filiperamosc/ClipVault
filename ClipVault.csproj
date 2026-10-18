@@ -47,6 +47,7 @@
 
 	<ItemGroup>
 		<EmbeddedResource Include="Resources\AppIcon\appicon.ico" />
+		<None Update="Resources\AppIcon\appicon.ico" CopyToOutputDirectory="PreserveNewest" />
 		<EmbeddedResource Include="Resources\Models\mobilenet_v2.onnx" />
 		<EmbeddedResource Include="Resources\Models\imagenet_pt.txt" />
 	</ItemGroup>
