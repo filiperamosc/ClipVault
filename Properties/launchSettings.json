@@ -1,7 +1,10 @@
 {
   "profiles": {
+    "ClipVault": {
+      "commandName": "Project"
+    },
     "Windows Machine": {
-      "commandName": "MsixPackage",
+      "commandName": "Project",
       "nativeDebugging": false
     }
   }
