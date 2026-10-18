@@ -46,6 +46,9 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private bool _isStatusVisible;
 
+    [ObservableProperty]
+    private string _statusBackgroundColor = "#22C55E";
+
     public SettingsViewModel(
         ISettingsService settingsService,
         IAutoCleanService autoCleanService,
@@ -100,18 +103,31 @@ public partial class SettingsViewModel : ObservableObject
             }
 
             var folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            if (folder != null && !string.IsNullOrWhiteSpace(folder.Path))
             {
                 StorageDirectory = folder.Path;
-                await SaveSettingsAsync();
+                var cfg = _settingsService.CurrentConfig;
+                cfg.StorageDirectory = StorageDirectory;
+                _settingsService.SaveConfig(cfg);
+
+                UpdateStorageSize();
+                await ShowStatusAsync("Diretório de armazenamento atualizado com sucesso! ✔️", isError: false);
             }
         }
         catch (Exception ex)
         {
-            await ShowStatusAsync($"Erro ao selecionar pasta: {ex.Message}");
+            // Se a pasta já está preenchida e válida no disco, valida como sucesso
+            if (!string.IsNullOrWhiteSpace(StorageDirectory) && Directory.Exists(StorageDirectory))
+            {
+                await ShowStatusAsync("Diretório de armazenamento atualizado com sucesso! ✔️", isError: false);
+            }
+            else
+            {
+                await ShowStatusAsync($"Erro ao selecionar pasta: {ex.Message}", isError: true);
+            }
         }
 #else
-        await ShowStatusAsync("Seleção de pasta disponível no Windows.");
+        await ShowStatusAsync("Seleção de pasta disponível no Windows.", isError: false);
 #endif
     }
 
@@ -131,11 +147,11 @@ public partial class SettingsViewModel : ObservableObject
             _settingsService.SetStartWithWindows(StartWithWindows);
 
             UpdateStorageSize();
-            await ShowStatusAsync("Configurações salvas com sucesso! ✔️");
+            await ShowStatusAsync("Configurações salvas com sucesso! ✔️", isError: false);
         }
         catch (Exception ex)
         {
-            await ShowStatusAsync($"Erro ao salvar: {ex.Message}");
+            await ShowStatusAsync($"Erro ao salvar: {ex.Message}", isError: true);
         }
     }
 
@@ -146,17 +162,18 @@ public partial class SettingsViewModel : ObservableObject
         {
             int removed = await _autoCleanService.ExecuteCleanNowAsync();
             UpdateStorageSize();
-            await ShowStatusAsync($"Limpeza concluída! {removed} itens antigos/excedentes removidos.");
+            await ShowStatusAsync($"Limpeza concluída! {removed} itens antigos/excedentes removidos.", isError: false);
         }
         catch (Exception ex)
         {
-            await ShowStatusAsync($"Erro na limpeza: {ex.Message}");
+            await ShowStatusAsync($"Erro na limpeza: {ex.Message}", isError: true);
         }
     }
 
-    private async Task ShowStatusAsync(string message)
+    private async Task ShowStatusAsync(string message, bool isError = false)
     {
         StatusMessage = message;
+        StatusBackgroundColor = isError ? "#EF4444" : "#22C55E";
         IsStatusVisible = true;
         await Task.Delay(3000);
         IsStatusVisible = false;

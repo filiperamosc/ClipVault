@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Text.Json;
 using ClipVault.Models;
-using Microsoft.Maui.Storage;
 #if WINDOWS
 using Microsoft.Win32;
 #endif
@@ -19,13 +18,47 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        var appData = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "ClipVault");
-
-        Directory.CreateDirectory(appData);
-        _configFilePath = Path.Combine(appData, ConfigFileName);
+        var configDir = GetConfigDirectory();
+        _configFilePath = Path.Combine(configDir, ConfigFileName);
         _currentConfig = LoadConfig();
+    }
+
+    private static string GetConfigDirectory()
+    {
+        try
+        {
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var testPath = Path.Combine(baseDir, "ClipVault_Data");
+            Directory.CreateDirectory(testPath);
+            return testPath;
+        }
+        catch
+        {
+            var appData = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ClipVault");
+            Directory.CreateDirectory(appData);
+            return appData;
+        }
+    }
+
+    private static string GetDefaultStorageDirectory()
+    {
+        try
+        {
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var portableDataDir = Path.Combine(baseDir, "ClipVault_Data", "Storage");
+            Directory.CreateDirectory(portableDataDir);
+            return portableDataDir;
+        }
+        catch
+        {
+            var appData = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "ClipVault", "Storage");
+            Directory.CreateDirectory(appData);
+            return appData;
+        }
     }
 
     private AppConfig LoadConfig()
@@ -40,9 +73,7 @@ public class SettingsService : ISettingsService
                 {
                     if (string.IsNullOrWhiteSpace(config.StorageDirectory))
                     {
-                        config.StorageDirectory = Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                            "ClipVault", "Storage");
+                        config.StorageDirectory = GetDefaultStorageDirectory();
                     }
                     return config;
                 }
@@ -50,10 +81,13 @@ public class SettingsService : ISettingsService
         }
         catch
         {
-            // Fallback para padrão em caso de erro de leitura
+            // Fallback para padrão
         }
 
-        var defaultConfig = new AppConfig();
+        var defaultConfig = new AppConfig
+        {
+            StorageDirectory = GetDefaultStorageDirectory()
+        };
         SaveConfig(defaultConfig);
         return defaultConfig;
     }
@@ -77,9 +111,7 @@ public class SettingsService : ISettingsService
         var dir = _currentConfig.StorageDirectory;
         if (string.IsNullOrWhiteSpace(dir))
         {
-            dir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "ClipVault", "Storage");
+            dir = GetDefaultStorageDirectory();
         }
 
         if (!Directory.Exists(dir))

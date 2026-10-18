@@ -1,30 +1,36 @@
-# Script de automação para compilar e empacotar o ClipVault (Windows Desktop)
+# Script de automação para compilar e gerar o executável portátil (Self-Contained Single-File)
 Write-Host "==========================================" -ForegroundColor Cyan
-Write-Host "       ClipVault - Build & Publish        " -ForegroundColor Cyan
+Write-Host "    ClipVault - Publicação Portátil .EXE  " -ForegroundColor Cyan
 Write-Host "==========================================" -ForegroundColor Cyan
 
 $projectPath = Join-Path $PSScriptRoot "..\ClipVault.csproj"
-$outputDir = Join-Path $PSScriptRoot "..\bin\Release\net8.0-windows10.0.19041.0\win10-x64\publish"
+$portableDir = Join-Path $PSScriptRoot "..\portable"
 
-Write-Host "`n[1/3] Limpando compilações anteriores..." -ForegroundColor Yellow
-dotnet clean $projectPath -c Release -f net8.0-windows10.0.19041.0
+if (-not (Test-Path $portableDir)) {
+    New-Item -ItemType Directory -Path $portableDir | Out-Null
+}
 
-Write-Host "`n[2/3] Publicando executável autocontido (Self-Contained)..." -ForegroundColor Yellow
+Write-Host "`n[1/2] Publicando executável portátil (Single-File / Self-Contained)..." -ForegroundColor Yellow
 dotnet publish $projectPath `
     -f net8.0-windows10.0.19041.0 `
+    -p:TargetFrameworks=net8.0-windows10.0.19041.0 `
     -c Release `
     -r win10-x64 `
     --self-contained true `
+    -p:PublishSingleFile=true `
+    -p:IncludeNativeLibrariesForSelfExtract=true `
+    -p:EnableCompressionInSingleFile=true `
     -p:WindowsPackageType=None `
-    -p:Platform=x64
+    -p:Platform=x64 `
+    -o $portableDir
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "`n[3/3] Publicação concluída com sucesso!" -ForegroundColor Green
-    Write-Host "Pasta de saída: $outputDir" -ForegroundColor White
-    Write-Host "Executável: $outputDir\ClipVault.exe" -ForegroundColor Green
-    Write-Host "`nPara gerar o instalador Setup.exe:" -ForegroundColor Cyan
-    Write-Host "1. Baixe o Inno Setup: winget install JRSoftware.InnoSetup" -ForegroundColor Gray
-    Write-Host "2. Compile o arquivo: ISCC.exe `"$PSScriptRoot\installer.iss`"" -ForegroundColor Gray
+    Write-Host "`n[2/2] Publicação portátil concluída com sucesso!" -ForegroundColor Green
+    Write-Host "Pasta Portátil: $portableDir" -ForegroundColor White
+    Write-Host "Executável: $portableDir\ClipVault.exe" -ForegroundColor Green
+    Write-Host "`nComo usar:" -ForegroundColor Cyan
+    Write-Host "• Basta copiar o arquivo 'ClipVault.exe' para qualquer pasta ou pendrive." -ForegroundColor Gray
+    Write-Host "• Ao executar, o ClipVault criará automaticamente o banco de dados e arquivos locais sem exigir instalação." -ForegroundColor Gray
 } else {
-    Write-Host "`nErro ao publicar o projeto." -ForegroundColor Red
+    Write-Host "`nErro ao publicar o projeto portátil." -ForegroundColor Red
 }

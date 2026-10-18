@@ -39,6 +39,11 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _statusSubtitle = string.Empty;
 
+    [ObservableProperty]
+    private bool _isGridView;
+
+    public string ViewModeButtonText => IsGridView ? "📋 Modo Lista" : "🔲 Modo Grade";
+
     public ObservableCollection<ClipboardItemViewModel> Items { get; } = new();
 
     public MainViewModel(
@@ -182,13 +187,20 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    public void ToggleViewMode()
+    {
+        IsGridView = !IsGridView;
+        OnPropertyChanged(nameof(ViewModeButtonText));
+    }
+
+    [RelayCommand]
     public async Task ToggleMonitoringAsync()
     {
         IsMonitoringPaused = !IsMonitoringPaused;
         _clipboardService.IsMonitoringPaused = IsMonitoringPaused;
         _trayService.UpdateStatus(IsMonitoringPaused);
 
-        var msg = IsMonitoringPaused ? "Monitoramento pausado ⏸️" : "Monitoramento ativado ▶️";
+        var msg = IsMonitoringPaused ? "Monitoramento pausado ⏸️" : "Monitoramento ativo ▶️";
         await ShowToastAsync(msg);
         UpdateStatusSubtitle();
     }
@@ -200,7 +212,7 @@ public partial class MainViewModel : ObservableObject
             ? $"{totalBytes / 1024.0:F1} KB"
             : $"{totalBytes / (1024.0 * 1024.0):F1} MB";
 
-        StatusSubtitle = $"{Items.Count} itens exibidos | Armazenamento: {sizeStr} {(IsMonitoringPaused ? "• PAUSADO" : "• ATIVO")}";
+        StatusSubtitle = $"{Items.Count} itens | Armazenamento: {sizeStr}";
     }
 
     private async Task ShowToastAsync(string message)

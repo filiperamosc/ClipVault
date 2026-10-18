@@ -12,7 +12,7 @@
 
             <!-- Mensagem de Feedback / Status -->
             <Border IsVisible="{Binding IsStatusVisible}"
-                    BackgroundColor="#22C55E"
+                    BackgroundColor="{Binding StatusBackgroundColor}"
                     StrokeShape="RoundRectangle 8"
                     Stroke="Transparent"
                     Padding="12,8"

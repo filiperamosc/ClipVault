@@ -4,6 +4,7 @@
              xmlns:vm="clr-namespace:ClipVault.ViewModels"
              x:Class="ClipVault.MainPage"
              x:DataType="vm:MainViewModel"
+             Shell.NavBarIsVisible="False"
              BackgroundColor="#18181B">
 
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
@@ -12,48 +13,47 @@
         <Border Grid.Row="0"
                 IsVisible="{Binding IsToastVisible}"
                 BackgroundColor="#22C55E"
-                StrokeShape="RoundRectangle 8"
+                StrokeShape="RoundRectangle 6"
                 Stroke="Transparent"
-                Margin="16,8,16,0"
-                Padding="12,8"
+                Margin="16,6,16,0"
+                Padding="12,6"
                 HorizontalOptions="Center"
                 ZIndex="100">
             <Label Text="{Binding ToastMessage}"
                    TextColor="White"
                    FontAttributes="Bold"
-                   FontSize="13"
+                   FontSize="12"
                    HorizontalTextAlignment="Center" />
         </Border>
 
-        <!-- Barra Superior / Header -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="20,16,20,8">
-            <VerticalStackLayout Spacing="2">
-                <HorizontalStackLayout Spacing="10">
-                    <Label Text="ClipVault"
-                           FontSize="22"
-                           FontAttributes="Bold"
-                           TextColor="#F4F4F5" />
-                    <Border BackgroundColor="#27272A"
-                            StrokeShape="RoundRectangle 6"
-                            Stroke="#3F3F46"
-                            Padding="8,2">
+        <!-- Barra Superior Compacta (Sem título repetido, com status e ações) -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="16,10,16,6">
+            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                <Border BackgroundColor="#222226"
+                        StrokeShape="RoundRectangle 6"
+                        Stroke="#333338"
+                        Padding="8,4">
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Label Text="🟢" FontSize="9" VerticalOptions="Center" />
                         <Label Text="{Binding StatusSubtitle}"
                                FontSize="11"
                                TextColor="#A1A1AA"
                                VerticalOptions="Center" />
-                    </Border>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
+                    </HorizontalStackLayout>
+                </Border>
+            </HorizontalStackLayout>
 
-            <HorizontalStackLayout Grid.Column="1" Spacing="8">
-                <!-- Botão Pausar/Retomar -->
-                <Button Text="{Binding IsMonitoringPaused, Converter={x:Null}, StringFormat='⏯️'}"
-                        ToolTipProperties.Text="Pausar ou Retomar Monitoramento"
-                        Command="{Binding ToggleMonitoringCommand}"
+            <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                <!-- Botão Alternar Modo Grade / Modo Lista -->
+                <Button Text="{Binding ViewModeButtonText}"
+                        ToolTipProperties.Text="Alternar entre visualização em Grade e Lista"
+                        Command="{Binding ToggleViewModeCommand}"
                         BackgroundColor="#27272A"
                         TextColor="#E4E4E7"
-                        CornerRadius="8"
-                        HeightRequest="36"
+                        CornerRadius="6"
+                        HeightRequest="30"
+                        FontSize="11"
+                        FontAttributes="Bold"
                         Padding="10,0" />
 
                 <!-- Botão Limpar Histórico -->
@@ -62,9 +62,10 @@
                         Command="{Binding ClearHistoryCommand}"
                         BackgroundColor="#27272A"
                         TextColor="#EF4444"
-                        CornerRadius="8"
-                        HeightRequest="36"
-                        Padding="12,0" />
+                        CornerRadius="6"
+                        HeightRequest="30"
+                        FontSize="11"
+                        Padding="10,0" />
 
                 <!-- Botão Configurações -->
                 <Button Text="⚙️ Configurações"
@@ -72,98 +73,105 @@
                         BackgroundColor="#6366F1"
                         TextColor="White"
                         FontAttributes="Bold"
-                        CornerRadius="8"
-                        HeightRequest="36"
+                        CornerRadius="6"
+                        HeightRequest="30"
+                        FontSize="11"
                         Padding="12,0" />
             </HorizontalStackLayout>
         </Grid>
 
-        <!-- Barra de Pesquisa e Filtros -->
-        <VerticalStackLayout Grid.Row="2" Padding="20,4,20,12" Spacing="10">
-            <!-- Campo de Busca -->
-            <Border BackgroundColor="#27272A"
-                    StrokeShape="RoundRectangle 10"
-                    Stroke="#3F3F46"
-                    Padding="12,0">
+        <!-- Barra de Pesquisa e Filtros Rápidos -->
+        <Grid Grid.Row="2" RowDefinitions="Auto,Auto" Padding="16,2,16,8" RowSpacing="6">
+            <!-- Campo de Busca Compacto -->
+            <Border BackgroundColor="#242428"
+                    StrokeShape="RoundRectangle 8"
+                    Stroke="#333338"
+                    Padding="10,0">
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="🔍"
-                           FontSize="14"
-                           TextColor="#A1A1AA"
+                           FontSize="12"
+                           TextColor="#71717A"
                            VerticalOptions="Center"
-                           Margin="0,0,8,0" />
+                           Margin="0,0,6,0" />
                     <Entry Grid.Column="1"
                            Text="{Binding SearchText, Mode=TwoWay}"
-                           Placeholder="Pesquisar por palavra-chave, código ou data (ex: 18/10)..."
+                           Placeholder="Pesquisar por texto, código ou data..."
                            PlaceholderColor="#71717A"
                            TextColor="#FAFAFA"
                            BackgroundColor="Transparent"
-                           HeightRequest="40" />
+                           FontSize="12"
+                           HeightRequest="32" />
                 </Grid>
             </Border>
 
             <!-- Abas / Filtros Rápidos -->
-            <HorizontalStackLayout Spacing="8">
+            <HorizontalStackLayout Grid.Row="1" Spacing="6">
                 <Button Text="Todos"
                         Command="{Binding SetFilterCommand}"
                         CommandParameter="Todos"
                         BackgroundColor="#3F3F46"
                         TextColor="White"
-                        CornerRadius="8"
-                        HeightRequest="32"
-                        Padding="16,0"
-                        FontSize="12" />
+                        CornerRadius="6"
+                        HeightRequest="26"
+                        Padding="12,0"
+                        FontSize="11" />
 
                 <Button Text="📝 Textos"
                         Command="{Binding SetFilterCommand}"
                         CommandParameter="Textos"
-                        BackgroundColor="#27272A"
+                        BackgroundColor="#222226"
                         TextColor="#D4D4D8"
-                        CornerRadius="8"
-                        HeightRequest="32"
-                        Padding="14,0"
-                        FontSize="12" />
+                        CornerRadius="6"
+                        HeightRequest="26"
+                        Padding="10,0"
+                        FontSize="11" />
 
                 <Button Text="🖼️ Imagens"
                         Command="{Binding SetFilterCommand}"
                         CommandParameter="Imagens"
-                        BackgroundColor="#27272A"
+                        BackgroundColor="#222226"
                         TextColor="#D4D4D8"
-                        CornerRadius="8"
-                        HeightRequest="32"
-                        Padding="14,0"
-                        FontSize="12" />
+                        CornerRadius="6"
+                        HeightRequest="26"
+                        Padding="10,0"
+                        FontSize="11" />
 
                 <Button Text="📌 Fixados"
                         Command="{Binding SetFilterCommand}"
                         CommandParameter="Fixados"
-                        BackgroundColor="#27272A"
+                        BackgroundColor="#222226"
                         TextColor="#FBBF24"
-                        CornerRadius="8"
-                        HeightRequest="32"
-                        Padding="14,0"
-                        FontSize="12" />
+                        CornerRadius="6"
+                        HeightRequest="26"
+                        Padding="10,0"
+                        FontSize="11" />
             </HorizontalStackLayout>
-        </VerticalStackLayout>
+        </Grid>
 
-        <!-- Lista de Itens Capturados (Virtualizada) -->
-        <CollectionView Grid.Row="3"
+        <!-- Lista de Itens Capturados (Virtualizada, Suporta Lista e Grade) -->
+        <CollectionView x:Name="ItemsCollectionView"
+                        Grid.Row="3"
                         ItemsSource="{Binding Items}"
-                        Margin="20,0,20,10">
+                        Margin="16,0,16,6">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="4" />
+            </CollectionView.ItemsLayout>
+
             <CollectionView.EmptyView>
                 <VerticalStackLayout HorizontalOptions="Center"
                                      VerticalOptions="Center"
-                                     Spacing="12"
-                                     Margin="0,60,0,0">
+                                     Spacing="8"
+                                     Margin="0,40,0,0">
                     <Label Text="📋"
-                           FontSize="44"
+                           FontSize="36"
                            HorizontalOptions="Center" />
                     <Label Text="Nenhum item encontrado no histórico"
-                           FontSize="16"
+                           FontSize="14"
                            FontAttributes="Bold"
                            TextColor="#A1A1AA"
                            HorizontalOptions="Center" />
-                    <Label Text="Copie qualquer texto ou tire um print (Print Screen) para salvar automaticamente."
-                           FontSize="13"
+                    <Label Text="Copie textos ou capture telas (Print Screen) para salvar automaticamente."
+                           FontSize="12"
                            TextColor="#71717A"
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
@@ -172,93 +180,92 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="vm:ClipboardItemViewModel">
                     <Border BackgroundColor="#202024"
-                            StrokeShape="RoundRectangle 12"
-                            Stroke="#2E2E33"
-                            Padding="14"
-                            Margin="0,0,0,10">
-                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="10">
+                            StrokeShape="RoundRectangle 8"
+                            Stroke="#2B2B30"
+                            Padding="10,6"
+                            Margin="0,0,0,2">
+                        <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
 
-                            <!-- Cabeçalho do Card: Tipo, Data, Tamanho e Indicador de Fixado -->
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="8" VerticalOptions="Center">
-                                <Label Text="{Binding TypeIcon}" FontSize="14" VerticalOptions="Center" />
+                            <!-- Cabeçalho Compacto do Card: Tipo, Data, Tamanho e Fixado -->
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                                <Label Text="{Binding TypeIcon}" FontSize="12" VerticalOptions="Center" />
                                 <Label Text="{Binding Type}"
-                                       FontSize="12"
-                                       FontAttributes="Bold"
-                                       TextColor="#6366F1"
-                                       VerticalOptions="Center" />
-                                <Label Text="•" TextColor="#52525B" VerticalOptions="Center" />
-                                <Label Text="{Binding FormattedDate}"
                                        FontSize="11"
+                                       FontAttributes="Bold"
+                                       TextColor="#818CF8"
+                                       VerticalOptions="Center" />
+                                <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
+                                <Label Text="{Binding FormattedDate}"
+                                       FontSize="10"
                                        TextColor="#71717A"
                                        VerticalOptions="Center" />
-                                <Label Text="•" TextColor="#52525B" VerticalOptions="Center" />
+                                <Label Text="•" TextColor="#404045" VerticalOptions="Center" />
                                 <Label Text="{Binding FormattedSize}"
-                                       FontSize="11"
+                                       FontSize="10"
                                        TextColor="#71717A"
                                        VerticalOptions="Center" />
 
-                                <Label Text="📌 FIXADO"
+                                <Label Text="📌"
                                        IsVisible="{Binding IsPinned}"
                                        FontSize="10"
-                                       FontAttributes="Bold"
                                        TextColor="#F59E0B"
                                        VerticalOptions="Center"
-                                       Margin="6,0,0,0" />
+                                       Margin="2,0,0,0" />
                             </HorizontalStackLayout>
 
-                            <!-- Ações Rápidas (Copiar, Fixar, Excluir) -->
-                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                            <!-- Ações Rápidas Compactas (Copiar, Fixar, Excluir) -->
+                            <HorizontalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                 <Button Text="📋 Copiar"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=CopyItemCommand}"
                                         CommandParameter="{Binding .}"
                                         BackgroundColor="#4F46E5"
                                         TextColor="White"
-                                        FontSize="11"
+                                        FontSize="10"
                                         FontAttributes="Bold"
-                                        CornerRadius="6"
-                                        HeightRequest="28"
-                                        Padding="10,0" />
+                                        CornerRadius="4"
+                                        HeightRequest="24"
+                                        Padding="8,0" />
 
                                 <Button Text="{Binding PinIcon}"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=TogglePinCommand}"
                                         CommandParameter="{Binding .}"
                                         BackgroundColor="#27272A"
                                         TextColor="#F4F4F5"
-                                        FontSize="12"
-                                        CornerRadius="6"
-                                        HeightRequest="28"
-                                        Padding="8,0" />
+                                        FontSize="10"
+                                        CornerRadius="4"
+                                        HeightRequest="24"
+                                        Padding="6,0" />
 
                                 <Button Text="🗑️"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DeleteItemCommand}"
                                         CommandParameter="{Binding .}"
                                         BackgroundColor="#27272A"
                                         TextColor="#EF4444"
-                                        FontSize="12"
-                                        CornerRadius="6"
-                                        HeightRequest="28"
-                                        Padding="8,0" />
+                                        FontSize="10"
+                                        CornerRadius="4"
+                                        HeightRequest="24"
+                                        Padding="6,0" />
                             </HorizontalStackLayout>
 
-                            <!-- Conteúdo: Visualização de Texto / Imagem -->
-                            <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="6">
-                                <!-- Texto / Código / URL -->
+                            <!-- Visualização Compacta de Conteúdo (Texto ou Imagem) -->
+                            <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
+                                <!-- Texto / Código / URL (Máximo 2 linhas para densidade de informação) -->
                                 <Label Text="{Binding PreviewText}"
                                        IsVisible="{Binding IsText}"
                                        TextColor="#E4E4E7"
-                                       FontSize="13"
+                                       FontSize="12"
                                        LineBreakMode="TailTruncation"
-                                       MaxLines="4" />
+                                       MaxLines="2" />
 
-                                <!-- Imagem / Print Screen -->
+                                <!-- Imagem / Print Screen (Compacto com borda e preview) -->
                                 <Border IsVisible="{Binding IsImage}"
-                                        StrokeShape="RoundRectangle 8"
+                                        StrokeShape="RoundRectangle 6"
                                         Stroke="#2E2E33"
                                         BackgroundColor="#141416"
-                                        Padding="4"
+                                        Padding="2"
                                         HorizontalOptions="Start">
                                     <Image Source="{Binding FilePath}"
-                                           MaximumHeightRequest="180"
+                                           MaximumHeightRequest="95"
                                            Aspect="AspectFit" />
                                 </Border>
                             </VerticalStackLayout>
@@ -268,19 +275,19 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- Barra Inferior / Rodapé -->
+        <!-- Barra Inferior / Rodapé Compacto -->
         <Border Grid.Row="4"
                 BackgroundColor="#121214"
-                Stroke="#27272A"
-                Padding="20,8">
+                Stroke="#242428"
+                Padding="16,4">
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="ClipVault • Operando em segundo plano na bandeja do sistema"
-                       FontSize="11"
+                <Label Text="ClipVault • Monitoramento Contínuo em Segundo Plano"
+                       FontSize="10"
                        TextColor="#71717A"
                        VerticalOptions="Center" />
                 <Label Grid.Column="1"
-                       Text="Fechar a janela minimiza para a bandeja"
-                       FontSize="11"
+                       Text="Fechar a janela minimiza para a bandeja do sistema"
+                       FontSize="10"
                        TextColor="#71717A"
                        VerticalOptions="Center" />
             </Grid>

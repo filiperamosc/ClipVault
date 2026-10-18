@@ -1,6 +1,8 @@
 using System;
+using System.ComponentModel;
 using ClipVault.ViewModels;
 using ClipVault.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
 
 namespace ClipVault;
@@ -16,6 +18,23 @@ public partial class MainPage : ContentPage
         _viewModel = viewModel;
         _serviceProvider = serviceProvider;
         BindingContext = _viewModel;
+
+        _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(MainViewModel.IsGridView))
+        {
+            UpdateLayout(_viewModel.IsGridView);
+        }
+    }
+
+    private void UpdateLayout(bool isGrid)
+    {
+        ItemsCollectionView.ItemsLayout = isGrid
+            ? new GridItemsLayout(3, ItemsLayoutOrientation.Vertical) { HorizontalItemSpacing = 6, VerticalItemSpacing = 6 }
+            : new LinearItemsLayout(ItemsLayoutOrientation.Vertical) { ItemSpacing = 4 };
     }
 
     protected override async void OnAppearing()
